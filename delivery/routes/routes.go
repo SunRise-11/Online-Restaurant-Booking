@@ -10,5 +10,6 @@ func RegisterPath(e *echo.Echo, uctrl *users.UsersController) {
 	// ---------------------------------------------------------------------
 	// CRUD Users
 	// ---------------------------------------------------------------------
-	e.POST("/register", uctrl.RegisterUserCtrl())
+	e.POST("/users/register", uctrl.RegisterUserCtrl())
+	e.POST("/users/login", uctrl.LoginAuthCtrl())
 }
