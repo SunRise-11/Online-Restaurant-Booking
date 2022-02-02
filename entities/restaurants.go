@@ -7,6 +7,6 @@ type Restaurant struct {
 	ID                 uint
 	Email              string `gorm:"not null"`
 	Password           string `gorm:"not null"`
-	RestaurantDetailID uint   `gorm:"not null"`
+	RestaurantDetailID uint
 	RestaurantDetail   RestaurantDetail
 }
