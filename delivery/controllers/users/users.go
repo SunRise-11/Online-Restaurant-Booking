@@ -84,8 +84,8 @@ func (uscon UsersController) GetUserByIdCtrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
-		id := int(claims["userid"].(float64))
-		if res, err := uscon.Repo.Get(id); err != nil || res.ID == 0 {
+		userID := int(claims["userid"].(float64))
+		if res, err := uscon.Repo.Get(uint(userID)); err != nil || res.ID == 0 {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 			data := UserResponse{
@@ -110,7 +110,7 @@ func (uscon UsersController) UpdateUserCtrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
-		id := int(claims["userid"].(float64))
+		userID := int(claims["userid"].(float64))
 		updateUserReq := UserRequestFormat{}
 		if err := c.Bind(&updateUserReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
@@ -125,7 +125,7 @@ func (uscon UsersController) UpdateUserCtrl() echo.HandlerFunc {
 		if updateUserReq.Password != "" {
 			updateUser.Password = stringPassword
 		}
-		if res, err := uscon.Repo.Update(updateUser, id); err != nil || res.ID == 0 {
+		if res, err := uscon.Repo.Update(uint(userID), updateUser); err != nil || res.ID == 0 {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 			data := UserResponse{
@@ -150,8 +150,8 @@ func (uscon UsersController) DeleteUserCtrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
-		id := int(claims["userid"].(float64))
-		if res, err := uscon.Repo.Delete(id); err != nil {
+		userID := int(claims["userid"].(float64))
+		if res, err := uscon.Repo.Delete(uint(userID)); err != nil {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 			data := UserResponse{

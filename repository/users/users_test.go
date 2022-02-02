@@ -60,7 +60,7 @@ func TestUsersRepo(t *testing.T) {
 		updateUser.Balance = 100.000
 		updateUser.Reputation = 100
 
-		res, err := userRepo.Update(updateUser, 1)
+		res, err := userRepo.Update(uint(1), updateUser)
 		assert.Equal(t, res.ID, uint(1))
 		assert.Nil(t, err)
 	})
@@ -137,7 +137,7 @@ func TestFalseUsersRepo(t *testing.T) {
 		updateUser.Balance = 100.000
 		updateUser.Reputation = 100
 
-		res, err := userRepo.Update(updateUser, 2)
+		res, err := userRepo.Update(uint(2), updateUser)
 		assert.Equal(t, res.ID, uint(0))
 		assert.Error(t, err)
 	})

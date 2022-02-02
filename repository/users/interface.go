@@ -3,9 +3,9 @@ package users
 import "Restobook/entities"
 
 type UsersInterface interface {
-	LoginUser(email string, password string) (entities.User, error)
 	Register(newUser entities.User) (entities.User, error)
-	Delete(userId int) (entities.User, error)
-	Update(newUser entities.User, userId int) (entities.User, error)
-	Get(userId int) (entities.User, error)
+	LoginUser(email, password string) (entities.User, error)
+	Get(userId uint) (entities.User, error)
+	Update(userId uint, newUser entities.User) (entities.User, error)
+	Delete(userId uint) (entities.User, error)
 }
