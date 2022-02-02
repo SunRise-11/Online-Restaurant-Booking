@@ -1,0 +1,10 @@
+openapi: 3.0.0
+info:
+  version: v0.0.1
+  title: Restobook
+  description: ''
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/herlianto7/Restobook/v0.0.1
+paths: {}
