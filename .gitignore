@@ -4,6 +4,9 @@
 *.dll
 *.so
 *.dylib
+go.mod
+go.sum
+main.go
 
 # Test binary, built with `go test -c`
 *.test
@@ -12,4 +15,17 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+configs/
+utils/
+
+# Dependency deployment
+deploy/
+Dockerfile
+docker-compose.yaml
+.env
+
+# Github Action
+.github/
+
+# Mac
+.DS_Store
