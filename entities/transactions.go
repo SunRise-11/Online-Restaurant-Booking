@@ -9,11 +9,11 @@ import (
 type Transaction struct {
 	gorm.Model
 	ID           uint
-	UserID       uint
-	RestaurantID uint
+	UserID       uint `gorm:"NOT NULL"`
+	RestaurantID uint `gorm:"NOT NULL"`
 	Date         time.Time
 	Time         time.Time
-	Persons      uint
+	Persons      int    `gorm:"NOT NULL;default:1"`
 	Status       string `gorm:"NOT NULL;default:waiting for confirmation"`
 	User         User
 	Restaurant   Restaurant
