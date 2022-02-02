@@ -2,13 +2,14 @@ package routes
 
 import (
 	"Restobook/delivery/common"
+	"Restobook/delivery/controllers/restaurants"
 	"Restobook/delivery/controllers/users"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func RegisterPath(e *echo.Echo, uctrl *users.UsersController) {
+func RegisterPath(e *echo.Echo, uctrl *users.UsersController, rctrl *restaurants.RestaurantsController) {
 	// ---------------------------------------------------------------------
 	// CRUD Users
 	// ---------------------------------------------------------------------
@@ -17,5 +18,11 @@ func RegisterPath(e *echo.Echo, uctrl *users.UsersController) {
 	e.GET("/user", uctrl.GetUserByIdCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
 	e.PUT("/user", uctrl.UpdateUserCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
 	e.DELETE("/user", uctrl.DeleteUserCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
+
+	// ---------------------------------------------------------------------
+	// CRUD Restaurants
+	// ---------------------------------------------------------------------
+	e.POST("/restaurants/register", rctrl.RegisterUserCtrl())
+	e.POST("/restaurants/login", rctrl.LoginAuthCtrl())
 
 }
