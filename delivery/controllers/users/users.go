@@ -2,6 +2,7 @@ package users
 
 import (
 	"Restobook/delivery/common"
+	"Restobook/delivery/controllers/auth"
 	"Restobook/entities"
 	"Restobook/repository/users"
 	"crypto/sha256"
@@ -22,7 +23,7 @@ func NewUsersControllers(usrep users.UsersInterface) *UsersController {
 func (uscon UsersController) RegisterUserCtrl() echo.HandlerFunc {
 
 	return func(c echo.Context) error {
-		newUserReq := UserRequestFormat{}
+		newUserReq := RegisterRequestFormat{}
 		if err := c.Bind(&newUserReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
@@ -50,5 +51,30 @@ func (uscon UsersController) RegisterUserCtrl() echo.HandlerFunc {
 		}
 
 		return c.JSON(http.StatusOK, response)
+	}
+}
+
+func (uscon UsersController) LoginAuthCtrl() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		loginFormat := LoginRequestFormat{}
+		if err := c.Bind(&loginFormat); err != nil {
+			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		}
+
+		hash := sha256.Sum256([]byte(loginFormat.Password))
+		stringPassword := fmt.Sprintf("%x", hash[:])
+		checkedUser, err := uscon.Repo.LoginUser(loginFormat.Email, stringPassword)
+		if err != nil || checkedUser.Email == "" {
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+		}
+
+		token, _ := auth.CreateTokenAuth(checkedUser.ID)
+
+		return c.JSON(http.StatusOK, LoginResponseFormat{
+			Code:    http.StatusOK,
+			Message: "Successful Operation",
+			Token:   token,
+		})
+
 	}
 }
