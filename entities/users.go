@@ -9,6 +9,6 @@ type User struct {
 	Password    string `gorm:"not null"`
 	Name        string `gorm:"not null"`
 	PhoneNumber string
-	Reputation  int
-	Balance     int
+	Reputation  int `gorm:"NOT NULL;default:80"`
+	Balance     int `gorm:"NOT NULL;default:0"`
 }
