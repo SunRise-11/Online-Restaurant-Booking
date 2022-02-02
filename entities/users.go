@@ -4,10 +4,11 @@ import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
-	Email        string
-	Password     string
-	Name         string
-	Phone_number string
-	Reputation   int
-	Balance      int
+	ID          uint
+	Email       string `gorm:"not null"`
+	Password    string `gorm:"not null"`
+	Name        string `gorm:"not null"`
+	PhoneNumber string
+	Reputation  int
+	Balance     int
 }
