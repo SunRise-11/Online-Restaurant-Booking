@@ -30,12 +30,12 @@ func (rr *RestaurantRepository) Register(newRestaurant entities.Restaurant) (ent
 		Open:  now,
 		Close: now,
 	}
+	rr.db.Save(&restaurantD)
 
-	if err := rr.db.Save(&restaurantD).Error; err != nil {
-		return newRestaurant, err
-	}
+	// if err := rr.db.Save(&restaurantD).Error; err != nil {
+	// 	return newRestaurant, err
+	// }
 
-	newRestaurant.ID = restaurantD.ID
 	newRestaurant.RestaurantDetailID = restaurantD.ID
 
 	if err := rr.db.Save(&newRestaurant).Error; err != nil {
