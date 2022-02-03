@@ -156,8 +156,8 @@ func (rescon RestaurantsController) CreateDetailRestoByIdCtrl() echo.HandlerFunc
 
 		createRestoD := entities.RestaurantDetail{
 			Name:           createRestoDReq.Name,
-			Open:           createRestoDReq.Open,
-			Close:          createRestoDReq.Close,
+			Open:           createRestoDReq.Open.String(),
+			Close:          createRestoDReq.Close.String(),
 			Price:          createRestoDReq.Price,
 			Latitude:       createRestoDReq.Latitude,
 			Longitude:      createRestoDReq.Longitude,
@@ -197,8 +197,8 @@ func (rescon RestaurantsController) UpdateDetailRestoByIdCtrl() echo.HandlerFunc
 		}
 
 		updateRestoD := entities.RestaurantDetail{
-			Open:           updateRestoDReq.Open,
-			Close:          updateRestoDReq.Close,
+			Open:           updateRestoDReq.Open.String(),
+			Close:          updateRestoDReq.Close.String(),
 			Price:          updateRestoDReq.Price,
 			PhoneNumber:    updateRestoDReq.PhoneNumber,
 			ProfilePicture: updateRestoDReq.ProfilePicture,
