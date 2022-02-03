@@ -156,6 +156,10 @@ func TestUser(t *testing.T) {
 
 type mockUserRepository struct{}
 
+func (m mockUserRepository) RegisterAdmin(newUser entities.User) (entities.User, error) {
+	return entities.User{ID: 1, Name: "admin"}, nil
+}
+
 func (m mockUserRepository) Register(newUser entities.User) (entities.User, error) {
 	return entities.User{ID: 1, Name: "herlianto"}, nil
 }
@@ -408,6 +412,10 @@ func TestFalseUser(t *testing.T) {
 }
 
 type mockFalseUserRepository struct{}
+
+func (m mockFalseUserRepository) RegisterAdmin(newUser entities.User) (entities.User, error) {
+	return entities.User{ID: 0, Name: "admin"}, errors.New("")
+}
 
 func (m mockFalseUserRepository) Register(newUser entities.User) (entities.User, error) {
 	return entities.User{ID: 0, Name: "herlianto"}, errors.New("")
