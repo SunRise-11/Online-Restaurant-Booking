@@ -82,7 +82,7 @@ func TestAdmin(t *testing.T) {
 		context.SetPath("/users/login")
 
 		authCtrl := NewAdminControllers(mockAdminRepository{})
-		authCtrl.LoginAuthCtrl()(context)
+		authCtrl.LoginAdminCtrl()(context)
 
 		responses := LoginResponseFormat{}
 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
@@ -188,7 +188,7 @@ func TestFalseAdmin(t *testing.T) {
 		context.SetPath("/admin/login")
 
 		authCtrl := NewAdminControllers(mockFalseAdminRepository{})
-		authCtrl.LoginAuthCtrl()(context)
+		authCtrl.LoginAdminCtrl()(context)
 
 		responses := LoginResponseFormat{}
 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
@@ -212,7 +212,7 @@ func TestFalseAdmin(t *testing.T) {
 		context.SetPath("/admin/login")
 
 		authCtrl := NewAdminControllers(mockFalseAdminRepository{})
-		authCtrl.LoginAuthCtrl()(context)
+		authCtrl.LoginAdminCtrl()(context)
 
 		responses := LoginResponseFormat{}
 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)

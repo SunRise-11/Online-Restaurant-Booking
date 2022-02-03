@@ -198,6 +198,10 @@ func (m mockRestaurantRepository) LoginRestaurant(email, password string) (entit
 	return entities.Restaurant{ID: 1, Email: "restaurant1@outlook.my", Password: passwordS}, nil
 }
 
+func (m mockRestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{}, nil
+}
+
 func (m mockRestaurantRepository) Get(restaurantID uint) (entities.Restaurant, entities.RestaurantDetail, error) {
 	return entities.Restaurant{ID: 1}, entities.RestaurantDetail{ID: 1}, nil
 }
@@ -568,6 +572,10 @@ func (m mockFalseRestaurantRepository) LoginRestaurant(email, password string) (
 
 func (m mockFalseRestaurantRepository) Get(restaurantID uint) (entities.Restaurant, entities.RestaurantDetail, error) {
 	return entities.Restaurant{ID: 0}, entities.RestaurantDetail{ID: 0}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{}, errors.New("")
 }
 
 func (m mockFalseRestaurantRepository) Update(restaurantID uint, updateUser entities.Restaurant) (entities.Restaurant, error) {

@@ -2,6 +2,7 @@ package routes
 
 import (
 	"Restobook/delivery/common"
+	"Restobook/delivery/controllers/auth"
 	"Restobook/delivery/controllers/restaurants"
 	"Restobook/delivery/controllers/topup"
 	"Restobook/delivery/controllers/transactions"
@@ -11,7 +12,13 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func RegisterPath(e *echo.Echo, uctrl *users.UsersController, rctrl *restaurants.RestaurantsController, tctrl *transactions.TransactionsController, tpctrl *topup.TopUpController) {
+func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.UsersController, rctrl *restaurants.RestaurantsController, tctrl *transactions.TransactionsController, tpctrl *topup.TopUpController) {
+
+	// ---------------------------------------------------------------------
+	// CRUD Admin
+	// ---------------------------------------------------------------------
+	e.POST("/admin/register", adctrl.RegisterAdminCtrl())
+	e.POST("/admin/login", adctrl.LoginAdminCtrl())
 
 	// ---------------------------------------------------------------------
 	// CRUD Users
@@ -27,11 +34,12 @@ func RegisterPath(e *echo.Echo, uctrl *users.UsersController, rctrl *restaurants
 	// ---------------------------------------------------------------------
 	e.POST("/restaurants/register", rctrl.RegisterRestoCtrl())
 	e.POST("/restaurants/login", rctrl.LoginRestoCtrl())
+	e.GET("/restaurants", rctrl.Gets())
 	e.GET("/restaurant", rctrl.GetRestoByIdCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
 	e.PUT("/restaurant", rctrl.UpdateRestoByIdCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
 	e.POST("/restaurant/detail", rctrl.CreateDetailRestoByIdCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
 	e.PUT("/restaurant/detail", rctrl.UpdateDetailRestoByIdCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
-	// e.DELETE("/restaurant", rctrl.DeleteUserCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
+	e.DELETE("/restaurant", rctrl.DeleteRestaurantCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
 
 	// ---------------------------------------------------------------------
 	// CRUD Transactions

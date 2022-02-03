@@ -63,7 +63,7 @@ func (admcon AdminController) RegisterAdminCtrl() echo.HandlerFunc {
 			Email:    newAdminReq.Email,
 			Password: stringPassword,
 		}
-		if res, err := admcon.Repo.Register(newUser); err != nil || res.ID == 0 {
+		if res, err := admcon.Repo.RegisterAdmin(newUser); err != nil || res.ID == 0 {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		} else {
 			data := AdminResponse{
@@ -83,7 +83,7 @@ func (admcon AdminController) RegisterAdminCtrl() echo.HandlerFunc {
 	}
 }
 
-func (admcon AdminController) LoginAuthCtrl() echo.HandlerFunc {
+func (admcon AdminController) LoginAdminCtrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		loginFormat := LoginRequestFormat{}
 		if err := c.Bind(&loginFormat); err != nil {

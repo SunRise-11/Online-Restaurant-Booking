@@ -78,6 +78,25 @@ func (rescon RestaurantsController) LoginRestoCtrl() echo.HandlerFunc {
 	}
 }
 
+func (rescon RestaurantsController) Gets() echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		if res, err := rescon.Repo.Gets(); err != nil || len(res) == 0 {
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+		} else {
+
+			response := RestaurantResponseFormat{
+				Code:    http.StatusOK,
+				Message: "Successful Operation",
+				Data:    res,
+			}
+
+			return c.JSON(http.StatusOK, response)
+		}
+
+	}
+}
+
 func (rescon RestaurantsController) GetRestoByIdCtrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		uid := c.Get("user").(*jwt.Token)
@@ -221,27 +240,36 @@ func (rescon RestaurantsController) UpdateDetailRestoByIdCtrl() echo.HandlerFunc
 	}
 }
 
-// func (rescon RestaurantsController) DeleteRestaurantCtrl() echo.HandlerFunc {
+func (rescon RestaurantsController) DeleteRestaurantCtrl() echo.HandlerFunc {
 
-// 	return func(c echo.Context) error {
-// 		uid := c.Get("user").(*jwt.Token)
-// 		claims := uid.Claims.(jwt.MapClaims)
-// 		restoID := int(claims["userid"].(float64))
-// 		if deletedUser, err := rescon.Repo.Delete(uint(restoID)); err != nil {
-// 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
-// 		} else {
-// 			data := RestaurantResponse{
-// 				ID:    deletedUser.ID,
-// 				Email: deletedUser.Email,
-// 			}
-// 			response := RestaurantResponseFormat{
-// 				Code:    http.StatusOK,
-// 				Message: "Successful Operation",
-// 				Data:    data,
-// 			}
+	return func(c echo.Context) error {
+		uid := c.Get("user").(*jwt.Token)
+		claims := uid.Claims.(jwt.MapClaims)
+		adminID := int(claims["admin"].(float64))
 
-// 			return c.JSON(http.StatusOK, response)
-// 		}
+		if adminID != 1 {
+			return c.JSON(http.StatusNotAcceptable, common.NewStatusNotAcceptable())
+		} else {
+			delRestaurant := DeleteRestauranRequestFormat{}
+			if err := c.Bind(&delRestaurant); err != nil {
+				return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+			}
 
-// 	}
-// }
+			if res, err := rescon.Repo.Delete(uint(delRestaurant.ID)); err != nil {
+				return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+			} else {
+				data := RestaurantResponse{
+					ID:    res.ID,
+					Email: res.Email,
+				}
+				response := RestaurantResponseFormat{
+					Code:    http.StatusOK,
+					Message: "Successful Operation",
+					Data:    data,
+				}
+
+				return c.JSON(http.StatusOK, response)
+			}
+		}
+	}
+}
