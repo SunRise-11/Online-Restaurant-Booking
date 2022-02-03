@@ -3,13 +3,14 @@ package routes
 import (
 	"Restobook/delivery/common"
 	"Restobook/delivery/controllers/restaurants"
+	"Restobook/delivery/controllers/topup"
 	"Restobook/delivery/controllers/users"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func RegisterPath(e *echo.Echo, uctrl *users.UsersController, rctrl *restaurants.RestaurantsController) {
+func RegisterPath(e *echo.Echo, uctrl *users.UsersController, rctrl *restaurants.RestaurantsController, tctrl *topup.TopUpController) {
 	// ---------------------------------------------------------------------
 	// CRUD Users
 	// ---------------------------------------------------------------------
@@ -25,4 +26,10 @@ func RegisterPath(e *echo.Echo, uctrl *users.UsersController, rctrl *restaurants
 	e.POST("/restaurants/register", rctrl.RegisterUserCtrl())
 	e.POST("/restaurants/login", rctrl.LoginAuthCtrl())
 
+	// ---------------------------------------------------------------------
+	// CRUD TopUp
+	// ---------------------------------------------------------------------
+	e.POST("/topup", tctrl.TopUp())
+	e.GET("/topup/pending", tctrl.GetAllWaiting())
+	e.GET("/topup/history", tctrl.GetAllPaid())
 }
