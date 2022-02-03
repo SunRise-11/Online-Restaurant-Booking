@@ -68,7 +68,7 @@ func (uscon UsersController) LoginAuthCtrl() echo.HandlerFunc {
 		if res, err := uscon.Repo.LoginUser(loginFormat.Email, stringPassword); err != nil || res.Email == "" || res.ID == 0 {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
-			token, _ := auth.CreateTokenAuth(res.ID)
+			token, _ := auth.CreateTokenAuthUser(res.ID)
 
 			return c.JSON(http.StatusOK, LoginResponseFormat{
 				Code:    http.StatusOK,
