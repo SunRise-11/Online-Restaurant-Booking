@@ -15,15 +15,6 @@ func NewRestaurantsRepo(db *gorm.DB) *RestaurantRepository {
 	return &RestaurantRepository{db: db}
 }
 
-func (rr *RestaurantRepository) LoginRestaurant(email, password string) (entities.Restaurant, error) {
-	var restaurant entities.Restaurant
-
-	if err := rr.db.Where("Email = ? AND Password=?", email, password).First(&restaurant).Error; err != nil {
-		return restaurant, err
-	}
-
-	return restaurant, nil
-}
 func (rr *RestaurantRepository) Register(newRestaurant entities.Restaurant) (entities.Restaurant, error) {
 	now := time.Now()
 	restaurantD := entities.RestaurantDetail{
@@ -44,34 +35,69 @@ func (rr *RestaurantRepository) Register(newRestaurant entities.Restaurant) (ent
 
 	return newRestaurant, nil
 }
-func (rr *RestaurantRepository) Delete(restauranId uint) (entities.Restaurant, error) {
-	restaurant := entities.Restaurant{}
 
-	if err := rr.db.First(&restaurant, "id=?", restauranId).Error; err != nil {
+func (rr *RestaurantRepository) LoginRestaurant(email, password string) (entities.Restaurant, error) {
+	var restaurant entities.Restaurant
+
+	if err := rr.db.Where("Email = ? AND Password=?", email, password).First(&restaurant).Error; err != nil {
 		return restaurant, err
 	}
-
-	rr.db.Delete(&restaurant)
 
 	return restaurant, nil
 }
-func (rr *RestaurantRepository) Update(restauranId uint, newRestaurant entities.Restaurant) (entities.Restaurant, error) {
+
+func (rr *RestaurantRepository) Get(restaurantId uint) (entities.Restaurant, entities.RestaurantDetail, error) {
+	restaurant := entities.Restaurant{}
+	restaurantD := entities.RestaurantDetail{}
+
+	if err := rr.db.First(&restaurant, restaurantId).Error; err != nil {
+		return restaurant, restaurantD, err
+	} else {
+
+		rr.db.First(&restaurantD, restaurant.RestaurantDetailID)
+
+		return restaurant, restaurantD, nil
+	}
+
+}
+
+func (rr *RestaurantRepository) Update(restaurantId uint, updateRestaurant entities.Restaurant) (entities.Restaurant, error) {
 	restaurant := entities.Restaurant{}
 
-	if err := rr.db.First(&restaurant, "id=?", restauranId).Error; err != nil {
+	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil {
 		return restaurant, err
 	}
 
-	rr.db.Model(&restaurant).Updates(newRestaurant)
+	rr.db.Model(&restaurant).Updates(updateRestaurant)
 
 	return restaurant, nil
 }
-func (rr *RestaurantRepository) Get(restauranId uint) (entities.Restaurant, error) {
-	restaurant := entities.Restaurant{}
 
-	if err := rr.db.First(&restaurant, restauranId).Error; err != nil {
-		return restaurant, err
+func (rr *RestaurantRepository) UpdateDetail(restaurantId uint, updateRestaurantD entities.RestaurantDetail) (entities.RestaurantDetail, error) {
+	restaurant := entities.Restaurant{}
+	restaurantD := entities.RestaurantDetail{}
+
+	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil {
+		return restaurantD, err
 	}
 
-	return restaurant, nil
+	rr.db.First(&restaurantD, "id=?", restaurant.RestaurantDetailID)
+	rr.db.Model(&restaurantD).Updates(updateRestaurantD)
+	return restaurantD, nil
+
+}
+
+func (rr *RestaurantRepository) Delete(restaurantId uint) (entities.Restaurant, error) {
+	restaurant := entities.Restaurant{}
+
+	// if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil {
+	// 	return restaurant, err
+	// }
+
+	if err := rr.db.First(&restaurant, "id=?", restaurantId).Delete(&restaurant).Error; err != nil {
+		return restaurant, err
+	} else {
+		return restaurant, nil
+	}
+
 }
