@@ -30,8 +30,9 @@ func TestRestaurantsRepo(t *testing.T) {
 	})
 
 	t.Run("Show RestaurantID 1", func(t *testing.T) {
-		res, err := restaurantRepo.Get(1)
+		res, resD, err := restaurantRepo.Get(1)
 		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, resD.ID, uint(1))
 		assert.Nil(t, err)
 	})
 
@@ -59,6 +60,14 @@ func TestRestaurantsRepo(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("Update Detail RestaurantID 1", func(t *testing.T) {
+		var updateRestaurant entities.RestaurantDetail
+		updateRestaurant.Name = "Resto 1"
+		res, err := restaurantRepo.UpdateDetail(uint(1), updateRestaurant)
+		assert.Equal(t, res.ID, uint(1))
+		assert.Nil(t, err)
+	})
+
 	t.Run("Delete RestaurantID 1", func(t *testing.T) {
 		res, err := restaurantRepo.Delete(1)
 		assert.Equal(t, res.ID, uint(1))
@@ -76,7 +85,7 @@ func TestFalseRestaurantsRepo(t *testing.T) {
 		hash := sha256.Sum256([]byte("resto123"))
 		password := fmt.Sprintf("%x", hash[:])
 		var newRestaurant entities.Restaurant
-		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Email = "restaurant2@outlook.my"
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
@@ -88,7 +97,7 @@ func TestFalseRestaurantsRepo(t *testing.T) {
 		hash := sha256.Sum256([]byte("resto123"))
 		password := fmt.Sprintf("%x", hash[:])
 		var newRestaurant entities.Restaurant
-		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Email = "restaurant2@outlook.my"
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
@@ -97,8 +106,9 @@ func TestFalseRestaurantsRepo(t *testing.T) {
 	})
 
 	t.Run("FALSE Show RestaurantID 2", func(t *testing.T) {
-		res, err := restaurantRepo.Get(2)
+		res, resD, err := restaurantRepo.Get(2)
 		assert.Equal(t, res.ID, uint(0))
+		assert.Equal(t, resD.ID, uint(0))
 		assert.Error(t, err)
 	})
 
@@ -106,7 +116,7 @@ func TestFalseRestaurantsRepo(t *testing.T) {
 		hash := sha256.Sum256([]byte("herlianto1234"))
 		password := fmt.Sprintf("%x", hash[:])
 		var loginUser entities.User
-		loginUser.Email = "herlianto@outlook.my"
+		loginUser.Email = "restaurant3@outlook.my"
 		loginUser.Password = password
 
 		res, err := restaurantRepo.LoginRestaurant(loginUser.Email, loginUser.Password)
@@ -126,8 +136,16 @@ func TestFalseRestaurantsRepo(t *testing.T) {
 		assert.Error(t, err)
 	})
 
+	t.Run("FALSE Update Detail RestaurantID 2", func(t *testing.T) {
+		var updateRestaurant entities.RestaurantDetail
+		updateRestaurant.Name = "Resto 2"
+		res, err := restaurantRepo.UpdateDetail(uint(2), updateRestaurant)
+		assert.Equal(t, res.ID, uint(0))
+		assert.Error(t, err)
+	})
+
 	t.Run("FALSE Delete RestaurantID 2", func(t *testing.T) {
-		res, err := restaurantRepo.Delete(2)
+		res, err := restaurantRepo.Delete(3)
 		assert.Equal(t, res.ID, uint(0))
 		assert.Error(t, err)
 	})
