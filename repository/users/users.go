@@ -17,7 +17,7 @@ func NewUsersRepo(db *gorm.DB) *UserRepository {
 func (ur *UserRepository) LoginUser(email, password string) (entities.User, error) {
 	var user entities.User
 
-	if err := ur.db.Where("Email = ? AND Password=?", email, password).First(&user).Error; err != nil {
+	if err := ur.db.Where("Email = ? AND Password = ?", email, password).First(&user).Error; err != nil {
 		return user, err
 	}
 
