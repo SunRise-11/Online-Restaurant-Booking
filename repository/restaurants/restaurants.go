@@ -18,8 +18,8 @@ func NewRestaurantsRepo(db *gorm.DB) *RestaurantRepository {
 func (rr *RestaurantRepository) Register(newRestaurant entities.Restaurant) (entities.Restaurant, error) {
 	now := time.Now()
 	restaurantD := entities.RestaurantDetail{
-		Open:  now,
-		Close: now,
+		Open:  now.String(),
+		Close: now.String(),
 	}
 	rr.db.Save(&restaurantD)
 
