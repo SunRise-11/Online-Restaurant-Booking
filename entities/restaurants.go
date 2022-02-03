@@ -5,8 +5,8 @@ import "gorm.io/gorm"
 type Restaurant struct {
 	gorm.Model
 	ID                 uint
-	Email              string `gorm:"not null"`
+	Email              string `gorm:"not null;unique"`
 	Password           string `gorm:"not null"`
 	RestaurantDetailID uint
-	RestaurantDetail   RestaurantDetail
+	RestaurantDetail   RestaurantDetail `gorm:"constraint:OnDelete:CASCADE"`
 }
