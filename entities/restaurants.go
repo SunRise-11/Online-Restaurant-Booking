@@ -8,5 +8,5 @@ type Restaurant struct {
 	Email              string `gorm:"not null;unique"`
 	Password           string `gorm:"not null"`
 	RestaurantDetailID uint
-	RestaurantDetail   RestaurantDetail
+	RestaurantDetail   RestaurantDetail `gorm:"constraint:OnDelete:CASCADE"`
 }
