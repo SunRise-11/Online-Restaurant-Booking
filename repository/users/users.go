@@ -21,12 +21,8 @@ func (ur *UserRepository) RegisterAdmin(newAdmin entities.User) (entities.User, 
 		Email:    newAdmin.Email,
 		Password: newAdmin.Password,
 	}
-
-	if err := ur.db.Save(&admin).Error; err != nil {
-		return admin, err
-	} else {
-		return admin, nil
-	}
+	ur.db.Save(&admin)
+	return admin, nil
 
 }
 
@@ -44,9 +40,10 @@ func (ur *UserRepository) LoginUser(email, password string) (entities.User, erro
 
 	if err := ur.db.Where("Email = ? AND Password=?", email, password).First(&user).Error; err != nil {
 		return user, err
+	} else {
+		return user, nil
 	}
 
-	return user, nil
 }
 
 func (ur *UserRepository) Delete(userId uint) (entities.User, error) {
@@ -54,29 +51,30 @@ func (ur *UserRepository) Delete(userId uint) (entities.User, error) {
 
 	if err := ur.db.First(&user, "id=?", userId).Error; err != nil {
 		return user, err
+	} else {
+		ur.db.Delete(&user)
+		return user, nil
 	}
 
-	ur.db.Delete(&user)
-
-	return user, nil
 }
 func (ur *UserRepository) Update(userId uint, newUser entities.User) (entities.User, error) {
 	user := entities.User{}
 
 	if err := ur.db.First(&user, "id=?", userId).Error; err != nil {
 		return user, err
+	} else {
+		ur.db.Model(&user).Updates(newUser)
+		return user, nil
 	}
 
-	ur.db.Model(&user).Updates(newUser)
-
-	return user, nil
 }
 func (ur *UserRepository) Get(userId uint) (entities.User, error) {
 	user := entities.User{}
 
 	if err := ur.db.First(&user, userId).Error; err != nil {
 		return user, err
+	} else {
+		return user, nil
 	}
 
-	return user, nil
 }
