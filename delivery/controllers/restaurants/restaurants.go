@@ -54,7 +54,7 @@ func (rescon RestaurantsController) RegisterRestoCtrl() echo.HandlerFunc {
 	}
 }
 
-func (rescon RestaurantsController) LoginAuthCtrl() echo.HandlerFunc {
+func (rescon RestaurantsController) LoginRestoCtrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		loginFormat := LoginRequestFormat{}
 		if err := c.Bind(&loginFormat); err != nil {
@@ -84,7 +84,7 @@ func (rescon RestaurantsController) GetRestoByIdCtrl() echo.HandlerFunc {
 		claims := uid.Claims.(jwt.MapClaims)
 		restoID := int(claims["restoid"].(float64))
 
-		if res, resD, err := rescon.Repo.Get(uint(restoID)); err != nil {
+		if res, resD, err := rescon.Repo.Get(uint(restoID)); err != nil || res.ID == 0 {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 			data := RestaurantResponse{
@@ -123,7 +123,7 @@ func (rescon RestaurantsController) UpdateRestoByIdCtrl() echo.HandlerFunc {
 			Password: stringPassword,
 		}
 
-		if res, err := rescon.Repo.Update(uint(restoID), updateResto); err != nil {
+		if res, err := rescon.Repo.Update(uint(restoID), updateResto); err != nil || res.ID == 0 {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 			data := RestaurantResponse{
@@ -169,7 +169,7 @@ func (rescon RestaurantsController) CreateDetailRestoByIdCtrl() echo.HandlerFunc
 			Description:    createRestoDReq.Description,
 		}
 
-		if res, err := rescon.Repo.UpdateDetail(uint(restoID), createRestoD); err != nil {
+		if res, err := rescon.Repo.UpdateDetail(uint(restoID), createRestoD); err != nil || res.ID == 0 {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 			response := RestaurantResponseFormat{
@@ -221,27 +221,27 @@ func (rescon RestaurantsController) UpdateDetailRestoByIdCtrl() echo.HandlerFunc
 	}
 }
 
-func (rescon RestaurantsController) DeleteUserCtrl() echo.HandlerFunc {
+// func (rescon RestaurantsController) DeleteRestaurantCtrl() echo.HandlerFunc {
 
-	return func(c echo.Context) error {
-		uid := c.Get("user").(*jwt.Token)
-		claims := uid.Claims.(jwt.MapClaims)
-		restoID := int(claims["userid"].(float64))
-		if deletedUser, err := rescon.Repo.Delete(uint(restoID)); err != nil {
-			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
-		} else {
-			data := RestaurantResponse{
-				ID:    deletedUser.ID,
-				Email: deletedUser.Email,
-			}
-			response := RestaurantResponseFormat{
-				Code:    http.StatusOK,
-				Message: "Successful Operation",
-				Data:    data,
-			}
+// 	return func(c echo.Context) error {
+// 		uid := c.Get("user").(*jwt.Token)
+// 		claims := uid.Claims.(jwt.MapClaims)
+// 		restoID := int(claims["userid"].(float64))
+// 		if deletedUser, err := rescon.Repo.Delete(uint(restoID)); err != nil {
+// 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+// 		} else {
+// 			data := RestaurantResponse{
+// 				ID:    deletedUser.ID,
+// 				Email: deletedUser.Email,
+// 			}
+// 			response := RestaurantResponseFormat{
+// 				Code:    http.StatusOK,
+// 				Message: "Successful Operation",
+// 				Data:    data,
+// 			}
 
-			return c.JSON(http.StatusOK, response)
-		}
+// 			return c.JSON(http.StatusOK, response)
+// 		}
 
-	}
-}
+// 	}
+// }
