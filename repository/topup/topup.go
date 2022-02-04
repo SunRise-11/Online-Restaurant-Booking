@@ -31,7 +31,7 @@ func (tr *TopUpRepository) Create(topup entities.TopUp) (entities.TopUp, error) 
 func (tr *TopUpRepository) GetAllWaiting(userId uint) ([]entities.TopUp, error) {
 	topupdata := []entities.TopUp{}
 
-	if err := tr.db.Where("status = ?", "waiting for payment").Find(&topupdata, "user_id = ?", userId).Error; err != nil {
+	if err := tr.db.Where("status = ?", "PENDING").Find(&topupdata, "user_id = ?", userId).Error; err != nil {
 		return topupdata, err
 	}
 
@@ -48,14 +48,46 @@ func (tr *TopUpRepository) GetAllPaid(userId uint) ([]entities.TopUp, error) {
 	return topupdata, nil
 }
 
-func (tr *TopUpRepository) Update(invId string, topUp entities.TopUp) (entities.TopUp, error) {
+func (tr *TopUpRepository) Update(extId string, topUp entities.TopUp) (entities.TopUp, error) {
 	newTopUp := entities.TopUp{}
 
-	if err := tr.db.First(&newTopUp, "invoice_id = ?", invId).Error; err != nil {
+	if err := tr.db.First(&newTopUp, "invoice_id= ?", extId).Error; err != nil {
 		return newTopUp, err
 	}
 
 	tr.db.Model(&newTopUp).Updates(topUp)
 
 	return newTopUp, nil
+}
+
+func (tr *TopUpRepository) GetByInvoice(extId string) (entities.TopUp, error) {
+	invoice := entities.TopUp{}
+
+	if err := tr.db.First(&invoice, "invoice_id= ?", extId).Error; err != nil {
+		return invoice, err
+	}
+
+	return invoice, nil
+}
+
+func (tr *TopUpRepository) GetUser(userId int) (entities.User, error) {
+	user := entities.User{}
+
+	if err := tr.db.First(&user, "id= ?", userId).Error; err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
+func (tr *TopUpRepository) UpdateUserBalance(userId int, user entities.User) (entities.User, error) {
+	newUserBalance := entities.User{}
+
+	if err := tr.db.First(&newUserBalance, "id= ?", userId).Error; err != nil {
+		return user, err
+	}
+
+	tr.db.Model(&newUserBalance).Updates(user)
+
+	return user, nil
 }

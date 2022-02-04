@@ -42,6 +42,7 @@ func (tc TopUpController) TopUp() echo.HandlerFunc {
 			UserID:    uint(userID),
 			InvoiceID: invoiceId,
 			Total:     topuprequest.Total,
+			Status:    "PENDING",
 		}
 
 		topUpData, err := tc.Repo.Create(data)
@@ -64,7 +65,7 @@ func (tc TopUpController) TopUp() echo.HandlerFunc {
 			InvoiceID:  invoiceId,
 			PaymentUrl: topUpPayment.PaymentUrl,
 			Total:      topUpData.Total,
-			Status:     topUpPayment.Status,
+			Status:     "PENDING",
 		}
 
 		response := TopUpResponseFormat{
@@ -140,6 +141,49 @@ func (tc TopUpController) GetAllPaid() echo.HandlerFunc {
 
 			return c.JSON(http.StatusOK, response)
 		}
+	}
+}
+
+func (tc TopUpController) Callback() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		req := c.Request()
+		headers := req.Header
+
+		xCallbackToken := headers.Get("X-Callback-Token")
+
+		if xCallbackToken != common.XENDIT_CALLBACK_TOKEN {
+			return c.JSON(http.StatusNotAcceptable, common.NewStatusNotAcceptable())
+		}
+
+		var callbackRequest CallbackRequest
+		if err := c.Bind(&callbackRequest); err != nil {
+			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		}
+
+		invoice, err := tc.Repo.GetByInvoice(callbackRequest.ExternalID)
+		if err != nil {
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+		}
+
+		var data entities.TopUp
+		data.Status = callbackRequest.Status
+
+		_, err = tc.Repo.Update(callbackRequest.ExternalID, data)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		}
+
+		if data.Status == "PAID" {
+			user, _ := tc.Repo.GetUser(int(invoice.UserID))
+
+			newBalance := entities.User{
+				Balance: (user.Balance + invoice.Total),
+			}
+
+			tc.Repo.UpdateUserBalance(int(invoice.UserID), newBalance)
+		}
+
+		return c.JSON(http.StatusOK, common.NewSuccessOperationResponse())
 	}
 }
 

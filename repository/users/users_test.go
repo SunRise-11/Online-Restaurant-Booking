@@ -17,6 +17,20 @@ func TestUsersRepo(t *testing.T) {
 
 	userRepo := NewUsersRepo(db)
 
+	t.Run("Register Admin", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("herlianto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newUser entities.User
+		newUser.Name = "admin"
+		newUser.Email = "admin@outlook.my"
+		newUser.Password = password
+		newUser.PhoneNumber = "0877"
+
+		res, err := userRepo.RegisterAdmin(newUser)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
 	t.Run("Register User", func(t *testing.T) {
 		hash := sha256.Sum256([]byte("herlianto123"))
 		password := fmt.Sprintf("%x", hash[:])
@@ -31,13 +45,13 @@ func TestUsersRepo(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
-	t.Run("Show UserID 1", func(t *testing.T) {
-		res, err := userRepo.Get(1)
-		assert.Equal(t, res.ID, uint(1))
+	t.Run("Show UserID 2", func(t *testing.T) {
+		res, err := userRepo.Get(2)
+		assert.Equal(t, res.ID, uint(2))
 		assert.Nil(t, err)
 	})
 
-	t.Run("Login UserID 1", func(t *testing.T) {
+	t.Run("Login UserID 2", func(t *testing.T) {
 		hash := sha256.Sum256([]byte("herlianto123"))
 		password := fmt.Sprintf("%x", hash[:])
 		var loginUser entities.User
@@ -45,11 +59,11 @@ func TestUsersRepo(t *testing.T) {
 		loginUser.Password = password
 
 		res, err := userRepo.LoginUser(loginUser.Email, loginUser.Password)
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, res.ID, uint(2))
 		assert.Nil(t, err)
 	})
 
-	t.Run("Update UserID 1", func(t *testing.T) {
+	t.Run("Update UserID 2", func(t *testing.T) {
 		hash := sha256.Sum256([]byte("herlianto123"))
 		password := fmt.Sprintf("%x", hash[:])
 		var updateUser entities.User
@@ -60,14 +74,14 @@ func TestUsersRepo(t *testing.T) {
 		updateUser.Balance = 100.000
 		updateUser.Reputation = 100
 
-		res, err := userRepo.Update(uint(1), updateUser)
-		assert.Equal(t, res.ID, uint(1))
+		res, err := userRepo.Update(uint(2), updateUser)
+		assert.Equal(t, res.ID, uint(2))
 		assert.Nil(t, err)
 	})
 
-	t.Run("Delete UserID 1", func(t *testing.T) {
-		res, err := userRepo.Delete(1)
-		assert.Equal(t, res.ID, uint(1))
+	t.Run("Delete UserID 2", func(t *testing.T) {
+		res, err := userRepo.Delete(2)
+		assert.Equal(t, res.ID, uint(2))
 		assert.Nil(t, err)
 	})
 }
@@ -82,7 +96,7 @@ func TestFalseUsersRepo(t *testing.T) {
 		hash := sha256.Sum256([]byte("herlianto123"))
 		password := fmt.Sprintf("%x", hash[:])
 		var newUser entities.User
-		newUser.ID = 1
+		newUser.ID = 3
 		newUser.Name = "herlianto"
 		newUser.Email = "herlianto@outlook.my"
 		newUser.Password = password
@@ -97,19 +111,19 @@ func TestFalseUsersRepo(t *testing.T) {
 		hash := sha256.Sum256([]byte("herlianto123"))
 		password := fmt.Sprintf("%x", hash[:])
 		var newUser entities.User
-		newUser.ID = 1
+		newUser.ID = 3
 		newUser.Name = "herlianto"
 		newUser.Email = "herlianto@outlook.my"
 		newUser.Password = password
 		newUser.PhoneNumber = "0877"
 
 		res, err := userRepo.Register(newUser)
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, res.ID, uint(3))
 		assert.Error(t, err)
 	})
 
-	t.Run("FALSE Show UserID 2", func(t *testing.T) {
-		res, err := userRepo.Get(2)
+	t.Run("FALSE Show UserID 4", func(t *testing.T) {
+		res, err := userRepo.Get(4)
 		assert.Equal(t, res.ID, uint(0))
 		assert.Error(t, err)
 	})
@@ -126,7 +140,7 @@ func TestFalseUsersRepo(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Update UserID 1", func(t *testing.T) {
+	t.Run("FALSE Update UserID 4", func(t *testing.T) {
 		hash := sha256.Sum256([]byte("herlianto123"))
 		password := fmt.Sprintf("%x", hash[:])
 		var updateUser entities.User
@@ -137,13 +151,13 @@ func TestFalseUsersRepo(t *testing.T) {
 		updateUser.Balance = 100.000
 		updateUser.Reputation = 100
 
-		res, err := userRepo.Update(uint(2), updateUser)
+		res, err := userRepo.Update(uint(4), updateUser)
 		assert.Equal(t, res.ID, uint(0))
 		assert.Error(t, err)
 	})
 
-	t.Run("Delete UserID 1", func(t *testing.T) {
-		res, err := userRepo.Delete(2)
+	t.Run("FALSE Delete UserID 4", func(t *testing.T) {
+		res, err := userRepo.Delete(4)
 		assert.Equal(t, res.ID, uint(0))
 		assert.Error(t, err)
 	})
