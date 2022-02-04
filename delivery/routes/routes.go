@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+
 func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.UsersController, rctrl *restaurants.RestaurantsController, tctrl *transactions.TransactionsController, tpctrl *topup.TopUpController) {
 
 	// ---------------------------------------------------------------------
@@ -51,7 +52,9 @@ func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.Users
 
 	// CRUD TopUp
 	// ---------------------------------------------------------------------
-	e.POST("/topup", tpctrl.TopUp())
-	e.GET("/topup/pending", tpctrl.GetAllWaiting())
-	e.GET("/topup/history", tpctrl.GetAllPaid())
+	e.POST("/topup", tpctrl.TopUp(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
+	e.GET("/topup/pending", tpctrl.GetAllWaiting(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
+	e.GET("/topup/history", tpctrl.GetAllPaid(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
+	e.POST("/topup/callback", tpctrl.Callback())
+
 }
