@@ -1,7 +1,5 @@
 package restaurants
 
-import "time"
-
 type LoginResponseFormat struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -21,17 +19,17 @@ type RestaurantResponse struct {
 }
 
 type RestaurantDResponse struct {
-	Name           string    `json:"name"`
-	Open           time.Time `json:"open"`
-	Close          time.Time `json:"close"`
-	Price          int       `json:"price"`
-	Latitude       float64   `json:"latitude"`
-	Longitude      float64   `json:"longitude"`
-	City           string    `json:"city"`
-	Address        string    `json:"address"`
-	PhoneNumber    string    `json:"phone"`
-	ProfilePicture string    `json:"profile_picture"`
-	Seats          int       `json:"json"`
-	Description    string    `json:"description"`
-	Status         string    `json:"status"`
+	Name           string  `json:"name"`
+	Open           string  `json:"open"`
+	Close          string  `json:"close"`
+	Price          int     `json:"price"`
+	Latitude       float64 `json:"latitude"`
+	Longitude      float64 `json:"longitude"`
+	City           string  `json:"city"`
+	Address        string  `json:"address"`
+	PhoneNumber    string  `json:"phone"`
+	ProfilePicture string  `json:"profile_picture"`
+	Seats          int     `json:"json"`
+	Description    string  `json:"description"`
+	Status         string  `json:"status"`
 }

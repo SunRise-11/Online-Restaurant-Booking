@@ -19,6 +19,8 @@ func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.Users
 	// ---------------------------------------------------------------------
 	e.POST("/admin/register", adctrl.RegisterAdminCtrl())
 	e.POST("/admin/login", adctrl.LoginAdminCtrl())
+	e.GET("/admin/waiting", rctrl.GetsWaiting(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
+	e.POST("/admin/approve", rctrl.Approve(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
 
 	// ---------------------------------------------------------------------
 	// CRUD Users
@@ -35,6 +37,8 @@ func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.Users
 	e.POST("/restaurants/register", rctrl.RegisterRestoCtrl())
 	e.POST("/restaurants/login", rctrl.LoginRestoCtrl())
 	e.GET("/restaurants", rctrl.Gets())
+	e.GET("/restaurants/open", rctrl.GetsByOpen())
+
 	e.GET("/restaurant", rctrl.GetRestoByIdCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
 	e.PUT("/restaurant", rctrl.UpdateRestoByIdCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
 	e.POST("/restaurant/detail", rctrl.CreateDetailRestoByIdCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
