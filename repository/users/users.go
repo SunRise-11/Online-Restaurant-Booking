@@ -16,10 +16,11 @@ func NewUsersRepo(db *gorm.DB) *UserRepository {
 
 func (ur *UserRepository) RegisterAdmin(newAdmin entities.User) (entities.User, error) {
 	admin := entities.User{
-		ID:       1,
-		Name:     newAdmin.Name,
-		Email:    newAdmin.Email,
-		Password: newAdmin.Password,
+		ID:         1,
+		Name:       newAdmin.Name,
+		Email:      newAdmin.Email,
+		Password:   newAdmin.Password,
+		Reputation: 999,
 	}
 	ur.db.Save(&admin)
 	return admin, nil
