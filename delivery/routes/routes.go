@@ -68,4 +68,5 @@ func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.Users
 	e.POST("/ratings", rtctrl.Create(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 	e.PUT("/ratings/:restaurantId", rtctrl.Update(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 	e.DELETE("/ratings/:restaurantId", rtctrl.Delete(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
+
 }

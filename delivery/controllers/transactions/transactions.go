@@ -21,6 +21,7 @@ func NewTransactionsControllers(transrep transactions.TransactionsInterface) *Tr
 
 func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		var balance int
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
 		userID := int(claims["userid"].(float64))
@@ -35,23 +36,39 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 			DateTime:     dateTime,
 			Persons:      newTransactionReq.Persons,
 		}
-		res, err := transcon.Repo.Create(newTransaction)
-		if err != nil || res.ID == 0 {
+		if res, err := transcon.Repo.GetBalanceAndPriceResto(uint(userID), newTransaction.RestaurantID); err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+			// fmt.Println(result)
+		} else {
+			total := newTransaction.Persons * res.PriceResto
+			balance = res.Balance - total
+			if balance < 0 {
+				return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+					"code":    http.StatusInternalServerError,
+					"message": "Your Money Not Enough For Booking",
+				})
+			}
+		}
+		if _, err := transcon.Repo.UpdateUserBalance(uint(userID), balance); err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
-		data := TransactionResponse{
-			ID:           res.ID,
-			UserID:       res.UserID,
-			RestaurantID: res.RestaurantID,
-			DateTime:     res.DateTime,
-			Person:       res.Persons,
+		if res, err := transcon.Repo.Create(newTransaction); err != nil || res.ID == 0 {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		} else {
+			data := TransactionResponse{
+				ID:           res.ID,
+				UserID:       res.UserID,
+				RestaurantID: res.RestaurantID,
+				DateTime:     res.DateTime,
+				Person:       res.Persons,
+			}
+			response := TransactionResponseFormat{
+				Code:    http.StatusOK,
+				Message: "Successful Operation",
+				Data:    data,
+			}
+			return c.JSON(http.StatusOK, response)
 		}
-		response := TransactionResponseFormat{
-			Code:    http.StatusOK,
-			Message: "Successful Operation",
-			Data:    data,
-		}
-		return c.JSON(http.StatusOK, response)
 	}
 }
 
