@@ -7,4 +7,5 @@ type TopUpInterface interface {
 	GetAllWaiting(userId uint) ([]entities.TopUp, error)
 	GetAllPaid(userId uint) ([]entities.TopUp, error)
 	Update(invId string, topUp entities.TopUp) (entities.TopUp, error)
+	GetByInvoice(invId string) (entities.TopUp, error)
 }

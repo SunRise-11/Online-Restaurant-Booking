@@ -59,3 +59,13 @@ func (tr *TopUpRepository) Update(invId string, topUp entities.TopUp) (entities.
 
 	return newTopUp, nil
 }
+
+func (tr *TopUpRepository) GetByInvoice(invId string) (entities.TopUp, error) {
+	invoice := entities.TopUp{}
+
+	if err := tr.db.Preload("User").Where("invoice_id = ?", invId).First(&invoice).Error; err != nil {
+		return invoice, err
+	}
+
+	return invoice, nil
+}
