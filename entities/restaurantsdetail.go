@@ -19,6 +19,6 @@ type RestaurantDetail struct {
 	PhoneNumber     string
 	ProfilePicture  string
 	Seats           int
-	Status          string `gorm:"default:close"`
+	Status          string `gorm:"default:DISABLED"`
 	Description     string
 }

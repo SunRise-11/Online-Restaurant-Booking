@@ -61,6 +61,17 @@ func (rr *RestaurantRepository) Get(restaurantId uint) (entities.Restaurant, ent
 
 }
 
+func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
+	restaurantD := []entities.RestaurantDetail{}
+
+	if err := rr.db.Not("status=?", "DISABLED").Not("status=?", "CLOSED").Find(&restaurantD).Error; err != nil {
+		return restaurantD, err
+	} else {
+		return restaurantD, nil
+	}
+
+}
+
 func (rr *RestaurantRepository) Update(restaurantId uint, updateRestaurant entities.Restaurant) (entities.Restaurant, error) {
 	restaurant := entities.Restaurant{}
 

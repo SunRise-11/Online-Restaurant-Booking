@@ -36,3 +36,7 @@ type UpdateRestaurantDRequestFormat struct {
 	Seats          int       `json:"json"`
 	Description    string    `json:"description"`
 }
+
+type DeleteRestauranRequestFormat struct {
+	ID uint `json:"resto_id"`
+}
