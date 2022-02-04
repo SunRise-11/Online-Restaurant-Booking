@@ -2,7 +2,6 @@ package transactions
 
 import (
 	"Restobook/entities"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -47,6 +46,22 @@ func (tr *TransactionRepository) GetAllAppointed(userId uint) ([]entities.Transa
 	}
 	return transaction, nil
 }
+func (tr *TransactionRepository) GetTransactionById(id uint) (entities.Transaction, error) {
+	transaction := entities.Transaction{}
+	if err := tr.db.Preload("User").First(&transaction).Error; err != nil {
+		return transaction, err
+	}
+
+	return transaction, nil
+}
+func (tr *TransactionRepository) ShowAllTransaction(restaurantId uint) ([]entities.Transaction, error) {
+	transaction := []entities.Transaction{}
+
+	if err := tr.db.Where("restaurant_id=? and status=? ", restaurantId, "waiting for confirmation").Find(&transaction).Error; err != nil {
+		return transaction, err
+	}
+	return transaction, nil
+}
 func (tr *TransactionRepository) GetBalanceAndPriceResto(userId, restaurantId uint) (BalanceAndPriceResto, error) {
 	user := entities.User{}
 	resto := entities.RestaurantDetail{}
@@ -68,7 +83,16 @@ func (tr *TransactionRepository) UpdateUserBalance(userId uint, balance int) (en
 	}
 	updateUser["balance"] = balance
 	tr.db.Model(&user).Updates(&updateUser)
-	fmt.Println(user)
 	return user, nil
+
+}
+
+func (tr *TransactionRepository) UpdateTransactionStatus(newTransaction entities.Transaction) (entities.Transaction, error) {
+	transaction := entities.Transaction{}
+	if err := tr.db.First(&transaction, "id=?", newTransaction.ID).Error; err != nil {
+		return transaction, err
+	}
+	tr.db.Model(&transaction).Updates(newTransaction)
+	return transaction, nil
 
 }

@@ -9,6 +9,9 @@ type TransactionsInterface interface {
 	GetAllAppointed(userId uint) ([]entities.Transaction, error)
 	GetBalanceAndPriceResto(userId, restaurantId uint) (BalanceAndPriceResto, error)
 	UpdateUserBalance(userId uint, balance int) (entities.User, error)
+	UpdateTransactionStatus(newTransaction entities.Transaction) (entities.Transaction, error)
+	ShowAllTransaction(restaurantId uint) ([]entities.Transaction, error)
+	GetTransactionById(id uint) (entities.Transaction, error)
 }
 
 type BalanceAndPriceResto struct {

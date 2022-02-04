@@ -13,6 +13,7 @@ type Transaction struct {
 	RestaurantID uint `gorm:"NOT NULL"`
 	DateTime     time.Time
 	Persons      int    `gorm:"NOT NULL;default:1"`
+	Total        int    `gorm:"NOT NULL"`
 	Status       string `gorm:"NOT NULL;default:waiting for confirmation"`
 	User         User
 	Restaurant   Restaurant
