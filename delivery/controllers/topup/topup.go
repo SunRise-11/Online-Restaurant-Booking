@@ -143,6 +143,40 @@ func (tc TopUpController) GetAllPaid() echo.HandlerFunc {
 	}
 }
 
+func (tc TopUpController) Callback() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		req := c.Request()
+		headers := req.Header
+
+		var XENDIT_CALLBACK_TOKEN string
+		xCallbackToken := headers.Get("X-Callback-Token")
+
+		if xCallbackToken != XENDIT_CALLBACK_TOKEN {
+			return c.JSON(http.StatusNotAcceptable, common.NewStatusNotAcceptable())
+		}
+
+		var callbackRequest CallbackRequest
+		if err := c.Bind(&callbackRequest); err != nil {
+			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		}
+
+		_, err := tc.Repo.GetByInvoice(callbackRequest.ExternalID)
+		if err != nil {
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+		}
+
+		var data entities.TopUp
+		data.Status = callbackRequest.Status
+
+		_, err = tc.Repo.Update(callbackRequest.ExternalID, data)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		}
+
+		return c.JSON(http.StatusOK, common.NewSuccessOperationResponse())
+	}
+}
+
 //FUNC FOR XENDIT
 func CreateInvoice(topUp entities.TopUp) (entities.TopUp, error) {
 	xendit.Opt.SecretKey = os.Getenv("XENDIT_SECRET_KEY")
