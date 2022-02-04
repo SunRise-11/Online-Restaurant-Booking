@@ -3,6 +3,7 @@ package routes
 import (
 	"Restobook/delivery/common"
 	"Restobook/delivery/controllers/auth"
+	"Restobook/delivery/controllers/ratings"
 	"Restobook/delivery/controllers/restaurants"
 	"Restobook/delivery/controllers/topup"
 	"Restobook/delivery/controllers/transactions"
@@ -12,8 +13,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-
-func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.UsersController, rctrl *restaurants.RestaurantsController, tctrl *transactions.TransactionsController, tpctrl *topup.TopUpController) {
+func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.UsersController, rctrl *restaurants.RestaurantsController, tctrl *transactions.TransactionsController, tpctrl *topup.TopUpController, rtctrl *ratings.RatingController) {
 
 	// ---------------------------------------------------------------------
 	// CRUD Admin
@@ -54,6 +54,7 @@ func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.Users
 	e.GET("/transaction/accepted", tctrl.GetAllAcceptedCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 	e.GET("/transaction/history", tctrl.GetHistoryCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 
+	// ---------------------------------------------------------------------
 	// CRUD TopUp
 	// ---------------------------------------------------------------------
 	e.POST("/topup", tpctrl.TopUp(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
@@ -61,4 +62,10 @@ func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.Users
 	e.GET("/topup/history", tpctrl.GetAllPaid(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 	e.POST("/topup/callback", tpctrl.Callback())
 
+	// ---------------------------------------------------------------------
+	// CRUD Rating
+	// ---------------------------------------------------------------------
+	e.POST("/ratings", rtctrl.Create(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
+	e.PUT("/ratings/:restaurantId", rtctrl.Update(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
+	e.DELETE("/ratings/:restaurantId", rtctrl.Delete(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 }
