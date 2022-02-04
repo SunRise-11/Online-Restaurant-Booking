@@ -2,6 +2,7 @@ package transactions
 
 import (
 	"Restobook/entities"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -16,7 +17,6 @@ func NewTransactionRepo(db *gorm.DB) *TransactionRepository {
 
 func (tr *TransactionRepository) Create(newTransaction entities.Transaction) (entities.Transaction, error) {
 	err := tr.db.Save(&newTransaction).Error
-
 	if err != nil {
 		return newTransaction, err
 	}
@@ -46,4 +46,29 @@ func (tr *TransactionRepository) GetAllAppointed(userId uint) ([]entities.Transa
 		return transaction, err
 	}
 	return transaction, nil
+}
+func (tr *TransactionRepository) GetBalanceAndPriceResto(userId, restaurantId uint) (BalanceAndPriceResto, error) {
+	user := entities.User{}
+	resto := entities.RestaurantDetail{}
+	if err := tr.db.Select("price", "seats").Where("id=?", restaurantId).First(&resto).Error; err != nil {
+		return BalanceAndPriceResto{PriceResto: resto.Price, Seats: resto.Seats}, err
+	}
+	if err := tr.db.Select("balance").Where("id=?", userId).First(&user).Error; err != nil {
+		return BalanceAndPriceResto{Balance: user.Balance}, err
+	}
+
+	return BalanceAndPriceResto{Balance: user.Balance, PriceResto: resto.Price, Seats: resto.Seats}, nil
+}
+
+func (tr *TransactionRepository) UpdateUserBalance(userId uint, balance int) (entities.User, error) {
+	user := entities.User{}
+	updateUser := make(map[string]interface{})
+	if err := tr.db.First(&user, "id=?", userId).Error; err != nil {
+		return user, err
+	}
+	updateUser["balance"] = balance
+	tr.db.Model(&user).Updates(&updateUser)
+	fmt.Println(user)
+	return user, nil
+
 }

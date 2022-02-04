@@ -43,7 +43,7 @@ func RegisterPath(e *echo.Echo, uctrl *users.UsersController, rctrl *restaurants
 
 	// CRUD TopUp
 	// ---------------------------------------------------------------------
-	e.POST("/topup", tpctrl.TopUp())
-	e.GET("/topup/pending", tpctrl.GetAllWaiting())
-	e.GET("/topup/history", tpctrl.GetAllPaid())
+	e.POST("/topup", tpctrl.TopUp(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
+	e.GET("/topup/pending", tpctrl.GetAllWaiting(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
+	e.GET("/topup/history", tpctrl.GetAllPaid(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 }
