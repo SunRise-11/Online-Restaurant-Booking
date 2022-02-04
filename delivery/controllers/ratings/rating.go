@@ -11,15 +11,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type RatingController struct {
+type RatingsController struct {
 	Repo ratings.RatingsInterface
 }
 
-func NewRatingController(ratrep ratings.RatingsInterface) *RatingController {
-	return &RatingController{Repo: ratrep}
+func NewRatingController(ratrep ratings.RatingsInterface) *RatingsController {
+	return &RatingsController{Repo: ratrep}
 }
 
-func (rc RatingController) Create() echo.HandlerFunc {
+func (rc RatingsController) Create() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var ratingRequest PostRatingRequest
 
@@ -63,7 +63,7 @@ func (rc RatingController) Create() echo.HandlerFunc {
 	}
 }
 
-func (rc RatingController) Update() echo.HandlerFunc {
+func (rc RatingsController) Update() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var ratingRequest UpdateRatingRequest
 
@@ -105,7 +105,7 @@ func (rc RatingController) Update() echo.HandlerFunc {
 	}
 }
 
-func (rc RatingController) Delete() echo.HandlerFunc {
+func (rc RatingsController) Delete() echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		restaurantId, err := strconv.Atoi(c.Param("restaurantId"))
