@@ -11,8 +11,7 @@ type Transaction struct {
 	ID           uint
 	UserID       uint `gorm:"NOT NULL"`
 	RestaurantID uint `gorm:"NOT NULL"`
-	Date         time.Time
-	Time         time.Time
+	DateTime     time.Time
 	Persons      int    `gorm:"NOT NULL;default:1"`
 	Status       string `gorm:"NOT NULL;default:waiting for confirmation"`
 	User         User
