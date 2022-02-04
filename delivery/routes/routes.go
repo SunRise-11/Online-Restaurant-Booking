@@ -13,7 +13,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.UsersController, rctrl *restaurants.RestaurantsController, tctrl *transactions.TransactionsController, tpctrl *topup.TopUpController, rtctrl *ratings.RatingController) {
+func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.UsersController, rctrl *restaurants.RestaurantsController, tctrl *transactions.TransactionsController, tpctrl *topup.TopUpController, rtctrl *ratings.RatingsController) {
 
 	// ---------------------------------------------------------------------
 	// CRUD Admin
