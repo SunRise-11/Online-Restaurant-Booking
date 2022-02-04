@@ -86,7 +86,7 @@ func (rescon RestaurantsController) GetsWaiting() echo.HandlerFunc {
 		restoID := claims["restoid"]
 		userID := claims["userid"]
 
-		if userID != nil && restoID != nil {
+		if userID != nil || restoID != nil {
 			return c.JSON(http.StatusNotAcceptable, common.NewStatusNotAcceptable())
 		} else {
 			if res, err := rescon.Repo.GetsWaiting(); err != nil || len(res) == 0 {
@@ -119,7 +119,7 @@ func (rescon RestaurantsController) Approve() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
 
-		if userID != nil && restoID != nil {
+		if userID != nil || restoID != nil {
 			return c.JSON(http.StatusNotAcceptable, common.NewStatusNotAcceptable())
 		} else {
 			if res, err := rescon.Repo.Approve(approveRestaurant.ID, approveRestaurant.Status); err != nil || res.ID == 0 {
@@ -334,7 +334,7 @@ func (rescon RestaurantsController) DeleteRestaurantCtrl() echo.HandlerFunc {
 		restoID := claims["restoid"]
 		userID := claims["userid"]
 
-		if userID != nil && restoID != nil {
+		if userID != nil || restoID != nil {
 			return c.JSON(http.StatusNotAcceptable, common.NewStatusNotAcceptable())
 		} else {
 			delRestaurant := DeleteRestauranRequestFormat{}
