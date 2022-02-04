@@ -173,13 +173,15 @@ func (tc TopUpController) Callback() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
 
-		user, _ := tc.Repo.GetUser(int(invoice.UserID))
+		if data.Status == "PAID" {
+			user, _ := tc.Repo.GetUser(int(invoice.UserID))
 
-		newBalance := entities.User{
-			Balance: (user.Balance + invoice.Total),
+			newBalance := entities.User{
+				Balance: (user.Balance + invoice.Total),
+			}
+
+			tc.Repo.UpdateUserBalance(int(invoice.UserID), newBalance)
 		}
-
-		tc.Repo.UpdateUserBalance(int(invoice.UserID), newBalance)
 
 		return c.JSON(http.StatusOK, common.NewSuccessOperationResponse())
 	}
