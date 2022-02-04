@@ -2,8 +2,6 @@ package restaurants
 
 import (
 	"Restobook/entities"
-	"fmt"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -92,17 +90,17 @@ func (rr *RestaurantRepository) GetsByOpen(open, oh string) ([]entities.Restaura
 		return restaurantD, err
 	} else {
 
-		now := time.Now()
-		fmt.Println("now", now)
-		fmt.Println("today", now.Day())
-		fmt.Println("month", now.Month())
-		fmt.Println("year", now.Year())
+		// now := time.Now()
+		// fmt.Println("now", now)
+		// fmt.Println("today", now.Day())
+		// fmt.Println("month", now.Month())
+		// fmt.Println("year", now.Year())
 
-		for i := 0; i < len(restaurantD); i++ {
-			fmt.Println("open", restaurantD[i].Open)
-			fmt.Println("close", restaurantD[i].Close)
-			fmt.Println("oh", restaurantD[i].OperationalHour)
-		}
+		// for i := 0; i < len(restaurantD); i++ {
+		// 	fmt.Println("open", restaurantD[i].Open)
+		// 	fmt.Println("close", restaurantD[i].Close)
+		// 	fmt.Println("oh", restaurantD[i].OperationalHour)
+		// }
 
 		return restaurantD, nil
 	}
@@ -116,17 +114,17 @@ func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 		return restaurantD, err
 	} else {
 
-		now := time.Now()
-		fmt.Println("now", now)
-		fmt.Println("today", now.Day())
-		fmt.Println("month", now.Month())
-		fmt.Println("year", now.Year())
+		// now := time.Now()
+		// fmt.Println("now", now)
+		// fmt.Println("today", now.Day())
+		// fmt.Println("month", now.Month())
+		// fmt.Println("year", now.Year())
 
-		for i := 0; i < len(restaurantD); i++ {
-			fmt.Println("open", restaurantD[i].Open)
-			fmt.Println("close", restaurantD[i].Close)
-			fmt.Println("oh", restaurantD[i].OperationalHour)
-		}
+		// for i := 0; i < len(restaurantD); i++ {
+		// 	fmt.Println("open", restaurantD[i].Open)
+		// 	fmt.Println("close", restaurantD[i].Close)
+		// 	fmt.Println("oh", restaurantD[i].OperationalHour)
+		// }
 
 		return restaurantD, nil
 	}
