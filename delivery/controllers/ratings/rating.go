@@ -1,9 +1,9 @@
-package rating
+package ratings
 
 import (
 	"Restobook/delivery/common"
 	"Restobook/entities"
-	"Restobook/repository/rating"
+	"Restobook/repository/ratings"
 	"net/http"
 	"strconv"
 
@@ -12,10 +12,10 @@ import (
 )
 
 type RatingController struct {
-	Repo rating.RatingInterface
+	Repo ratings.RatingsInterface
 }
 
-func NewRatingController(ratrep rating.RatingInterface) *RatingController {
+func NewRatingController(ratrep ratings.RatingsInterface) *RatingController {
 	return &RatingController{Repo: ratrep}
 }
 

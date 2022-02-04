@@ -1,4 +1,4 @@
-package rating
+package ratings
 
 import (
 	"Restobook/entities"
@@ -10,7 +10,7 @@ type RatingRepository struct {
 	db *gorm.DB
 }
 
-func NewRatingRepo(db *gorm.DB) *RatingRepository {
+func NewRatingsRepo(db *gorm.DB) *RatingRepository {
 	return &RatingRepository{db: db}
 }
 

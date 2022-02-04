@@ -1,8 +1,8 @@
-package rating
+package ratings
 
 import "Restobook/entities"
 
-type RatingInterface interface {
+type RatingsInterface interface {
 	Create(entities.Rating) (entities.Rating, error)
 	Update(entities.Rating) (entities.Rating, error)
 	Delete(userId, restaurantId int) (entities.Rating, error)

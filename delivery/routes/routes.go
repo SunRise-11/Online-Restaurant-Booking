@@ -3,7 +3,7 @@ package routes
 import (
 	"Restobook/delivery/common"
 	"Restobook/delivery/controllers/auth"
-	"Restobook/delivery/controllers/rating"
+	"Restobook/delivery/controllers/ratings"
 	"Restobook/delivery/controllers/restaurants"
 	"Restobook/delivery/controllers/topup"
 	"Restobook/delivery/controllers/transactions"
@@ -13,7 +13,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.UsersController, rctrl *restaurants.RestaurantsController, tctrl *transactions.TransactionsController, tpctrl *topup.TopUpController, rtctrl *rating.RatingController) {
+func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.UsersController, rctrl *restaurants.RestaurantsController, tctrl *transactions.TransactionsController, tpctrl *topup.TopUpController, rtctrl *ratings.RatingController) {
 
 	// ---------------------------------------------------------------------
 	// CRUD Admin

@@ -1,4 +1,4 @@
-package rating
+package ratings
 
 type RatingResponse struct {
 	RestaurantID int    `json:"house_id"`

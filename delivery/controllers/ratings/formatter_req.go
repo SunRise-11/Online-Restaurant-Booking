@@ -1,4 +1,4 @@
-package rating
+package ratings
 
 type PostRatingRequest struct {
 	RestaurantID int    `json:"restaurant_id"`
