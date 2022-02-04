@@ -226,6 +226,7 @@ func TestFalseRestaurantsRepo(t *testing.T) {
 	})
 
 	db.Migrator().DropTable(&entities.RestaurantDetail{})
+	db.Migrator().DropTable(&entities.Restaurant{})
 
 	t.Run("FALSE Show Waiting", func(t *testing.T) {
 		res, err := restaurantRepo.GetsWaiting()
@@ -245,4 +246,6 @@ func TestFalseRestaurantsRepo(t *testing.T) {
 		assert.Error(t, err)
 	})
 
+	db.AutoMigrate(entities.RestaurantDetail{})
+	db.AutoMigrate(entities.Restaurant{})
 }
