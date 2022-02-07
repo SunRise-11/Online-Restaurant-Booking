@@ -172,60 +172,59 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		date_time := c.QueryParam("date_time")
-
-		if res, err := rescon.Repo.Gets(); err != nil || len(res) == 0 {
+		res, err := rescon.Repo.Gets()
+		if err != nil || len(res) == 0 {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
-		} else {
+		}
+		date_time_parse, _ := time.Parse("2006-01-02 15:04:05", date_time)
+		date_time_split := strings.Split(date_time, " ")
 
-			date_time_parse, _ := time.Parse("2006-01-02 15:04:05", date_time)
-			date_time_split := strings.Split(date_time, " ")
-			fmt.Println("=> date_time_parse", date_time_parse)
-
-			day := date_time_parse.Weekday().String()
-			fmt.Println("=> day", day)
-
-			daytoint := 0
-			for i := 0; i < len(common.Daytoint); i++ {
-				if day == common.Daytoint[i].Day {
-					daytoint = common.Daytoint[i].No
-				}
+		day := date_time_parse.Weekday().String()
+		daytoint := 0
+		for i := 0; i < len(common.Daytoint); i++ {
+			if day == common.Daytoint[i].Day {
+				daytoint = common.Daytoint[i].No
 			}
-			fmt.Println("=> daytoint", daytoint)
+		}
+		time := date_time_split[1]
+		timeall := strings.Split(time, ":")
+		timealls := timeall[0] + timeall[1]
+		timeallsInt, _ := strconv.Atoi(timealls)
+		if res, err := rescon.Repo.GetsByOpen(daytoint); err != nil || len(res) == 0 {
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+		}
 
-			time := date_time_split[1]
-			fmt.Println("=> time", time)
-			timeall := strings.Split(time, ":")
-			timealls := timeall[0] + timeall[1]
-			timeallsInt, _ := strconv.Atoi(timealls)
-			fmt.Println("=> timeallsInt", timeallsInt)
+		newRestaurantD := []entities.RestaurantDetail{}
 
-			if res2, err := rescon.Repo.GetsByOpen(daytoint); err != nil || len(res) == 0 {
-				return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
-			} else {
-				newRestaurantD := []entities.RestaurantDetail{}
+		for i := 0; i < len(res); i++ {
 
-				for i := 0; i < len(res2); i++ {
-					splitOH := strings.Split(res2[i].Open_Hour, ":")
-					allOH, _ := strconv.Atoi(splitOH[0] + splitOH[1])
+			splitOH := strings.Split(res[i].Open_Hour, ":")
+			allOH, _ := strconv.Atoi(splitOH[0] + splitOH[1])
 
-					splitCH := strings.Split(res2[i].Close_Hour, ":")
-					allCH, _ := strconv.Atoi(splitCH[0] + splitCH[1])
+			splitCH := strings.Split(res[i].Close_Hour, ":")
+			allCH, _ := strconv.Atoi(splitCH[0] + splitCH[1])
 
-					if timeallsInt >= allOH && timeallsInt <= allCH {
-						newRestaurantD = append(newRestaurantD, res2[i])
-					}
+			if timeallsInt >= allOH && timeallsInt <= allCH {
+
+				date_time_parse_noutc := date_time_split[0] + " " + date_time_split[1]
+
+				_, total_seat, err := rescon.Repo.GetExistSeat(res[i].ID, date_time_parse_noutc)
+				if err != nil {
+					return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 				}
+				res[i].Seats = res[i].Seats - total_seat
+				newRestaurantD = append(newRestaurantD, res[i])
 
-				response := RestaurantResponseFormat{
-					Code:    http.StatusOK,
-					Message: "Successful Operation",
-					Data:    newRestaurantD,
-				}
-
-				return c.JSON(http.StatusOK, response)
 			}
 		}
 
+		response := RestaurantResponseFormat{
+			Code:    http.StatusOK,
+			Message: "Successful Operation",
+			Data:    newRestaurantD,
+		}
+
+		return c.JSON(http.StatusOK, response)
 	}
 }
 

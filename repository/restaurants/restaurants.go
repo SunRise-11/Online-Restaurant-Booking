@@ -149,7 +149,6 @@ func (rr *RestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetai
 
 func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 	restaurantD := []entities.RestaurantDetail{}
-
 	if err := rr.db.Not("status=?", "DISABLED").Not("status=?", "CLOSED").Not("status=?", "Waiting for approval").Find(&restaurantD).Error; err != nil {
 		return restaurantD, err
 	} else {
@@ -194,6 +193,21 @@ func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 		}
 
 		return restaurantD, nil
+	}
+
+}
+
+func (rr *RestaurantRepository) GetExistSeat(restauranId uint, date_time string) ([]entities.Transaction, int, error) {
+	transactions := []entities.Transaction{}
+	result := 0
+	if err := rr.db.Where("restaurant_id=? AND date_time = ?", restauranId, date_time).Find(&transactions).Error; err != nil {
+		return transactions, result, err
+	} else {
+		if err := rr.db.Model(&entities.Transaction{}).Select("sum(persons) as total").Where("date_time=?", date_time).Where("restaurant_id=?", restauranId).Find(&result).Error; err != nil {
+			return transactions, result, err
+		} else {
+			return transactions, result, nil
+		}
 	}
 
 }
