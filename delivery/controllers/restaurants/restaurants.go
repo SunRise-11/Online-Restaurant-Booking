@@ -172,59 +172,83 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		date_time := c.QueryParam("date_time")
-		res, err := rescon.Repo.Gets()
-		if err != nil || len(res) == 0 {
+		fmt.Println("======================================")
+		fmt.Println("DATE_TIME", date_time)
+
+		if res, err := rescon.Repo.Gets(); err != nil || len(res) == 0 {
+			fmt.Println("======================================")
+			fmt.Println("=>ERROR Gets", res)
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
-		}
-		date_time_parse, _ := time.Parse("2006-01-02 15:04:05", date_time)
-		date_time_split := strings.Split(date_time, " ")
+		} else {
+			fmt.Println("======================================")
+			fmt.Println("=>SUCCESS Gets", res)
+			date_time_parse, _ := time.Parse("2006-01-02 15:04:05", date_time)
+			date_time_split := strings.Split(date_time, " ")
 
-		day := date_time_parse.Weekday().String()
-		daytoint := 0
-		for i := 0; i < len(common.Daytoint); i++ {
-			if day == common.Daytoint[i].Day {
-				daytoint = common.Daytoint[i].No
-			}
-		}
-		time := date_time_split[1]
-		timeall := strings.Split(time, ":")
-		timealls := timeall[0] + timeall[1]
-		timeallsInt, _ := strconv.Atoi(timealls)
-		if res, err := rescon.Repo.GetsByOpen(daytoint); err != nil || len(res) == 0 {
-			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
-		}
-
-		newRestaurantD := []entities.RestaurantDetail{}
-
-		for i := 0; i < len(res); i++ {
-
-			splitOH := strings.Split(res[i].Open_Hour, ":")
-			allOH, _ := strconv.Atoi(splitOH[0] + splitOH[1])
-
-			splitCH := strings.Split(res[i].Close_Hour, ":")
-			allCH, _ := strconv.Atoi(splitCH[0] + splitCH[1])
-
-			if timeallsInt >= allOH && timeallsInt <= allCH {
-
-				date_time_parse_noutc := date_time_split[0] + " " + date_time_split[1]
-
-				_, total_seat, err := rescon.Repo.GetExistSeat(res[i].ID, date_time_parse_noutc)
-				if err != nil {
-					return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+			day := date_time_parse.Weekday().String()
+			daytoint := 0
+			for i := 0; i < len(common.Daytoint); i++ {
+				if day == common.Daytoint[i].Day {
+					daytoint = common.Daytoint[i].No
 				}
-				res[i].Seats = res[i].Seats - total_seat
-				newRestaurantD = append(newRestaurantD, res[i])
-
 			}
-		}
+			time := date_time_split[1]
+			timeall := strings.Split(time, ":")
+			timealls := timeall[0] + timeall[1]
+			timeallsInt, _ := strconv.Atoi(timealls)
+			fmt.Println("======================================")
+			fmt.Println("=>FIND date_time_parse", date_time_parse)
+			fmt.Println("=>FIND DayOpen in", day)
+			fmt.Println("=>FIND TimeOpen in", timeallsInt)
+			if res, err := rescon.Repo.GetsByOpen(daytoint); err != nil || len(res) == 0 {
+				fmt.Println("======================================")
+				fmt.Println("=>ERROR GetsByOpen", res)
+				return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+			} else {
+				newRestaurantD := []entities.RestaurantDetail{}
+				for i := 0; i < len(res); i++ {
+					fmt.Println("======================================")
+					fmt.Println("=>SUCCESS GetsByOpen", res[i])
+					splitOH := strings.Split(res[i].Open_Hour, ":")
+					allOH, _ := strconv.Atoi(splitOH[0] + splitOH[1])
 
-		response := RestaurantResponseFormat{
-			Code:    http.StatusOK,
-			Message: "Successful Operation",
-			Data:    newRestaurantD,
-		}
+					splitCH := strings.Split(res[i].Close_Hour, ":")
+					allCH, _ := strconv.Atoi(splitCH[0] + splitCH[1])
 
-		return c.JSON(http.StatusOK, response)
+					if timeallsInt >= allOH && timeallsInt <= allCH {
+						date_time_parse_noutc := date_time_split[0] + " " + date_time_split[1]
+						fmt.Println("======================================")
+						fmt.Println("=>FIND date_time_parse_noutc", date_time_parse_noutc)
+						if _, total_seat, err := rescon.Repo.GetExistSeat(res[i].ID, date_time_parse_noutc); err != nil {
+							fmt.Println("======================================")
+							fmt.Println("=>ERROR GetExistSeat because no transaction with restaurantID", res[i].ID)
+							newRestaurantD = append(newRestaurantD, res[i])
+							response := RestaurantResponseFormat{
+								Code:    http.StatusOK,
+								Message: "Successful Operation",
+								Data:    newRestaurantD,
+							}
+
+							return c.JSON(http.StatusOK, response)
+						} else {
+							fmt.Println("======================================")
+							fmt.Println("=>SUCCESS GetExistSeat", total_seat)
+							res[i].Seats = res[i].Seats - total_seat
+							newRestaurantD = append(newRestaurantD, res[i])
+						}
+
+					}
+				}
+				response := RestaurantResponseFormat{
+					Code:    http.StatusOK,
+					Message: "Successful Operation",
+					Data:    newRestaurantD,
+				}
+
+				return c.JSON(http.StatusOK, response)
+			}
+
+		}
 	}
 }
 

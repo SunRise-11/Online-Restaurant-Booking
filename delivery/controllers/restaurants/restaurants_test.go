@@ -1,1089 +1,1282 @@
 package restaurants
 
-// var jwtToken string
-// var jwtTokenAdmin string
+import (
+	"Restobook/configs"
+	"Restobook/delivery/common"
+	"Restobook/delivery/controllers/auth"
+	"Restobook/entities"
+	"bytes"
+	"crypto/sha256"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"testing"
+	"time"
 
-// func TestRestaurant(t *testing.T) {
-// 	config := configs.GetConfig()
-// 	fmt.Println(config)
+	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 
-// 	ec := echo.New()
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+)
 
-// 	t.Run("Register Admin", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"email":    "admin@outlook.my",
-// 			"password": "admin",
-// 		})
+var jwtTokenRestaurant string
+var jwtTokenAdmin string
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+func Test_Register_Admin(t *testing.T) {
+	config := configs.GetConfig()
+	fmt.Println(config)
 
-// 		req.Header.Set("Content-Type", "application/json")
+	ec := echo.New()
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/admin/register")
+	t.Run("Register Admin", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]string{
+			"email":    "admin@outlook.my",
+			"password": "admin123",
+		})
 
-// 		adminCtrl := auth.NewAdminControllers(mockUserRepository{})
-// 		adminCtrl.RegisterAdminCtrl()(context)
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		req.Header.Set("Content-Type", "application/json")
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+		context := ec.NewContext(req, res)
+		context.SetPath("/admin/register")
 
-// 	t.Run("Login Admin", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"email":    "admin@outlook.my",
-// 			"password": "admin",
-// 		})
+		adminCtrl := auth.NewAdminControllers(mockUserRepository{})
+		adminCtrl.RegisterAdminCtrl()(context)
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		req.Header.Set("Content-Type", "application/json")
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/admin/login")
+	t.Run("Login Admin", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]string{
+			"email":    "admin@outlook.my",
+			"password": "admin123",
+		})
 
-// 		adminCtrl := auth.NewAdminControllers(mockUserRepository{})
-// 		adminCtrl.LoginAdminCtrl()(context)
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		responses := LoginResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
-// 		jwtTokenAdmin = responses.Token
+		req.Header.Set("Content-Type", "application/json")
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+		context := ec.NewContext(req, res)
+		context.SetPath("/admin/login")
 
-// 	t.Run("Register Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"email":    "restaurant1@outlook.my",
-// 			"password": "resto123",
-// 		})
+		adminCtrl := auth.NewAdminControllers(mockUserRepository{})
+		adminCtrl.LoginAdminCtrl()(context)
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		responses := LoginResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		jwtTokenAdmin = responses.Token
 
-// 		req.Header.Set("Content-Type", "application/json")
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
+}
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurants/register")
+func Test_Register_Restaurant(t *testing.T) {
+	config := configs.GetConfig()
+	fmt.Println(config)
 
-// 		restoCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		restoCtrl.RegisterRestoCtrl()(context)
+	ec := echo.New()
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+	t.Run("Bad Request Register Restaurant", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]int{
+			"email": 1,
+		})
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 	t.Run("Login Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"email":    "restaurant1@outlook.my",
-// 			"password": "resto123",
-// 		})
+		req.Header.Set("Content-Type", "application/json")
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/register")
 
-// 		req.Header.Set("Content-Type", "application/json")
+		restoCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		restoCtrl.RegisterRestoCtrl()(context)
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurants/login")
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		restoCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		restoCtrl.LoginRestoCtrl()(context)
+		assert.Equal(t, 400, responses.Code)
+		assert.Equal(t, "Bad Request", responses.Message)
+	})
 
-// 		responses := LoginResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
-// 		jwtToken = responses.Token
+	t.Run("ISE Register Restaurant", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]string{
+			"email":    "restaurant1@outlook.my",
+			"password": "resto123",
+		})
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
-
-// 	t.Run("Get Restaurant", func(t *testing.T) {
-// 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-// 		res := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
-
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant")
+		req.Header.Set("Content-Type", "application/json")
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.GetRestoByIdCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/register")
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		restoCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		restoCtrl.RegisterRestoCtrl()(context)
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 	t.Run("Update Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"email":    "UPDATErestaurant@outlook.my",
-// 			"password": "resto123",
-// 		})
+		assert.Equal(t, 500, responses.Code)
+		assert.Equal(t, "Internal Server Error", responses.Message)
+	})
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+	t.Run("Success Register Restaurant", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]string{
+			"email":    "restaurant1@outlook.my",
+			"password": "resto123",
+		})
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant")
+		req.Header.Set("Content-Type", "application/json")
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.UpdateRestoByIdCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/register")
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		restoCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		restoCtrl.RegisterRestoCtrl()(context)
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 	t.Run("Create Detail Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"name": "resto 1",
-// 		})
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+}
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+func Test_Login_Restaurant(t *testing.T) {
+	config := configs.GetConfig()
+	fmt.Println(config)
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant/detail")
+	ec := echo.New()
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.CreateDetailRestoByIdCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+	t.Run("Bad Request Register Restaurant", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]int{
+			"email": 1,
+		})
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+		req.Header.Set("Content-Type", "application/json")
 
-// 	t.Run("Update Detail Restaurant", func(t *testing.T) {
-// 		now := time.Now()
-// 		reqBody, _ := json.Marshal(map[string]interface{}{
-// 			"open":  now,
-// 			"close": now,
-// 		})
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/login")
 
-// 		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		restoCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		restoCtrl.LoginRestoCtrl()(context)
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		responses := LoginResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant/detail")
+		assert.Equal(t, 400, responses.Code)
+		assert.Equal(t, "Bad Request", responses.Message)
+	})
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.UpdateDetailRestoByIdCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+	t.Run("Not Found Login Restaurant", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]string{
+			"email":    "restaurant1@outlook.my",
+			"password": "resto123",
+		})
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+		req.Header.Set("Content-Type", "application/json")
 
-// 	t.Run("Get Waiting Restaurant", func(t *testing.T) {
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/login")
 
-// 		req := httptest.NewRequest(http.MethodPut, "/", nil)
-// 		res := httptest.NewRecorder()
+		restoCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		restoCtrl.LoginRestoCtrl()(context)
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
+		responses := LoginResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		jwtTokenRestaurant = responses.Token
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/admin/waiting")
+		assert.Equal(t, 404, responses.Code)
+		assert.Equal(t, "Not Found", responses.Message)
+	})
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.GetsWaiting())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+	t.Run("Success Login Restaurant", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]string{
+			"email":    "restaurant1@outlook.my",
+			"password": "resto123",
+		})
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+		req.Header.Set("Content-Type", "application/json")
 
-// 	t.Run("Approve Restaurant", func(t *testing.T) {
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/login")
 
-// 		req := httptest.NewRequest(http.MethodPut, "/", nil)
-// 		res := httptest.NewRecorder()
+		restoCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		restoCtrl.LoginRestoCtrl()(context)
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
+		responses := LoginResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		jwtTokenRestaurant = responses.Token
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/admin/approve")
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
+}
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.Approve())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+func Test_GetWaiting_Restaurant(t *testing.T) {
+	config := configs.GetConfig()
+	fmt.Println(config)
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+	ec := echo.New()
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+	t.Run("Not Found Waiting for approval by admin", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		res := httptest.NewRecorder()
 
-// 	t.Run("Show All Restaurant", func(t *testing.T) {
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
 
-// 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-// 		res := httptest.NewRecorder()
+		context := ec.NewContext(req, res)
+		context.SetPath("/admin/waiting")
 
-// 		req.Header.Set("Content-Type", "application/json")
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.GetsWaiting())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurants")
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		restaurantCtrl.Gets()(context)
+		assert.Equal(t, 404, responses.Code)
+		assert.Equal(t, "Not Found", responses.Message)
+	})
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+	t.Run("Token NOT Admin", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]string{
+			"email":    "restaurant1@outlook.my",
+			"password": "resto123",
+		})
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 	t.Run("Show All open by day", func(t *testing.T) {
+		req.Header.Set("Content-Type", "application/json")
 
-// 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-// 		res := httptest.NewRecorder()
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/login")
 
-// 		req.Header.Set("Content-Type", "application/json")
+		restoCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		restoCtrl.LoginRestoCtrl()(context)
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurants/open?open=Monday&operational_hour=10:00")
+		responses := LoginResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		jwtTokenRestaurant = responses.Token
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		restaurantCtrl.GetsByOpen()(context)
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+	t.Run("Not Accepted Waiting for approval by admin", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		res := httptest.NewRecorder()
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// 	t.Run("Delete Restaurant", func(t *testing.T) {
+		context := ec.NewContext(req, res)
+		context.SetPath("/admin/waiting")
 
-// 		req := httptest.NewRequest(http.MethodDelete, "/", nil)
-// 		res := httptest.NewRecorder()
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.GetsWaiting())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant")
+		assert.Equal(t, 406, responses.Code)
+		assert.Equal(t, "Not Accepted", responses.Message)
+	})
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.DeleteRestaurantCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+	t.Run("Success Get Waiting for approval by admin", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		res := httptest.NewRecorder()
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+		context := ec.NewContext(req, res)
+		context.SetPath("/admin/waiting")
 
-// }
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.GetsWaiting())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// type mockUserRepository struct{}
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// func (m mockUserRepository) RegisterAdmin(newUser entities.User) (entities.User, error) {
-// 	return entities.User{ID: 1, Name: "admin"}, nil
-// }
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
 
-// func (m mockUserRepository) Register(newUser entities.User) (entities.User, error) {
-// 	return entities.User{ID: 1, Name: "herlianto"}, nil
-// }
+}
+func Test_Approve_Restaurant(t *testing.T) {
+	config := configs.GetConfig()
+	fmt.Println(config)
 
-// func (m mockUserRepository) LoginUser(email, password string) (entities.User, error) {
-// 	hash := sha256.Sum256([]byte("herlianto123"))
-// 	passwordS := fmt.Sprintf("%x", hash[:])
-// 	return entities.User{ID: 1, Name: "herlianto", Password: passwordS, Email: "herlianto@outlook.my"}, nil
-// }
+	ec := echo.New()
 
-// func (m mockUserRepository) Get(userID uint) (entities.User, error) {
-// 	return entities.User{ID: 1, Name: "herlianto"}, nil
-// }
+	t.Run("Bad Request Restaurant", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"resto_id": "1",
+			"status":   "OPEN",
+		})
 
-// func (m mockUserRepository) Update(userID uint, updateUser entities.User) (entities.User, error) {
-// 	return entities.User{ID: 1, Name: "andrew"}, nil
-// }
+		req := httptest.NewRequest(http.MethodGet, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// func (m mockUserRepository) Delete(userID uint) (entities.User, error) {
-// 	return entities.User{ID: 0}, nil
-// }
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
 
-// type mockRestaurantRepository struct{}
+		context := ec.NewContext(req, res)
+		context.SetPath("/admin/approve")
 
-// func (m mockRestaurantRepository) Register(newUser entities.Restaurant) (entities.Restaurant, error) {
-// 	return entities.Restaurant{ID: 1, Email: "restaurant1@outlook.my"}, nil
-// }
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.Approve())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// func (m mockRestaurantRepository) LoginRestaurant(email, password string) (entities.Restaurant, error) {
-// 	hash := sha256.Sum256([]byte("resto123"))
-// 	passwordS := fmt.Sprintf("%x", hash[:])
-// 	return entities.Restaurant{ID: 1, Email: "restaurant1@outlook.my", Password: passwordS}, nil
-// }
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// func (m mockRestaurantRepository) GetsWaiting() ([]entities.RestaurantDetail, error) {
-// 	return []entities.RestaurantDetail{{ID: 1}}, nil
-// }
+		assert.Equal(t, 400, responses.Code)
+		assert.Equal(t, "Bad Request", responses.Message)
+	})
 
-// func (m mockRestaurantRepository) Approve(restaurantID uint, status string) (entities.RestaurantDetail, error) {
-// 	return entities.RestaurantDetail{ID: 1}, nil
-// }
+	t.Run("Not Accepted Approve Restaurant", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"resto_id": 1,
+			"status":   "OPEN",
+		})
 
-// func (m mockRestaurantRepository) Get(restaurantID uint) (entities.Restaurant, entities.RestaurantDetail, error) {
-// 	return entities.Restaurant{ID: 1}, entities.RestaurantDetail{ID: 1}, nil
-// }
+		req := httptest.NewRequest(http.MethodGet, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// func (m mockRestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
-// 	return []entities.RestaurantDetail{{ID: 1}}, nil
-// }
-// func (m mockRestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
-// 	return []entities.RestaurantDetail{{ID: 1}}, nil
-// }
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// func (m mockRestaurantRepository) Update(restaurantID uint, updateUser entities.Restaurant) (entities.Restaurant, error) {
-// 	return entities.Restaurant{ID: 1, Email: "restaurant1Update@outlook.my"}, nil
-// }
+		context := ec.NewContext(req, res)
+		context.SetPath("/admin/approve")
 
-// func (m mockRestaurantRepository) UpdateDetail(restaurantID uint, updateUser entities.RestaurantDetail) (entities.RestaurantDetail, error) {
-// 	return entities.RestaurantDetail{ID: 1}, nil
-// }
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.Approve())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// func (m mockRestaurantRepository) Delete(restaurantID uint) (entities.Restaurant, error) {
-// 	return entities.Restaurant{ID: 1}, nil
-// }
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// func TestFalseRestaurant(t *testing.T) {
-// 	config := configs.GetConfig()
-// 	fmt.Println(config)
+		assert.Equal(t, 406, responses.Code)
+		assert.Equal(t, "Not Accepted", responses.Message)
+	})
 
-// 	ec := echo.New()
+	t.Run("Not Found Approve Restaurant", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"resto_id": 1,
+			"status":   "OPEN",
+		})
 
-// 	t.Run("Register Admin", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"email":    "admin@outlook.my",
-// 			"password": "admin",
-// 		})
+		req := httptest.NewRequest(http.MethodGet, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
 
-// 		req.Header.Set("Content-Type", "application/json")
+		context := ec.NewContext(req, res)
+		context.SetPath("/admin/approve")
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/admin/register")
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.Approve())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		adminCtrl := auth.NewAdminControllers(mockUserRepository{})
-// 		adminCtrl.RegisterAdminCtrl()(context)
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		assert.Equal(t, 404, responses.Code)
+		assert.Equal(t, "Not Found", responses.Message)
+	})
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+	t.Run("Success Approve Restaurant", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"resto_id": 1,
+			"status":   "OPEN",
+		})
 
-// 	t.Run("Login Admin", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"email":    "admin@outlook.my",
-// 			"password": "admin",
-// 		})
+		req := httptest.NewRequest(http.MethodGet, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
 
-// 		req.Header.Set("Content-Type", "application/json")
+		context := ec.NewContext(req, res)
+		context.SetPath("/admin/approve")
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/admin/login")
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.Approve())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		adminCtrl := auth.NewAdminControllers(mockUserRepository{})
-// 		adminCtrl.LoginAdminCtrl()(context)
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		responses := LoginResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
-// 		jwtTokenAdmin = responses.Token
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+}
+func Test_GETS_Restaurant(t *testing.T) {
+	config := configs.GetConfig()
+	fmt.Println(config)
 
-// 	t.Run("Register Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"email":    "restaurant1@outlook.my",
-// 			"password": "resto123",
-// 		})
+	ec := echo.New()
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+	t.Run("Not Found Get Restaurants", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		res := httptest.NewRecorder()
 
-// 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Content-Type", "application/json")
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurants/register")
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants")
 
-// 		restoCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		restoCtrl.RegisterRestoCtrl()(context)
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		restaurantCtrl.Gets()(context)
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+		assert.Equal(t, 404, responses.Code)
+		assert.Equal(t, "Not Found", responses.Message)
+	})
 
-// 	t.Run("FALSE Register Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]int{
-// 			"email": 1,
-// 		})
+	t.Run("Success Get Restaurants", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		res := httptest.NewRecorder()
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
 
-// 		req.Header.Set("Content-Type", "application/json")
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants")
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurants/register")
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		restaurantCtrl.Gets()(context)
 
-// 		restoCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		restoCtrl.RegisterRestoCtrl()(context)
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
+}
 
-// 		assert.Equal(t, 400, responses.Code)
-// 		assert.Equal(t, "Bad Request", responses.Message)
-// 	})
+func Test_GetByOpen_Restaurant(t *testing.T) {
+	config := configs.GetConfig()
+	fmt.Println(config)
 
-// 	t.Run("FALSE Register Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"email":    "restaurant1@outlook.my",
-// 			"password": "resto123",
-// 		})
+	ec := echo.New()
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+	// t.Run("Not Found GetByOpen Restaurants", func(t *testing.T) {
+	// 	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	// 	res := httptest.NewRecorder()
 
-// 		req.Header.Set("Content-Type", "application/json")
+	// 	req.Header.Set("Content-Type", "application/json")
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurants/register")
+	// 	context := ec.NewContext(req, res)
+	// 	context.SetPath("/restaurants/open")
 
-// 		restoCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		restoCtrl.RegisterRestoCtrl()(context)
+	// 	restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+	// 	restaurantCtrl.GetsByOpen()(context)
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+	// 	responses := RestaurantResponseFormat{}
+	// 	json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		assert.Equal(t, 500, responses.Code)
-// 		assert.Equal(t, "Internal Server Error", responses.Message)
-// 	})
+	// 	assert.Equal(t, 404, responses.Code)
+	// 	assert.Equal(t, "Not Found", responses.Message)
+	// })
 
-// 	t.Run("FALSE Login Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]int{
-// 			"email": 1,
-// 		})
+	t.Run("Not Found 222 GetByOpen Restaurants", func(t *testing.T) {
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		query := make(url.Values)
+		query.Set("date_time", "2022-03-05 08:00:00")
 
-// 		req.Header.Set("Content-Type", "application/json")
+		req := httptest.NewRequest(http.MethodGet, "/?"+query.Encode(), nil)
+		res := httptest.NewRecorder()
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurants/login")
+		req.Header.Set("Content-Type", "application/json")
 
-// 		restoCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		restoCtrl.LoginRestoCtrl()(context)
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/open")
 
-// 		responses := LoginResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
-// 		jwtToken = responses.Token
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		restaurantCtrl.GetsByOpen()(context)
 
-// 		assert.Equal(t, 400, responses.Code)
-// 		assert.Equal(t, "Bad Request", responses.Message)
-// 	})
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 	t.Run("FALSE Login Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"email":    "restaurant1@outlook.com",
-// 			"password": "resto",
-// 		})
+		assert.Equal(t, 404, responses.Code)
+		assert.Equal(t, "Not Found", responses.Message)
+	})
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+	t.Run("Success GetByOpen Restaurants", func(t *testing.T) {
 
-// 		req.Header.Set("Content-Type", "application/json")
+		query := make(url.Values)
+		query.Set("date_time", "2022-02-04 11:00:00")
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurants/login")
+		req := httptest.NewRequest(http.MethodGet, "/?"+query.Encode(), nil)
+		res := httptest.NewRecorder()
 
-// 		restoCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		restoCtrl.LoginRestoCtrl()(context)
+		req.Header.Set("Content-Type", "application/json")
 
-// 		responses := LoginResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
-// 		jwtToken = responses.Token
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/open")
 
-// 		assert.Equal(t, 404, responses.Code)
-// 		assert.Equal(t, "Not Found", responses.Message)
-// 	})
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		restaurantCtrl.GetsByOpen()(context)
 
-// 	t.Run("Login Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"email":    "restaurant1@outlook.my",
-// 			"password": "resto123",
-// 		})
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
 
-// 		req.Header.Set("Content-Type", "application/json")
+}
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurants/login")
+func Test_GetRestoByID_Restaurant(t *testing.T) {
+	config := configs.GetConfig()
+	fmt.Println(config)
 
-// 		restoCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		restoCtrl.LoginRestoCtrl()(context)
+	ec := echo.New()
 
-// 		responses := LoginResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
-// 		jwtToken = responses.Token
+	t.Run("Not Found GetRestoByID Restaurants", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		res := httptest.NewRecorder()
 
-// 		assert.Equal(t, 200, responses.Code)
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 	})
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// 	t.Run("FALSE Get Restaurant", func(t *testing.T) {
-// 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-// 		res := httptest.NewRecorder()
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant")
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.GetRestoByIdCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant")
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.GetRestoByIdCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+		assert.Equal(t, 404, responses.Code)
+		assert.Equal(t, "Not Found", responses.Message)
+	})
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+	t.Run("Success GetRestoByID Restaurants", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		res := httptest.NewRecorder()
 
-// 		assert.Equal(t, 404, responses.Code)
-// 		assert.Equal(t, "Not Found", responses.Message)
-// 	})
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// 	t.Run("FALSE Get Waiting Restaurant", func(t *testing.T) {
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant")
 
-// 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-// 		res := httptest.NewRecorder()
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.GetRestoByIdCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/admin/waiting")
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.GetsWaiting())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+}
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+func Test_UpdateRestoByID_Restaurant(t *testing.T) {
+	config := configs.GetConfig()
+	fmt.Println(config)
 
-// 		assert.Equal(t, 406, responses.Code)
-// 		assert.Equal(t, "Not Accepted", responses.Message)
-// 	})
+	ec := echo.New()
 
-// 	t.Run("FALSE Get Waiting Restaurant", func(t *testing.T) {
+	t.Run("Bad Request UpdateRestoByID Restaurants", func(t *testing.T) {
 
-// 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-// 		res := httptest.NewRecorder()
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"email": 1,
+		})
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/admin/waiting")
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.GetsWaiting())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant")
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.UpdateRestoByIdCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		assert.Equal(t, 404, responses.Code)
-// 		assert.Equal(t, "Not Found", responses.Message)
-// 	})
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 	t.Run("FALSE Update Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]int{
-// 			"email": 1,
-// 		})
+		assert.Equal(t, 400, responses.Code)
+		assert.Equal(t, "Bad Request", responses.Message)
+	})
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+	t.Run("Not Found UpdateRestoByID Restaurants", func(t *testing.T) {
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"email": "adminupdate@outlook.my",
+		})
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant")
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.UpdateRestoByIdCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant")
 
-// 		assert.Equal(t, 400, responses.Code)
-// 		assert.Equal(t, "Bad Request", responses.Message)
-// 	})
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.UpdateRestoByIdCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 	t.Run("FALSE Update Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"email":    "restaurant1@outlook.my",
-// 			"password": "resto12",
-// 		})
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		assert.Equal(t, 404, responses.Code)
+		assert.Equal(t, "Not Found", responses.Message)
+	})
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+	t.Run("Success UpdateRestoByID Restaurants", func(t *testing.T) {
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant")
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"email":    "adminupdate@outlook.my",
+			"password": "admin123",
+		})
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.UpdateRestoByIdCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// 		assert.Equal(t, 404, responses.Code)
-// 		assert.Equal(t, "Not Found", responses.Message)
-// 	})
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant")
 
-// 	t.Run("FALSE Create Detail Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]int{
-// 			"name": 1,
-// 		})
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.UpdateRestoByIdCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant/detail")
+}
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.CreateDetailRestoByIdCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+func Test_CreateDetailRestoByID_Restaurant(t *testing.T) {
+	config := configs.GetConfig()
+	fmt.Println(config)
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+	ec := echo.New()
 
-// 		assert.Equal(t, 400, responses.Code)
-// 		assert.Equal(t, "Bad Request", responses.Message)
-// 	})
+	t.Run("Bad Request CreateDetailRestoByID Restaurants", func(t *testing.T) {
 
-// 	t.Run("FALSE Create Detail Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"name": "restoFalse",
-// 		})
+		reqBody, _ := json.Marshal(map[string]int{
+			"name": 1,
+		})
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant/detail")
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant/detail")
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.CreateDetailRestoByIdCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.CreateDetailRestoByIdCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		assert.Equal(t, 404, responses.Code)
-// 		assert.Equal(t, "Not Found", responses.Message)
-// 	})
+		assert.Equal(t, 400, responses.Code)
+		assert.Equal(t, "Bad Request", responses.Message)
+	})
 
-// 	t.Run("FALSE Update Detail Restaurant", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]int{
-// 			"open": 1,
-// 		})
+	t.Run("Not Found CreateDetailRestoByID Restaurants", func(t *testing.T) {
 
-// 		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"name": "Restaurant 1",
+		})
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant/detail")
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.UpdateDetailRestoByIdCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant/detail")
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.CreateDetailRestoByIdCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		assert.Equal(t, 400, responses.Code)
-// 		assert.Equal(t, "Bad Request", responses.Message)
-// 	})
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 	t.Run("FALSE Update Detail Restaurant", func(t *testing.T) {
-// 		now := time.Now()
-// 		reqBody, _ := json.Marshal(map[string]interface{}{
-// 			"open": now,
-// 		})
+		assert.Equal(t, 404, responses.Code)
+		assert.Equal(t, "Not Found", responses.Message)
+	})
 
-// 		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+	t.Run("Success UpdateRestoByID Restaurants", func(t *testing.T) {
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"name": "Restaurant 1",
+		})
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant/detail")
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.UpdateDetailRestoByIdCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant/detail")
 
-// 		assert.Equal(t, 404, responses.Code)
-// 		assert.Equal(t, "Not Found", responses.Message)
-// 	})
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.CreateDetailRestoByIdCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 	t.Run("FALSE Approve Restaurant", func(t *testing.T) {
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		reqBody, _ := json.Marshal(map[string]int{
-// 			"resto_id": 1,
-// 		})
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
 
-// 		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+}
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
+func Test_UpdateDetailRestoByID_Restaurant(t *testing.T) {
+	config := configs.GetConfig()
+	fmt.Println(config)
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/admin/approve")
+	ec := echo.New()
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.Approve())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+	t.Run("Bad Request UpdateDetailRestoByID Restaurants", func(t *testing.T) {
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		reqBody, _ := json.Marshal(map[string]int{
+			"open_hour": 1,
+		})
 
-// 		assert.Equal(t, 404, responses.Code)
-// 		assert.Equal(t, "Not Found", responses.Message)
-// 	})
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 	t.Run("FALSE Approve Restaurant", func(t *testing.T) {
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// 		reqBody, _ := json.Marshal(map[string]int{
-// 			"resto_id": 1,
-// 		})
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant/detail")
 
-// 		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.UpdateDetailRestoByIdCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/admin/approve")
+		assert.Equal(t, 400, responses.Code)
+		assert.Equal(t, "Bad Request", responses.Message)
+	})
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.Approve())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+	t.Run("Not Found UpdateDetailRestoByID Restaurants", func(t *testing.T) {
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"open_hour": "11:30",
+		})
 
-// 		assert.Equal(t, 406, responses.Code)
-// 		assert.Equal(t, "Not Accepted", responses.Message)
-// 	})
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 	t.Run("FALSE Approve Restaurant", func(t *testing.T) {
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"resto_id": "asd",
-// 		})
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant/detail")
 
-// 		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.UpdateDetailRestoByIdCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/admin/approve")
+		assert.Equal(t, 404, responses.Code)
+		assert.Equal(t, "Not Found", responses.Message)
+	})
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.Approve())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+	t.Run("Success UpdateDetailRestoByID Restaurants", func(t *testing.T) {
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"Open_hour": "12:00",
+		})
 
-// 		assert.Equal(t, 400, responses.Code)
-// 		assert.Equal(t, "Bad Request", responses.Message)
-// 	})
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 	t.Run("FALSE Show All Restaurant", func(t *testing.T) {
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-// 		res := httptest.NewRecorder()
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant/detail")
 
-// 		req.Header.Set("Content-Type", "application/json")
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.UpdateDetailRestoByIdCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurants")
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		restaurantCtrl.Gets()(context)
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+}
 
-// 		assert.Equal(t, 404, responses.Code)
-// 		assert.Equal(t, "Not Found", responses.Message)
-// 	})
+func Test_DeleteDetailRestoByID_Restaurant(t *testing.T) {
+	config := configs.GetConfig()
+	fmt.Println(config)
 
-// 	t.Run("Show All open by day", func(t *testing.T) {
+	ec := echo.New()
 
-// 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-// 		res := httptest.NewRecorder()
+	t.Run("Bad Request DeleteDetailRestoByID Restaurants", func(t *testing.T) {
 
-// 		req.Header.Set("Content-Type", "application/json")
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
+		res := httptest.NewRecorder()
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurants/open?open=Monday&operational_hour=10:00")
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		restaurantCtrl.GetsByOpen()(context)
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant")
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.DeleteRestaurantCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		assert.Equal(t, 404, responses.Code)
-// 		assert.Equal(t, "Not Found", responses.Message)
-// 	})
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 	t.Run("FALSE Delete Restaurant", func(t *testing.T) {
+		assert.Equal(t, 406, responses.Code)
+		assert.Equal(t, "Not Accepted", responses.Message)
+	})
 
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"resto_id": "a",
-// 		})
+	t.Run("Bad Request DeleteDetailRestoByID Restaurants", func(t *testing.T) {
 
-// 		req := httptest.NewRequest(http.MethodDelete, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"resto_id": "2",
+		})
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
+		req := httptest.NewRequest(http.MethodDelete, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant")
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.DeleteRestaurantCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant")
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.DeleteRestaurantCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		assert.Equal(t, 400, responses.Code)
-// 		assert.Equal(t, "Bad Request", responses.Message)
-// 	})
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 	t.Run("FALSE Delete Restaurant", func(t *testing.T) {
+		assert.Equal(t, 400, responses.Code)
+		assert.Equal(t, "Bad Request", responses.Message)
+	})
 
-// 		reqBody, _ := json.Marshal(map[string]int{
-// 			"resto_id": 1,
-// 		})
+	t.Run("Not Found DeleteDetailRestoByID Restaurants", func(t *testing.T) {
 
-// 		req := httptest.NewRequest(http.MethodDelete, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"resto_id": 1,
+		})
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
+		req := httptest.NewRequest(http.MethodDelete, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant")
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.DeleteRestaurantCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant")
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.DeleteRestaurantCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		assert.Equal(t, 404, responses.Code)
-// 		assert.Equal(t, "Not Found", responses.Message)
-// 	})
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// 	t.Run("FALSE Delete Restaurant", func(t *testing.T) {
+		assert.Equal(t, 404, responses.Code)
+		assert.Equal(t, "Not Found", responses.Message)
+	})
 
-// 		reqBody, _ := json.Marshal(map[string]int{
-// 			"resto_id": 1,
-// 		})
+	t.Run("Success DeleteDetailRestoByID Restaurants", func(t *testing.T) {
 
-// 		req := httptest.NewRequest(http.MethodDelete, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"resto_id": 1,
+		})
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		req := httptest.NewRequest(http.MethodDelete, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/restaurant")
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenAdmin))
 
-// 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-// 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.DeleteRestaurantCtrl())(context); err != nil {
-// 			log.Fatal(err)
-// 			return
-// 		}
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant")
 
-// 		responses := RestaurantResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.DeleteRestaurantCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
 
-// 		assert.Equal(t, 406, responses.Code)
-// 		assert.Equal(t, "Not Accepted", responses.Message)
-// 	})
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-// }
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
 
-// type mockFalseRestaurantRepository struct{}
+}
 
-// func (m mockFalseRestaurantRepository) Register(newUser entities.Restaurant) (entities.Restaurant, error) {
-// 	return entities.Restaurant{ID: 0, Email: "restaurant1@outlook.my"}, errors.New("")
-// }
+type mockUserRepository struct{}
 
-// func (m mockFalseRestaurantRepository) LoginRestaurant(email, password string) (entities.Restaurant, error) {
-// 	hash := sha256.Sum256([]byte("resto123"))
-// 	passwordS := fmt.Sprintf("%x", hash[:])
-// 	return entities.Restaurant{ID: 0, Email: "restaurant1@outlook.my", Password: passwordS}, errors.New("")
-// }
+func (m mockUserRepository) RegisterAdmin(newUser entities.User) (entities.User, error) {
+	return entities.User{
+		Model: gorm.Model{
+			ID:        1,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+			DeletedAt: gorm.DeletedAt{},
+		},
+		ID:          1,
+		Email:       "admin@outlook.my",
+		Password:    "admin123",
+		Name:        "admin",
+		PhoneNumber: "0877",
+		Reputation:  999,
+		Balance:     100,
+	}, nil
+}
 
-// func (m mockFalseRestaurantRepository) GetsWaiting() ([]entities.RestaurantDetail, error) {
-// 	return []entities.RestaurantDetail{}, errors.New("")
-// }
+func (m mockUserRepository) Register(newUser entities.User) (entities.User, error) {
+	return entities.User{
+		Model: gorm.Model{
+			ID:        1,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+			DeletedAt: gorm.DeletedAt{},
+		},
+		ID:          1,
+		Email:       "admin@outlook.my",
+		Password:    "admin123",
+		Name:        "admin",
+		PhoneNumber: "0877",
+		Reputation:  999,
+		Balance:     100,
+	}, nil
+}
 
-// func (m mockFalseRestaurantRepository) Approve(restaurantID uint, status string) (entities.RestaurantDetail, error) {
-// 	return entities.RestaurantDetail{}, errors.New("")
-// }
+func (m mockUserRepository) LoginUser(email, password string) (entities.User, error) {
+	hash := sha256.Sum256([]byte("admin123"))
+	passwordS := fmt.Sprintf("%x", hash[:])
+	return entities.User{
+		Model: gorm.Model{
+			ID:        1,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+			DeletedAt: gorm.DeletedAt{},
+		},
+		ID:          1,
+		Email:       "admin@outlook.my",
+		Password:    passwordS,
+		Name:        "admin",
+		PhoneNumber: "0877",
+		Reputation:  999,
+		Balance:     100,
+	}, nil
+}
 
-// func (m mockFalseRestaurantRepository) Get(restaurantID uint) (entities.Restaurant, entities.RestaurantDetail, error) {
-// 	return entities.Restaurant{ID: 0}, entities.RestaurantDetail{ID: 0}, errors.New("")
-// }
+func (m mockUserRepository) Get(userID uint) (entities.User, error) {
+	return entities.User{
+		Model: gorm.Model{
+			ID:        1,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+			DeletedAt: gorm.DeletedAt{},
+		},
+		ID:          1,
+		Email:       "admin@outlook.my",
+		Password:    "admin123",
+		Name:        "admin",
+		PhoneNumber: "0877",
+		Reputation:  999,
+		Balance:     100,
+	}, nil
+}
 
-// func (m mockFalseRestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
-// 	return []entities.RestaurantDetail{}, errors.New("")
-// }
+func (m mockUserRepository) Update(userID uint, updateUser entities.User) (entities.User, error) {
+	return entities.User{
+		Model: gorm.Model{
+			ID:        1,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+			DeletedAt: gorm.DeletedAt{},
+		},
+		ID:          1,
+		Email:       "admin@outlook.my",
+		Password:    "admin123",
+		Name:        "admin",
+		PhoneNumber: "0877",
+		Reputation:  999,
+		Balance:     100,
+	}, nil
+}
 
-// func (m mockFalseRestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
-// 	return []entities.RestaurantDetail{}, errors.New("")
-// }
+func (m mockUserRepository) Delete(userID uint) (entities.User, error) {
+	return entities.User{
+		Model: gorm.Model{
+			ID:        1,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+			DeletedAt: gorm.DeletedAt{},
+		},
+		ID:          1,
+		Email:       "admin@outlook.my",
+		Password:    "admin123",
+		Name:        "admin",
+		PhoneNumber: "0877",
+		Reputation:  999,
+		Balance:     100,
+	}, nil
+}
 
-// func (m mockFalseRestaurantRepository) Update(restaurantID uint, updateUser entities.Restaurant) (entities.Restaurant, error) {
-// 	return entities.Restaurant{ID: 0, Email: "restaurant1Update@outlook.my"}, errors.New("")
-// }
+type mockRestaurantRepository struct{}
 
-// func (m mockFalseRestaurantRepository) UpdateDetail(restaurantID uint, updateUser entities.RestaurantDetail) (entities.RestaurantDetail, error) {
-// 	return entities.RestaurantDetail{ID: 0}, errors.New("")
-// }
+func (m mockRestaurantRepository) Register(newUser entities.Restaurant) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 1, Email: "restaurant1@outlook.my"}, nil
+}
 
-// func (m mockFalseRestaurantRepository) Delete(restaurantID uint) (entities.Restaurant, error) {
-// 	return entities.Restaurant{ID: 0}, errors.New("")
-// }
+func (m mockRestaurantRepository) LoginRestaurant(email, password string) (entities.Restaurant, error) {
+	hash := sha256.Sum256([]byte("resto123"))
+	passwordS := fmt.Sprintf("%x", hash[:])
+	return entities.Restaurant{ID: 1, Email: "restaurant1@outlook.my", Password: passwordS}, nil
+}
+
+func (m mockRestaurantRepository) GetsWaiting() ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{{ID: 1}}, nil
+}
+
+func (m mockRestaurantRepository) Approve(restaurantID uint, status string) (entities.RestaurantDetail, error) {
+	return entities.RestaurantDetail{ID: 1}, nil
+}
+
+func (m mockRestaurantRepository) Get(restaurantID uint) (entities.Restaurant, entities.RestaurantDetail, error) {
+	return entities.Restaurant{ID: 1}, entities.RestaurantDetail{ID: 1}, nil
+}
+
+func (m mockRestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{{
+		Model: gorm.Model{
+			ID:        1,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+			DeletedAt: gorm.DeletedAt{},
+		},
+		ID:             1,
+		Name:           "Restaurant 1 TRUE",
+		Open_Hour:      "15:00",
+		Close_Hour:     "17:00",
+		Open:           "Monday",
+		Close:          "Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday",
+		Price:          10000,
+		Latitude:       0,
+		Longitude:      0,
+		City:           "Jakarta",
+		Address:        "Jl.Taman Daan Mogot no.7",
+		PhoneNumber:    "088",
+		ProfilePicture: "https://",
+		Seats:          20,
+		Status:         "OPEN",
+		Description:    "Restaurant Satu",
+	}}, nil
+}
+
+func (m mockRestaurantRepository) GetExistSeat(restauranId uint, date_time string) ([]entities.Transaction, int, error) {
+	return []entities.Transaction{}, 1, nil
+}
+
+func (m mockRestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{{ID: 1}}, nil
+}
+
+func (m mockRestaurantRepository) Update(restaurantID uint, updateUser entities.Restaurant) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 1, Email: "restaurant1Update@outlook.my"}, nil
+}
+
+func (m mockRestaurantRepository) UpdateDetail(restaurantID uint, updateUser entities.RestaurantDetail) (entities.RestaurantDetail, error) {
+	return entities.RestaurantDetail{ID: 1}, nil
+}
+
+func (m mockRestaurantRepository) Delete(restaurantID uint) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 1}, nil
+}
+
+type mockFalseRestaurantRepository struct{}
+
+func (m mockFalseRestaurantRepository) Register(newUser entities.Restaurant) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 0, Email: "restaurant1@outlook.my"}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository) LoginRestaurant(email, password string) (entities.Restaurant, error) {
+	hash := sha256.Sum256([]byte("resto123"))
+	passwordS := fmt.Sprintf("%x", hash[:])
+	return entities.Restaurant{ID: 0, Email: "restaurant1@outlook.my", Password: passwordS}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository) GetsWaiting() ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository) Approve(restaurantID uint, status string) (entities.RestaurantDetail, error) {
+	return entities.RestaurantDetail{}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository) Get(restaurantID uint) (entities.Restaurant, entities.RestaurantDetail, error) {
+	return entities.Restaurant{ID: 0}, entities.RestaurantDetail{ID: 0}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository) GetExistSeat(restauranId uint, date_time string) ([]entities.Transaction, int, error) {
+	return []entities.Transaction{{ID: 0}}, 1, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{{ID: 0}}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository) Update(restaurantID uint, updateUser entities.Restaurant) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 0, Email: "restaurant1Update@outlook.my"}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository) UpdateDetail(restaurantID uint, updateUser entities.RestaurantDetail) (entities.RestaurantDetail, error) {
+	return entities.RestaurantDetail{
+		Model: gorm.Model{
+			ID:        1,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+			DeletedAt: gorm.DeletedAt{},
+		},
+		ID:             1,
+		Name:           "Restauran 1",
+		Open_Hour:      "11:30",
+		Close_Hour:     "17:00",
+		Open:           "Monday",
+		Close:          "Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday",
+		Price:          10000,
+		Latitude:       0,
+		Longitude:      0,
+		City:           "",
+		Address:        "",
+		PhoneNumber:    "",
+		ProfilePicture: "",
+		Seats:          0,
+		Status:         "",
+		Description:    "",
+	}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository) Delete(restaurantID uint) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 0}, errors.New("")
+}
