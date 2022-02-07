@@ -62,17 +62,21 @@ func (tr *TransactionRepository) ShowAllTransaction(restaurantId uint) ([]entiti
 	}
 	return transaction, nil
 }
-func (tr *TransactionRepository) GetBalanceAndPriceResto(userId, restaurantId uint) (BalanceAndPriceResto, error) {
+func (tr *TransactionRepository) GetBalance(userId uint) (entities.User, error) {
 	user := entities.User{}
-	resto := entities.RestaurantDetail{}
-	if err := tr.db.Select("price", "seats").Where("id=?", restaurantId).First(&resto).Error; err != nil {
-		return BalanceAndPriceResto{PriceResto: resto.Price, Seats: resto.Seats}, err
-	}
+
 	if err := tr.db.Select("balance").Where("id=?", userId).First(&user).Error; err != nil {
-		return BalanceAndPriceResto{Balance: user.Balance}, err
+		return user, err
 	}
 
-	return BalanceAndPriceResto{Balance: user.Balance, PriceResto: resto.Price, Seats: resto.Seats}, nil
+	return user, nil
+}
+func (tr *TransactionRepository) GetRestoDetail(restaurantId uint) (entities.RestaurantDetail, error) {
+	resto := entities.RestaurantDetail{}
+	if err := tr.db.Select("price", "seats", "open", "operational_hour", "status").Where("id=?", restaurantId).First(&resto).Error; err != nil {
+		return resto, err
+	}
+	return resto, nil
 }
 
 func (tr *TransactionRepository) UpdateUserBalance(userId uint, balance int) (entities.User, error) {
@@ -95,4 +99,20 @@ func (tr *TransactionRepository) UpdateTransactionStatus(newTransaction entities
 	tr.db.Model(&transaction).Updates(newTransaction)
 	return transaction, nil
 
+}
+
+func (tr *TransactionRepository) GetTotalSeat(restaurantId uint, dateTime string) (int, error) {
+	var result int
+	err := tr.db.Model(&entities.Transaction{}).Select("sum(persons) as total").Where("date_time=?", dateTime).Where("restaurant_id=?", restaurantId).Find(&result).Error
+	if err != nil {
+		return result, err
+	}
+	return result, nil
+}
+func (tr *TransactionRepository) CheckSameHour(restaurantId, userId uint, dateTime string) (bool, error) {
+	transaction := entities.Transaction{}
+	if err := tr.db.First(&transaction, "user_id=? and restaurant_id=? and date_time=?", userId, restaurantId, dateTime).Error; err != nil {
+		return false, err
+	}
+	return true, nil
 }
