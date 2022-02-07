@@ -59,7 +59,12 @@ func (rc RatingsController) Create() echo.HandlerFunc {
 			Comment:      ratingData.Comment,
 		}
 
-		return c.JSON(http.StatusOK, response)
+		finalResponse := RatingResponseFormat{
+			Code:    http.StatusOK,
+			Message: "Successful Operation",
+			Data:    response,
+		}
+		return c.JSON(http.StatusOK, finalResponse)
 	}
 }
 
@@ -101,7 +106,12 @@ func (rc RatingsController) Update() echo.HandlerFunc {
 			Comment:      ratingData.Comment,
 		}
 
-		return c.JSON(http.StatusOK, response)
+		finalResponse := RatingResponseFormat{
+			Code:    http.StatusOK,
+			Message: "Successful Operation",
+			Data:    response,
+		}
+		return c.JSON(http.StatusOK, finalResponse)
 	}
 }
 

@@ -19,6 +19,7 @@ type RestaurantResponse struct {
 }
 
 type RestaurantDResponse struct {
+	ID             uint    `json:"id"`
 	Name           string  `json:"name"`
 	Open           string  `json:"open"`
 	Close          string  `json:"close"`
@@ -32,4 +33,11 @@ type RestaurantDResponse struct {
 	Seats          int     `json:"json"`
 	Description    string  `json:"description"`
 	Status         string  `json:"status"`
+}
+
+type RestaurantDApproveResponse struct {
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	PhoneNumber string `json:"phone"`
+	Status      string `json:"status"`
 }
