@@ -8,7 +8,9 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
@@ -127,7 +129,7 @@ func (rescon RestaurantsController) Approve() echo.HandlerFunc {
 				return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 			} else {
 
-				responses := RestaurantDResponse{
+				responses := RestaurantDApproveResponse{
 					ID:          res.ID,
 					Name:        res.Name,
 					PhoneNumber: res.PhoneNumber,
@@ -169,32 +171,60 @@ func (rescon RestaurantsController) Gets() echo.HandlerFunc {
 func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		open := c.QueryParam("open")
-		oh := c.QueryParam("operational_hour")
-		opentoint := 0
-		ohtoint := strings.Split(oh, ":")
-		fmt.Println("===>", ohtoint)
-		fmt.Println("====>", ohtoint[0])
-
-		for i := 0; i < len(common.Daytoint); i++ {
-			if open == common.Daytoint[i].Day {
-				opentoint = common.Daytoint[i].No
-			}
-		}
-
-		if res, err := rescon.Repo.GetsByOpen(opentoint, 1); err != nil || len(res) == 0 {
+		date_time := c.QueryParam("date_time")
+		res, err := rescon.Repo.Gets()
+		if err != nil || len(res) == 0 {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
-		} else {
+		}
+		date_time_parse, _ := time.Parse("2006-01-02 15:04:05", date_time)
+		date_time_split := strings.Split(date_time, " ")
 
-			response := RestaurantResponseFormat{
-				Code:    http.StatusOK,
-				Message: "Successful Operation",
-				Data:    res,
+		day := date_time_parse.Weekday().String()
+		daytoint := 0
+		for i := 0; i < len(common.Daytoint); i++ {
+			if day == common.Daytoint[i].Day {
+				daytoint = common.Daytoint[i].No
 			}
-
-			return c.JSON(http.StatusOK, response)
+		}
+		time := date_time_split[1]
+		timeall := strings.Split(time, ":")
+		timealls := timeall[0] + timeall[1]
+		timeallsInt, _ := strconv.Atoi(timealls)
+		if res, err := rescon.Repo.GetsByOpen(daytoint); err != nil || len(res) == 0 {
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 
+		newRestaurantD := []entities.RestaurantDetail{}
+
+		for i := 0; i < len(res); i++ {
+
+			splitOH := strings.Split(res[i].Open_Hour, ":")
+			allOH, _ := strconv.Atoi(splitOH[0] + splitOH[1])
+
+			splitCH := strings.Split(res[i].Close_Hour, ":")
+			allCH, _ := strconv.Atoi(splitCH[0] + splitCH[1])
+
+			if timeallsInt >= allOH && timeallsInt <= allCH {
+
+				date_time_parse_noutc := date_time_split[0] + " " + date_time_split[1]
+
+				_, total_seat, err := rescon.Repo.GetExistSeat(res[i].ID, date_time_parse_noutc)
+				if err != nil {
+					return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+				}
+				res[i].Seats = res[i].Seats - total_seat
+				newRestaurantD = append(newRestaurantD, res[i])
+
+			}
+		}
+
+		response := RestaurantResponseFormat{
+			Code:    http.StatusOK,
+			Message: "Successful Operation",
+			Data:    newRestaurantD,
+		}
+
+		return c.JSON(http.StatusOK, response)
 	}
 }
 
@@ -275,20 +305,21 @@ func (rescon RestaurantsController) CreateDetailRestoByIdCtrl() echo.HandlerFunc
 		}
 
 		createRestoD := entities.RestaurantDetail{
-			Name:            createRestoDReq.Name,
-			Open:            createRestoDReq.Open,
-			Close:           createRestoDReq.Close,
-			OperationalHour: createRestoDReq.OperationalHour,
-			Price:           createRestoDReq.Price,
-			Latitude:        createRestoDReq.Latitude,
-			Longitude:       createRestoDReq.Longitude,
-			City:            createRestoDReq.City,
-			Address:         createRestoDReq.Address,
-			PhoneNumber:     createRestoDReq.PhoneNumber,
-			ProfilePicture:  createRestoDReq.ProfilePicture,
-			Seats:           createRestoDReq.Seats,
-			Description:     createRestoDReq.Description,
-			Status:          "Waiting for approval",
+			Name:           createRestoDReq.Name,
+			Open:           createRestoDReq.Open,
+			Close:          createRestoDReq.Close,
+			Open_Hour:      createRestoDReq.Open_Hour,
+			Close_Hour:     createRestoDReq.Close_Hour,
+			Price:          createRestoDReq.Price,
+			Latitude:       createRestoDReq.Latitude,
+			Longitude:      createRestoDReq.Longitude,
+			City:           createRestoDReq.City,
+			Address:        createRestoDReq.Address,
+			PhoneNumber:    createRestoDReq.PhoneNumber,
+			ProfilePicture: createRestoDReq.ProfilePicture,
+			Seats:          createRestoDReq.Seats,
+			Description:    createRestoDReq.Description,
+			Status:         "Waiting for approval",
 		}
 
 		if res, err := rescon.Repo.UpdateDetail(uint(restoID), createRestoD); err != nil || res.ID == 0 {
@@ -319,14 +350,15 @@ func (rescon RestaurantsController) UpdateDetailRestoByIdCtrl() echo.HandlerFunc
 		}
 
 		updateRestoD := entities.RestaurantDetail{
-			Open:            updateRestoDReq.Open,
-			Close:           updateRestoDReq.Close,
-			OperationalHour: updateRestoDReq.OperationalHour,
-			Price:           updateRestoDReq.Price,
-			PhoneNumber:     updateRestoDReq.PhoneNumber,
-			ProfilePicture:  updateRestoDReq.ProfilePicture,
-			Seats:           updateRestoDReq.Seats,
-			Description:     updateRestoDReq.Description,
+			Open:           updateRestoDReq.Open,
+			Close:          updateRestoDReq.Close,
+			Open_Hour:      updateRestoDReq.Open_Hour,
+			Close_Hour:     updateRestoDReq.Close_Hour,
+			Price:          updateRestoDReq.Price,
+			PhoneNumber:    updateRestoDReq.PhoneNumber,
+			ProfilePicture: updateRestoDReq.ProfilePicture,
+			Seats:          updateRestoDReq.Seats,
+			Description:    updateRestoDReq.Description,
 		}
 
 		if res, err := rescon.Repo.UpdateDetail(uint(restoID), updateRestoD); err != nil {

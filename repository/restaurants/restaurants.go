@@ -107,34 +107,40 @@ func (rr *RestaurantRepository) Get(restaurantId uint) (entities.Restaurant, ent
 
 }
 
-func (rr *RestaurantRepository) GetsByOpen(open, oh int) ([]entities.RestaurantDetail, error) {
+func (rr *RestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
 	restaurantD := []entities.RestaurantDetail{}
+	// newrestaurantD := []entities.RestaurantDetail{}
+	// fmt.Println("=>open", open)
+	openstr := strconv.Itoa(open)
 
-	if err := rr.db.Not("status=?", "DISABLED").Not("status=?", "CLOSED").Find(&restaurantD).Error; err != nil {
+	if err := rr.db.Where("status=? AND open LIKE ?", "OPEN", "%"+openstr+"%").Find(&restaurantD).Error; err != nil {
 		return restaurantD, err
 	} else {
 
-		// fmt.Println("===> semua resto", restaurantD)
+		for i := 0; i < len(restaurantD); i++ {
+			openDay := strings.Split(restaurantD[i].Open, ",")
+			closeDay := strings.Split(restaurantD[i].Close, ",")
+			openStr := ""
+			closeStr := ""
 
-		// openArray := make(map[string]int)
-		// angkaOpen := 0
-		// for i := 0; i < len(restaurantD); i++ {
-		// 	openDay := strings.Split(restaurantD[i].Open, ",")
-		// 	for j := 0; j < len(openDay); j++ {
-		// 		for k := 0; k < len(daytoint); k++ {
-		// 			if openDay[j] == daytoint[k].day {
-		// 				openArray[openDay[j]] = daytoint[k].no
-		// 			}
-		// 		}
-		// 	}
-		// }
-		// for k := 0; k < len(daytoint); k++ {
-		// 	if open == daytoint[k].day {
-		// 		angkaOpen = daytoint[k].no
-		// 	}
-		// }
-		// fmt.Println("open", openArray)
-		// fmt.Println("show open", angkaOpen)
+			for j := 0; j < len(openDay); j++ {
+				for k := 0; k < len(common.Daytoint); k++ {
+					if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
+						openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
+					}
+				}
+			}
+			for l := 0; l < len(closeDay); l++ {
+				for m := 0; m < len(common.Daytoint); m++ {
+					if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
+						closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
+					}
+				}
+			}
+			restaurantD[i].Open = openStr
+			restaurantD[i].Close = closeStr
+
+		}
 
 		return restaurantD, nil
 	}
@@ -143,19 +149,25 @@ func (rr *RestaurantRepository) GetsByOpen(open, oh int) ([]entities.RestaurantD
 
 func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 	restaurantD := []entities.RestaurantDetail{}
-
 	if err := rr.db.Not("status=?", "DISABLED").Not("status=?", "CLOSED").Not("status=?", "Waiting for approval").Find(&restaurantD).Error; err != nil {
 		return restaurantD, err
 	} else {
+
 		// fmt.Println("===> Semua resto yang open", restaurantD)
 		for i := 0; i < len(restaurantD); i++ {
 			openDay := strings.Split(restaurantD[i].Open, ",")
 			closeDay := strings.Split(restaurantD[i].Close, ",")
 			openStr := ""
 			closeStr := ""
+			openH := strings.Split(restaurantD[i].Open_Hour, ":")
+			closeH := strings.Split(restaurantD[i].Close_Hour, ":")
 
-			// fmt.Println("open", openDay)
-			// fmt.Println("close", closeDay)
+			openHHour := openH[0]
+			openHMinute := openH[1]
+
+			closeHHour := closeH[0]
+			closeHMinute := closeH[1]
+
 			for j := 0; j < len(openDay); j++ {
 				for k := 0; k < len(common.Daytoint); k++ {
 					if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
@@ -175,10 +187,27 @@ func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 
 			restaurantD[i].Open = openStr
 			restaurantD[i].Close = closeStr
+			restaurantD[i].Open_Hour = openHHour + ":" + openHMinute
+			restaurantD[i].Close_Hour = closeHHour + ":" + closeHMinute
 
 		}
 
 		return restaurantD, nil
+	}
+
+}
+
+func (rr *RestaurantRepository) GetExistSeat(restauranId uint, date_time string) ([]entities.Transaction, int, error) {
+	transactions := []entities.Transaction{}
+	result := 0
+	if err := rr.db.Where("restaurant_id=? AND date_time = ?", restauranId, date_time).Find(&transactions).Error; err != nil {
+		return transactions, result, err
+	} else {
+		if err := rr.db.Model(&entities.Transaction{}).Select("sum(persons) as total").Where("date_time=?", date_time).Where("restaurant_id=?", restauranId).Find(&result).Error; err != nil {
+			return transactions, result, err
+		} else {
+			return transactions, result, nil
+		}
 	}
 
 }
@@ -219,39 +248,41 @@ func (rr *RestaurantRepository) UpdateDetail(restaurantId uint, updateRestaurant
 	}
 
 	parsingint := entities.RestaurantDetail{
-		ID:              restaurantId,
-		Name:            updateRestaurantD.Name,
-		Open:            openInt,
-		Close:           closeInt,
-		OperationalHour: updateRestaurantD.OperationalHour,
-		Price:           updateRestaurantD.Price,
-		Latitude:        updateRestaurantD.Latitude,
-		Longitude:       updateRestaurantD.Longitude,
-		City:            updateRestaurantD.City,
-		Address:         updateRestaurantD.Address,
-		PhoneNumber:     updateRestaurantD.PhoneNumber,
-		ProfilePicture:  updateRestaurantD.ProfilePicture,
-		Seats:           updateRestaurantD.Seats,
-		Description:     updateRestaurantD.Description,
-		Status:          "Waiting for approval",
+		ID:             restaurantId,
+		Name:           updateRestaurantD.Name,
+		Open:           openInt,
+		Close:          closeInt,
+		Open_Hour:      updateRestaurantD.Open_Hour,
+		Close_Hour:     updateRestaurantD.Close_Hour,
+		Price:          updateRestaurantD.Price,
+		Latitude:       updateRestaurantD.Latitude,
+		Longitude:      updateRestaurantD.Longitude,
+		City:           updateRestaurantD.City,
+		Address:        updateRestaurantD.Address,
+		PhoneNumber:    updateRestaurantD.PhoneNumber,
+		ProfilePicture: updateRestaurantD.ProfilePicture,
+		Seats:          updateRestaurantD.Seats,
+		Description:    updateRestaurantD.Description,
+		Status:         "Waiting for approval",
 	}
 
 	parsingstring := entities.RestaurantDetail{
-		ID:              restaurantId,
-		Name:            updateRestaurantD.Name,
-		Open:            updateRestaurantD.Open,
-		Close:           updateRestaurantD.Close,
-		OperationalHour: updateRestaurantD.OperationalHour,
-		Price:           updateRestaurantD.Price,
-		Latitude:        updateRestaurantD.Latitude,
-		Longitude:       updateRestaurantD.Longitude,
-		City:            updateRestaurantD.City,
-		Address:         updateRestaurantD.Address,
-		PhoneNumber:     updateRestaurantD.PhoneNumber,
-		ProfilePicture:  updateRestaurantD.ProfilePicture,
-		Seats:           updateRestaurantD.Seats,
-		Description:     updateRestaurantD.Description,
-		Status:          "Waiting for approval",
+		ID:             restaurantId,
+		Name:           updateRestaurantD.Name,
+		Open:           updateRestaurantD.Open,
+		Close:          updateRestaurantD.Close,
+		Open_Hour:      updateRestaurantD.Open_Hour,
+		Close_Hour:     updateRestaurantD.Close_Hour,
+		Price:          updateRestaurantD.Price,
+		Latitude:       updateRestaurantD.Latitude,
+		Longitude:      updateRestaurantD.Longitude,
+		City:           updateRestaurantD.City,
+		Address:        updateRestaurantD.Address,
+		PhoneNumber:    updateRestaurantD.PhoneNumber,
+		ProfilePicture: updateRestaurantD.ProfilePicture,
+		Seats:          updateRestaurantD.Seats,
+		Description:    updateRestaurantD.Description,
+		Status:         "Waiting for approval",
 	}
 
 	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil {

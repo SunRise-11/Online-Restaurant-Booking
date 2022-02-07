@@ -23,6 +23,8 @@ type RestaurantDResponse struct {
 	Name           string  `json:"name"`
 	Open           string  `json:"open"`
 	Close          string  `json:"close"`
+	Open_Hour      string  `json:"open_hour"`
+	Close_Hour     string  `json:"close_hour"`
 	Price          int     `json:"price"`
 	Latitude       float64 `json:"latitude"`
 	Longitude      float64 `json:"longitude"`
