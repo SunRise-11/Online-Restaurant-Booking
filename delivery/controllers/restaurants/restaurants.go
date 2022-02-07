@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
@@ -126,10 +127,17 @@ func (rescon RestaurantsController) Approve() echo.HandlerFunc {
 				return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 			} else {
 
+				responses := RestaurantDResponse{
+					ID:          res.ID,
+					Name:        res.Name,
+					PhoneNumber: res.PhoneNumber,
+					Status:      res.Status,
+				}
+
 				response := RestaurantResponseFormat{
 					Code:    http.StatusOK,
 					Message: "Successful Operation",
-					Data:    res,
+					Data:    responses,
 				}
 
 				return c.JSON(http.StatusOK, response)
@@ -163,8 +171,18 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 
 		open := c.QueryParam("open")
 		oh := c.QueryParam("operational_hour")
+		opentoint := 0
+		ohtoint := strings.Split(oh, ":")
+		fmt.Println("===>", ohtoint)
+		fmt.Println("====>", ohtoint[0])
 
-		if res, err := rescon.Repo.GetsByOpen(open, oh); err != nil || len(res) == 0 {
+		for i := 0; i < len(common.Daytoint); i++ {
+			if open == common.Daytoint[i].Day {
+				opentoint = common.Daytoint[i].No
+			}
+		}
+
+		if res, err := rescon.Repo.GetsByOpen(opentoint, 1); err != nil || len(res) == 0 {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 

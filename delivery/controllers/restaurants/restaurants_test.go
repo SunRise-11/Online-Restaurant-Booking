@@ -401,7 +401,7 @@ func (m mockRestaurantRepository) Get(restaurantID uint) (entities.Restaurant, e
 	return entities.Restaurant{ID: 1}, entities.RestaurantDetail{ID: 1}, nil
 }
 
-func (m mockRestaurantRepository) GetsByOpen(open, oh string) ([]entities.RestaurantDetail, error) {
+func (m mockRestaurantRepository) GetsByOpen(open, oh int) ([]entities.RestaurantDetail, error) {
 	return []entities.RestaurantDetail{{ID: 1}}, nil
 }
 func (m mockRestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
@@ -1089,7 +1089,7 @@ func (m mockFalseRestaurantRepository) Get(restaurantID uint) (entities.Restaura
 	return entities.Restaurant{ID: 0}, entities.RestaurantDetail{ID: 0}, errors.New("")
 }
 
-func (m mockFalseRestaurantRepository) GetsByOpen(open, oh string) ([]entities.RestaurantDetail, error) {
+func (m mockFalseRestaurantRepository) GetsByOpen(open, oh int) ([]entities.RestaurantDetail, error) {
 	return []entities.RestaurantDetail{}, errors.New("")
 }
 

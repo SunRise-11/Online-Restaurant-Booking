@@ -93,7 +93,7 @@ func TestRestaurantsRepo(t *testing.T) {
 	})
 
 	t.Run("Show Open by Day", func(t *testing.T) {
-		res, err := restaurantRepo.GetsByOpen("Monday", "10:00")
+		res, err := restaurantRepo.GetsByOpen(0, 10)
 		assert.Equal(t, res, res)
 		assert.Nil(t, err)
 	})
@@ -235,7 +235,7 @@ func TestFalseRestaurantsRepo(t *testing.T) {
 	})
 
 	t.Run("FALSE Show open by day", func(t *testing.T) {
-		res, err := restaurantRepo.GetsByOpen("as", "as")
+		res, err := restaurantRepo.GetsByOpen(00, 00)
 		assert.Equal(t, res, res)
 		assert.Error(t, err)
 	})
