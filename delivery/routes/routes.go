@@ -51,6 +51,7 @@ func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.Users
 	// ---------------------------------------------------------------------
 	e.POST("/transaction", tctrl.CreateTransactionCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 	e.GET("/transaction/waiting", tctrl.GetAllWaitingCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
+	e.GET("/transaction/restaurant/waiting", tctrl.GetAllWaitingForRestoCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 	e.GET("/transaction/accepted", tctrl.GetAllAcceptedCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 	e.GET("/transaction/history", tctrl.GetHistoryCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 	e.PUT("/transaction/accepted", tctrl.AcceptTransactionCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))

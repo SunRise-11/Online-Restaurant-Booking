@@ -165,7 +165,7 @@ func (transcon TransactionsController) GetAllWaitingForRestoCtrl() echo.HandlerF
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
 		restoID := int(claims["restoid"].(float64))
-		transactions, err := transcon.Repo.GetAllWaiting(uint(restoID))
+		transactions, err := transcon.Repo.GetAllWaitingForResto(uint(restoID))
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}

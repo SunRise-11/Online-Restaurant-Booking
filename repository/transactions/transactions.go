@@ -30,6 +30,14 @@ func (tr *TransactionRepository) GetAllWaiting(userId uint) ([]entities.Transact
 	}
 	return transaction, nil
 }
+func (tr *TransactionRepository) GetAllWaitingForResto(restaurantId uint) ([]entities.Transaction, error) {
+	transaction := []entities.Transaction{}
+
+	if err := tr.db.Where("restaurant_id=? and status=?", restaurantId, "waiting for confirmation").Find(&transaction).Error; err != nil {
+		return transaction, err
+	}
+	return transaction, nil
+}
 func (tr *TransactionRepository) GetHistory(userId uint) ([]entities.Transaction, error) {
 	transaction := []entities.Transaction{}
 
