@@ -1,6 +1,7 @@
 package restaurants
 
 import (
+	"Restobook/delivery/common"
 	"Restobook/entities"
 	"fmt"
 	"strconv"
@@ -15,19 +16,6 @@ type RestaurantRepository struct {
 
 func NewRestaurantsRepo(db *gorm.DB) *RestaurantRepository {
 	return &RestaurantRepository{db: db}
-}
-
-var Daytoint = []struct {
-	day string
-	no  int
-}{
-	{"Monday", 0},
-	{"Tuesday", 1},
-	{"Wednesday", 2},
-	{"Thursday", 3},
-	{"Friday", 4},
-	{"Saturday", 5},
-	{"Sunday", 6},
 }
 
 func (rr *RestaurantRepository) Register(newRestaurant entities.Restaurant) (entities.Restaurant, error) {
@@ -61,6 +49,30 @@ func (rr *RestaurantRepository) GetsWaiting() ([]entities.RestaurantDetail, erro
 	if err := rr.db.Where("status=?", "Waiting for approval").Find(&restaurantD).Error; err != nil {
 		return restaurantD, err
 	} else {
+
+		for i := 0; i < len(restaurantD); i++ {
+			openDay := strings.Split(restaurantD[i].Open, ",")
+			closeDay := strings.Split(restaurantD[i].Close, ",")
+			openStr := ""
+			closeStr := ""
+			for j := 0; j < len(openDay); j++ {
+				for k := 0; k < len(common.Daytoint); k++ {
+					if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
+						openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
+					}
+				}
+			}
+			for l := 0; l < len(closeDay); l++ {
+				for m := 0; m < len(common.Daytoint); m++ {
+					if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
+						closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
+					}
+				}
+			}
+			restaurantD[i].Open = openStr
+			restaurantD[i].Close = closeStr
+		}
+
 		return restaurantD, nil
 	}
 }
@@ -95,7 +107,7 @@ func (rr *RestaurantRepository) Get(restaurantId uint) (entities.Restaurant, ent
 
 }
 
-func (rr *RestaurantRepository) GetsByOpen(open, oh string) ([]entities.RestaurantDetail, error) {
+func (rr *RestaurantRepository) GetsByOpen(open, oh int) ([]entities.RestaurantDetail, error) {
 	restaurantD := []entities.RestaurantDetail{}
 
 	if err := rr.db.Not("status=?", "DISABLED").Not("status=?", "CLOSED").Find(&restaurantD).Error; err != nil {
@@ -131,41 +143,38 @@ func (rr *RestaurantRepository) GetsByOpen(open, oh string) ([]entities.Restaura
 
 func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 	restaurantD := []entities.RestaurantDetail{}
-	newRestaurantD := []entities.RestaurantDetail{}
 
 	if err := rr.db.Not("status=?", "DISABLED").Not("status=?", "CLOSED").Not("status=?", "Waiting for approval").Find(&restaurantD).Error; err != nil {
 		return restaurantD, err
 	} else {
-		fmt.Println("===> Semua resto yang open", restaurantD)
+		// fmt.Println("===> Semua resto yang open", restaurantD)
 		for i := 0; i < len(restaurantD); i++ {
 			openDay := strings.Split(restaurantD[i].Open, ",")
 			closeDay := strings.Split(restaurantD[i].Close, ",")
 			openStr := ""
 			closeStr := ""
 
-			fmt.Println("open", openDay)
-			fmt.Println("close", closeDay)
+			// fmt.Println("open", openDay)
+			// fmt.Println("close", closeDay)
 			for j := 0; j < len(openDay); j++ {
-				for k := 0; k < len(Daytoint); k++ {
-					if openDay[j] == strconv.Itoa(Daytoint[k].no) {
-						openStr += fmt.Sprintf("%v,", Daytoint[k].day)
+				for k := 0; k < len(common.Daytoint); k++ {
+					if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
+						openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
 					}
 				}
 			}
-			fmt.Println("openSTR", openStr)
+			// fmt.Println("openSTR", openStr)
 			for l := 0; l < len(closeDay); l++ {
-				for m := 0; m < len(Daytoint); m++ {
-					if closeDay[l] == strconv.Itoa(Daytoint[m].no) {
-						closeStr += fmt.Sprintf("%v,", Daytoint[m].day)
+				for m := 0; m < len(common.Daytoint); m++ {
+					if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
+						closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
 					}
 				}
 			}
-			fmt.Println("closeSTR", closeStr)
+			// fmt.Println("closeSTR", closeStr)
 
 			restaurantD[i].Open = openStr
 			restaurantD[i].Close = closeStr
-
-			fmt.Println("===> intip", newRestaurantD)
 
 		}
 
@@ -194,25 +203,44 @@ func (rr *RestaurantRepository) UpdateDetail(restaurantId uint, updateRestaurant
 	openInt := ""
 	closeInt := ""
 	for j := 0; j < len(openDay); j++ {
-		for k := 0; k < len(Daytoint); k++ {
-			if openDay[j] == Daytoint[k].day {
-				openInt += fmt.Sprintf("%v,", Daytoint[k].no)
+		for k := 0; k < len(common.Daytoint); k++ {
+			if openDay[j] == common.Daytoint[k].Day {
+				openInt += fmt.Sprintf("%v,", common.Daytoint[k].No)
 			}
 		}
 	}
 
 	for j := 0; j < len(closeDay); j++ {
-		for k := 0; k < len(Daytoint); k++ {
-			if closeDay[j] == Daytoint[k].day {
-				closeInt += fmt.Sprintf("%v,", Daytoint[k].no)
+		for k := 0; k < len(common.Daytoint); k++ {
+			if closeDay[j] == common.Daytoint[k].Day {
+				closeInt += fmt.Sprintf("%v,", common.Daytoint[k].No)
 			}
 		}
 	}
 
 	parsingint := entities.RestaurantDetail{
+		ID:              restaurantId,
 		Name:            updateRestaurantD.Name,
 		Open:            openInt,
 		Close:           closeInt,
+		OperationalHour: updateRestaurantD.OperationalHour,
+		Price:           updateRestaurantD.Price,
+		Latitude:        updateRestaurantD.Latitude,
+		Longitude:       updateRestaurantD.Longitude,
+		City:            updateRestaurantD.City,
+		Address:         updateRestaurantD.Address,
+		PhoneNumber:     updateRestaurantD.PhoneNumber,
+		ProfilePicture:  updateRestaurantD.ProfilePicture,
+		Seats:           updateRestaurantD.Seats,
+		Description:     updateRestaurantD.Description,
+		Status:          "Waiting for approval",
+	}
+
+	parsingstring := entities.RestaurantDetail{
+		ID:              restaurantId,
+		Name:            updateRestaurantD.Name,
+		Open:            updateRestaurantD.Open,
+		Close:           updateRestaurantD.Close,
 		OperationalHour: updateRestaurantD.OperationalHour,
 		Price:           updateRestaurantD.Price,
 		Latitude:        updateRestaurantD.Latitude,
@@ -232,7 +260,7 @@ func (rr *RestaurantRepository) UpdateDetail(restaurantId uint, updateRestaurant
 
 	rr.db.First(&restaurantD, "id=?", restaurant.RestaurantDetailID)
 	rr.db.Model(&restaurantD).Updates(parsingint)
-	return restaurantD, nil
+	return parsingstring, nil
 
 }
 
