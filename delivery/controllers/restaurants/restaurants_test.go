@@ -513,29 +513,29 @@ func Test_GetByOpen_Restaurant(t *testing.T) {
 
 	ec := echo.New()
 
-	// t.Run("Not Found GetByOpen Restaurants", func(t *testing.T) {
-	// 	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	// 	res := httptest.NewRecorder()
+	t.Run("Not Found GetByOpen Restaurants", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		res := httptest.NewRecorder()
 
-	// 	req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Content-Type", "application/json")
 
-	// 	context := ec.NewContext(req, res)
-	// 	context.SetPath("/restaurants/open")
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/open")
 
-	// 	restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
-	// 	restaurantCtrl.GetsByOpen()(context)
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		restaurantCtrl.GetsByOpen()(context)
 
-	// 	responses := RestaurantResponseFormat{}
-	// 	json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
 
-	// 	assert.Equal(t, 404, responses.Code)
-	// 	assert.Equal(t, "Not Found", responses.Message)
-	// })
+		assert.Equal(t, 404, responses.Code)
+		assert.Equal(t, "Not Found", responses.Message)
+	})
 
-	t.Run("Not Found 222 GetByOpen Restaurants", func(t *testing.T) {
+	t.Run("Not Found 2 GetByOpen Restaurants", func(t *testing.T) {
 
 		query := make(url.Values)
-		query.Set("date_time", "2022-03-05 08:00:00")
+		query.Set("date_time", "2022-03-07 08:00:00")
 
 		req := httptest.NewRequest(http.MethodGet, "/?"+query.Encode(), nil)
 		res := httptest.NewRecorder()
@@ -553,6 +553,75 @@ func Test_GetByOpen_Restaurant(t *testing.T) {
 
 		assert.Equal(t, 404, responses.Code)
 		assert.Equal(t, "Not Found", responses.Message)
+	})
+
+	t.Run("Not Found 3 GetByOpen Restaurants", func(t *testing.T) {
+
+		query := make(url.Values)
+		query.Set("date_time", "2022-03-07 08:00:00")
+
+		req := httptest.NewRequest(http.MethodGet, "/?"+query.Encode(), nil)
+		res := httptest.NewRecorder()
+
+		req.Header.Set("Content-Type", "application/json")
+
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/open")
+
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository3{})
+		restaurantCtrl.GetsByOpen()(context)
+
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+
+		assert.Equal(t, 404, responses.Code)
+		assert.Equal(t, "Not Found", responses.Message)
+	})
+
+	t.Run("Success GetByOpen Restaurants", func(t *testing.T) {
+
+		query := make(url.Values)
+		query.Set("date_time", "2022-03-07 16:00:00")
+
+		req := httptest.NewRequest(http.MethodGet, "/?"+query.Encode(), nil)
+		res := httptest.NewRecorder()
+
+		req.Header.Set("Content-Type", "application/json")
+
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/open")
+
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository1{})
+		restaurantCtrl.GetsByOpen()(context)
+
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
+
+	t.Run("Success GetByOpen Restaurants", func(t *testing.T) {
+
+		query := make(url.Values)
+		query.Set("date_time", "2022-03-07 10:00:00")
+
+		req := httptest.NewRequest(http.MethodGet, "/?"+query.Encode(), nil)
+		res := httptest.NewRecorder()
+
+		req.Header.Set("Content-Type", "application/json")
+
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/open")
+
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository2{})
+		restaurantCtrl.GetsByOpen()(context)
+
+		responses := RestaurantResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
 	})
 
 	t.Run("Success GetByOpen Restaurants", func(t *testing.T) {
@@ -1278,5 +1347,318 @@ func (m mockFalseRestaurantRepository) UpdateDetail(restaurantID uint, updateUse
 }
 
 func (m mockFalseRestaurantRepository) Delete(restaurantID uint) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 0}, errors.New("")
+}
+
+type mockFalseRestaurantRepository1 struct{}
+
+func (m mockFalseRestaurantRepository1) Register(newUser entities.Restaurant) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 0, Email: "restaurant1@outlook.my"}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository1) LoginRestaurant(email, password string) (entities.Restaurant, error) {
+	hash := sha256.Sum256([]byte("resto123"))
+	passwordS := fmt.Sprintf("%x", hash[:])
+	return entities.Restaurant{ID: 0, Email: "restaurant1@outlook.my", Password: passwordS}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository1) GetsWaiting() ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository1) Approve(restaurantID uint, status string) (entities.RestaurantDetail, error) {
+	return entities.RestaurantDetail{}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository1) Get(restaurantID uint) (entities.Restaurant, entities.RestaurantDetail, error) {
+	return entities.Restaurant{ID: 0}, entities.RestaurantDetail{ID: 0}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository1) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{
+		{
+			ID:             1,
+			Name:           "Restaurant 1",
+			Open_Hour:      "10:00",
+			Close_Hour:     "17:00",
+			Open:           "Monday",
+			Close:          "Tuesday,Wednesday,Thursday,Friday,Sunday",
+			Price:          10000,
+			Latitude:       0,
+			Longitude:      0,
+			City:           "",
+			Address:        "",
+			PhoneNumber:    "",
+			ProfilePicture: "",
+			Seats:          0,
+			Status:         "OPEN",
+			Description:    ""}}, nil
+}
+
+func (m mockFalseRestaurantRepository1) GetExistSeat(restauranId uint, date_time string) ([]entities.Transaction, int, error) {
+	stringdate := "2022-03-07 16:00:00"
+	now, _ := time.Parse("2006-01-02 15:04:05", stringdate)
+	return []entities.Transaction{
+		{
+			ID:           1,
+			UserID:       1,
+			RestaurantID: 1,
+			DateTime:     now,
+			Persons:      1,
+			Status:       "SUCCESS",
+			User:         entities.User{},
+			Restaurant:   entities.Restaurant{},
+		}}, 0, nil
+}
+
+func (m mockFalseRestaurantRepository1) Gets() ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{
+		{
+			ID:             1,
+			Name:           "Restaurant 1",
+			Open_Hour:      "10:00",
+			Close_Hour:     "17:00",
+			Open:           "Monday",
+			Close:          "Tuesday,Wednesday,Thursday,Friday,Sunday",
+			Price:          10000,
+			Latitude:       0,
+			Longitude:      0,
+			City:           "",
+			Address:        "",
+			PhoneNumber:    "",
+			ProfilePicture: "",
+			Seats:          0,
+			Status:         "OPEN",
+			Description:    ""}}, nil
+}
+
+func (m mockFalseRestaurantRepository1) Update(restaurantID uint, updateUser entities.Restaurant) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 0, Email: "restaurant1Update@outlook.my"}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository1) UpdateDetail(restaurantID uint, updateUser entities.RestaurantDetail) (entities.RestaurantDetail, error) {
+	return entities.RestaurantDetail{
+		ID:             1,
+		Name:           "Restaurant 1 ALL EMPTY",
+		Open_Hour:      "",
+		Close_Hour:     "",
+		Open:           "",
+		Close:          "",
+		Price:          10000,
+		Latitude:       0,
+		Longitude:      0,
+		City:           "",
+		Address:        "",
+		PhoneNumber:    "",
+		ProfilePicture: "",
+		Seats:          0,
+		Status:         "OPEN",
+		Description:    ""}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository1) Delete(restaurantID uint) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 0}, errors.New("")
+}
+
+type mockFalseRestaurantRepository2 struct{}
+
+func (m mockFalseRestaurantRepository2) Register(newUser entities.Restaurant) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 0, Email: "restaurant1@outlook.my"}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository2) LoginRestaurant(email, password string) (entities.Restaurant, error) {
+	hash := sha256.Sum256([]byte("resto123"))
+	passwordS := fmt.Sprintf("%x", hash[:])
+	return entities.Restaurant{ID: 0, Email: "restaurant1@outlook.my", Password: passwordS}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository2) GetsWaiting() ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository2) Approve(restaurantID uint, status string) (entities.RestaurantDetail, error) {
+	return entities.RestaurantDetail{}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository2) Get(restaurantID uint) (entities.Restaurant, entities.RestaurantDetail, error) {
+	return entities.Restaurant{ID: 0}, entities.RestaurantDetail{ID: 0}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository2) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{
+		{
+			ID:             1,
+			Name:           "Restaurant 1",
+			Open_Hour:      "10:00",
+			Close_Hour:     "17:00",
+			Open:           "Monday,Saturday",
+			Close:          "Tuesday,Wednesday,Thursday,Friday,Sunday",
+			Price:          10000,
+			Latitude:       0,
+			Longitude:      0,
+			City:           "",
+			Address:        "",
+			PhoneNumber:    "",
+			ProfilePicture: "",
+			Seats:          0,
+			Status:         "OPEN",
+			Description:    ""}}, nil
+}
+
+func (m mockFalseRestaurantRepository2) GetExistSeat(restauranId uint, date_time string) ([]entities.Transaction, int, error) {
+	stringdate := "2022-03-07 16:00:00"
+	now, _ := time.Parse("2006-01-02 15:04:05", stringdate)
+	return []entities.Transaction{
+		{
+			ID:           1,
+			UserID:       1,
+			RestaurantID: 1,
+			DateTime:     now,
+			Persons:      1,
+			Status:       "SUCCESS",
+			User:         entities.User{},
+			Restaurant:   entities.Restaurant{},
+		}}, 0, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository2) Gets() ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{
+		{
+			ID:             1,
+			Name:           "Restaurant 1",
+			Open_Hour:      "10:00",
+			Close_Hour:     "17:00",
+			Open:           "Monday,Saturday",
+			Close:          "Tuesday,Wednesday,Thursday,Friday,Sunday",
+			Price:          10000,
+			Latitude:       0,
+			Longitude:      0,
+			City:           "",
+			Address:        "",
+			PhoneNumber:    "",
+			ProfilePicture: "",
+			Seats:          0,
+			Status:         "OPEN",
+			Description:    ""}}, nil
+}
+
+func (m mockFalseRestaurantRepository2) Update(restaurantID uint, updateUser entities.Restaurant) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 0, Email: "restaurant1Update@outlook.my"}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository2) UpdateDetail(restaurantID uint, updateUser entities.RestaurantDetail) (entities.RestaurantDetail, error) {
+	return entities.RestaurantDetail{
+		ID:             1,
+		Name:           "Restaurant 1 ALL EMPTY",
+		Open_Hour:      "",
+		Close_Hour:     "",
+		Open:           "",
+		Close:          "",
+		Price:          10000,
+		Latitude:       0,
+		Longitude:      0,
+		City:           "",
+		Address:        "",
+		PhoneNumber:    "",
+		ProfilePicture: "",
+		Seats:          0,
+		Status:         "OPEN",
+		Description:    ""}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository2) Delete(restaurantID uint) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 0}, errors.New("")
+}
+
+type mockFalseRestaurantRepository3 struct{}
+
+func (m mockFalseRestaurantRepository3) Register(newUser entities.Restaurant) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 0, Email: "restaurant1@outlook.my"}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository3) LoginRestaurant(email, password string) (entities.Restaurant, error) {
+	hash := sha256.Sum256([]byte("resto123"))
+	passwordS := fmt.Sprintf("%x", hash[:])
+	return entities.Restaurant{ID: 0, Email: "restaurant1@outlook.my", Password: passwordS}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository3) GetsWaiting() ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository3) Approve(restaurantID uint, status string) (entities.RestaurantDetail, error) {
+	return entities.RestaurantDetail{}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository3) Get(restaurantID uint) (entities.Restaurant, entities.RestaurantDetail, error) {
+	return entities.Restaurant{ID: 0}, entities.RestaurantDetail{ID: 0}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository3) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository3) GetExistSeat(restauranId uint, date_time string) ([]entities.Transaction, int, error) {
+	stringdate := "2022-03-07 16:00:00"
+	now, _ := time.Parse("2006-01-02 15:04:05", stringdate)
+	return []entities.Transaction{
+		{
+			ID:           1,
+			UserID:       1,
+			RestaurantID: 1,
+			DateTime:     now,
+			Persons:      1,
+			Status:       "SUCCESS",
+			User:         entities.User{},
+			Restaurant:   entities.Restaurant{},
+		}}, 0, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository3) Gets() ([]entities.RestaurantDetail, error) {
+	return []entities.RestaurantDetail{
+		{
+			ID:             1,
+			Name:           "Restaurant 1",
+			Open_Hour:      "10:00",
+			Close_Hour:     "17:00",
+			Open:           "Monday,Saturday",
+			Close:          "Tuesday,Wednesday,Thursday,Friday,Sunday",
+			Price:          10000,
+			Latitude:       0,
+			Longitude:      0,
+			City:           "",
+			Address:        "",
+			PhoneNumber:    "",
+			ProfilePicture: "",
+			Seats:          0,
+			Status:         "OPEN",
+			Description:    ""}}, nil
+}
+
+func (m mockFalseRestaurantRepository3) Update(restaurantID uint, updateUser entities.Restaurant) (entities.Restaurant, error) {
+	return entities.Restaurant{ID: 0, Email: "restaurant1Update@outlook.my"}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository3) UpdateDetail(restaurantID uint, updateUser entities.RestaurantDetail) (entities.RestaurantDetail, error) {
+	return entities.RestaurantDetail{
+		ID:             1,
+		Name:           "Restaurant 1 ALL EMPTY",
+		Open_Hour:      "",
+		Close_Hour:     "",
+		Open:           "",
+		Close:          "",
+		Price:          10000,
+		Latitude:       0,
+		Longitude:      0,
+		City:           "",
+		Address:        "",
+		PhoneNumber:    "",
+		ProfilePicture: "",
+		Seats:          0,
+		Status:         "OPEN",
+		Description:    ""}, errors.New("")
+}
+
+func (m mockFalseRestaurantRepository3) Delete(restaurantID uint) (entities.Restaurant, error) {
 	return entities.Restaurant{ID: 0}, errors.New("")
 }

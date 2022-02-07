@@ -200,7 +200,8 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 			fmt.Println("=>FIND date_time_parse", date_time_parse)
 			fmt.Println("=>FIND DayOpen in", day)
 			fmt.Println("=>FIND TimeOpen in", timeallsInt)
-			if res, err := rescon.Repo.GetsByOpen(daytoint); err != nil || len(res) == 0 {
+			fmt.Println("=>FIND dayyoint", daytoint)
+			if res, err := rescon.Repo.GetsByOpen(daytoint); err != nil {
 				fmt.Println("======================================")
 				fmt.Println("=>ERROR GetsByOpen", res)
 				return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
