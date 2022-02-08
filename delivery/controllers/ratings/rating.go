@@ -31,16 +31,16 @@ func (rc RatingsController) Create() echo.HandlerFunc {
 		claims := uid.Claims.(jwt.MapClaims)
 		userID := int(claims["userid"].(float64))
 
-		isCanGiveRating, _ := rc.Repo.IsCanGiveRating(userID, ratingRequest.RestaurantID)
+		isCanGiveRating, _ := rc.Repo.IsCanGiveRating(userID, ratingRequest.RestaurantDetailID)
 		if !isCanGiveRating {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 
 		data := entities.Rating{
-			RestaurantID: uint(ratingRequest.RestaurantID),
-			UserID:       uint(userID),
-			Rating:       ratingRequest.Rating,
-			Comment:      ratingRequest.Comment,
+			RestaurantDetailID: uint(ratingRequest.RestaurantDetailID),
+			UserID:             uint(userID),
+			Rating:             ratingRequest.Rating,
+			Comment:            ratingRequest.Comment,
 		}
 
 		ratingData, err := rc.Repo.Create(data)
@@ -52,11 +52,11 @@ func (rc RatingsController) Create() echo.HandlerFunc {
 		}
 
 		response := RatingResponse{
-			RestaurantID: int(ratingData.RestaurantID),
-			UserID:       int(ratingData.UserID),
-			Username:     ratingData.User.Name,
-			Rating:       ratingData.Rating,
-			Comment:      ratingData.Comment,
+			RestaurantDetailID: int(ratingData.RestaurantDetailID),
+			UserID:             int(ratingData.UserID),
+			Username:           ratingData.User.Name,
+			Rating:             ratingData.Rating,
+			Comment:            ratingData.Comment,
 		}
 
 		finalResponse := RatingResponseFormat{
@@ -87,10 +87,10 @@ func (rc RatingsController) Update() echo.HandlerFunc {
 		userID := int(claims["userid"].(float64))
 
 		data := entities.Rating{
-			RestaurantID: uint(restaurantId),
-			UserID:       uint(userID),
-			Rating:       ratingRequest.Rating,
-			Comment:      ratingRequest.Comment,
+			RestaurantDetailID: uint(restaurantId),
+			UserID:             uint(userID),
+			Rating:             ratingRequest.Rating,
+			Comment:            ratingRequest.Comment,
 		}
 
 		ratingData, err := rc.Repo.Update(data)
@@ -99,11 +99,11 @@ func (rc RatingsController) Update() echo.HandlerFunc {
 		}
 
 		response := RatingResponse{
-			RestaurantID: int(ratingData.RestaurantID),
-			UserID:       int(ratingData.UserID),
-			Username:     ratingData.User.Name,
-			Rating:       ratingData.Rating,
-			Comment:      ratingData.Comment,
+			RestaurantDetailID: int(ratingData.RestaurantDetailID),
+			UserID:             int(ratingData.UserID),
+			Username:           ratingData.User.Name,
+			Rating:             ratingData.Rating,
+			Comment:            ratingData.Comment,
 		}
 
 		finalResponse := RatingResponseFormat{

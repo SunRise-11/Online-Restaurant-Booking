@@ -21,7 +21,7 @@ func (rr RatingRepository) Create(rating entities.Rating) (entities.Rating, erro
 
 	var r entities.Rating
 
-	rr.db.Preload("User").First(&r, "user_id = ? AND restaurant_id = ?", &rating.UserID, &rating.RestaurantID)
+	rr.db.Preload("User").First(&r, "user_id = ? AND restaurant_id = ?", &rating.UserID, &rating.RestaurantDetailID)
 
 	return r, nil
 }
@@ -41,13 +41,13 @@ func (rr RatingRepository) IsCanGiveRating(userId, restaurantId int) (bool, erro
 func (rr *RatingRepository) Update(rating entities.Rating) (entities.Rating, error) {
 	var r entities.Rating
 
-	if err := rr.db.First(&r, "user_id = ? AND restaurant_id = ?", rating.UserID, rating.RestaurantID).Error; err != nil {
+	if err := rr.db.First(&r, "user_id = ? AND restaurant_id = ?", rating.UserID, rating.RestaurantDetailID).Error; err != nil {
 		return r, err
 	}
 
 	rr.db.Model(&r).Updates(rating)
 
-	rr.db.Preload("User").First(&r, "user_id = ? AND restaurant_id = ?", &rating.UserID, &rating.RestaurantID)
+	rr.db.Preload("User").First(&r, "user_id = ? AND restaurant_id = ?", &rating.UserID, &rating.RestaurantDetailID)
 
 	return r, nil
 }

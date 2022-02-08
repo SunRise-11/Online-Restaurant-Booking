@@ -31,7 +31,7 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
-		loc, _ := time.LoadLocation("Asia/Jakarta")
+		loc, _ := time.LoadLocation("Asia/Singapore")
 		var dateTime, _ = time.ParseInLocation("2006-01-02 15:04", newTransactionReq.DateTime, loc)
 		for i := 0; i < len(common.Daytoint); i++ {
 			if dateTime.Weekday().String() == common.Daytoint[i].Day {
@@ -274,7 +274,7 @@ func (transcon TransactionsController) AcceptTransactionCtrl() echo.HandlerFunc 
 			ID:     newTransactionReq.ID,
 			Status: newTransactionReq.Status,
 		}
-		_, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.UserID, "waiting for confirmation")
+		_, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, "waiting for confirmation")
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
@@ -367,7 +367,7 @@ func (transcon TransactionsController) SuccessTransactionCtrl() echo.HandlerFunc
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
-		transaction, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.UserID, "Accepted")
+		transaction, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, "Accepted")
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
