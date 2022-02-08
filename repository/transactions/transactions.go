@@ -2,7 +2,6 @@ package transactions
 
 import (
 	"Restobook/entities"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -31,6 +30,14 @@ func (tr *TransactionRepository) GetAllWaiting(userId uint) ([]entities.Transact
 	}
 	return transaction, nil
 }
+func (tr *TransactionRepository) GetAllWaitingForResto(restaurantId uint) ([]entities.Transaction, error) {
+	transaction := []entities.Transaction{}
+
+	if err := tr.db.Where("restaurant_id=? and status=?", restaurantId, "waiting for confirmation").Find(&transaction).Error; err != nil {
+		return transaction, err
+	}
+	return transaction, nil
+}
 func (tr *TransactionRepository) GetHistory(userId uint) ([]entities.Transaction, error) {
 	transaction := []entities.Transaction{}
 
@@ -47,17 +54,37 @@ func (tr *TransactionRepository) GetAllAppointed(userId uint) ([]entities.Transa
 	}
 	return transaction, nil
 }
-func (tr *TransactionRepository) GetBalanceAndPriceResto(userId, restaurantId uint) (BalanceAndPriceResto, error) {
-	user := entities.User{}
-	resto := entities.RestaurantDetail{}
-	if err := tr.db.Select("price", "seats").Where("id=?", restaurantId).First(&resto).Error; err != nil {
-		return BalanceAndPriceResto{PriceResto: resto.Price, Seats: resto.Seats}, err
-	}
-	if err := tr.db.Select("balance").Where("id=?", userId).First(&user).Error; err != nil {
-		return BalanceAndPriceResto{Balance: user.Balance}, err
+func (tr *TransactionRepository) GetTransactionById(id uint) (entities.Transaction, error) {
+	transaction := entities.Transaction{}
+	if err := tr.db.Preload("User").First(&transaction).Error; err != nil {
+		return transaction, err
 	}
 
-	return BalanceAndPriceResto{Balance: user.Balance, PriceResto: resto.Price, Seats: resto.Seats}, nil
+	return transaction, nil
+}
+func (tr *TransactionRepository) ShowAllTransaction(restaurantId uint) ([]entities.Transaction, error) {
+	transaction := []entities.Transaction{}
+
+	if err := tr.db.Where("restaurant_id=? and status=? ", restaurantId, "waiting for confirmation").Find(&transaction).Error; err != nil {
+		return transaction, err
+	}
+	return transaction, nil
+}
+func (tr *TransactionRepository) GetBalance(userId uint) (entities.User, error) {
+	user := entities.User{}
+
+	if err := tr.db.Select("balance").Where("id=?", userId).First(&user).Error; err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+func (tr *TransactionRepository) GetRestoDetail(restaurantId uint) (entities.RestaurantDetail, error) {
+	resto := entities.RestaurantDetail{}
+	if err := tr.db.Select("price", "seats", "open", "operational_hour", "status").Where("id=?", restaurantId).First(&resto).Error; err != nil {
+		return resto, err
+	}
+	return resto, nil
 }
 
 func (tr *TransactionRepository) UpdateUserBalance(userId uint, balance int) (entities.User, error) {
@@ -68,7 +95,42 @@ func (tr *TransactionRepository) UpdateUserBalance(userId uint, balance int) (en
 	}
 	updateUser["balance"] = balance
 	tr.db.Model(&user).Updates(&updateUser)
-	fmt.Println(user)
 	return user, nil
 
+}
+func (tr *TransactionRepository) UpdateUserReputation(userId uint, reputation int) (entities.User, error) {
+	user := entities.User{}
+	updateUser := make(map[string]interface{})
+	if err := tr.db.First(&user, "id=?", userId).Error; err != nil {
+		return user, err
+	}
+	updateUser["reputation"] = reputation
+	tr.db.Model(&user).Updates(&updateUser)
+	return user, nil
+
+}
+func (tr *TransactionRepository) UpdateTransactionStatus(newTransaction entities.Transaction) (entities.Transaction, error) {
+	transaction := entities.Transaction{}
+	if err := tr.db.First(&transaction, "id=?", newTransaction.ID).Error; err != nil {
+		return transaction, err
+	}
+	tr.db.Model(&transaction).Updates(newTransaction)
+	return transaction, nil
+
+}
+
+func (tr *TransactionRepository) GetTotalSeat(restaurantId uint, dateTime string) (int, error) {
+	var result int
+	err := tr.db.Model(&entities.Transaction{}).Select("sum(persons) as total").Where("date_time=?", dateTime).Where("restaurant_id=?", restaurantId).Find(&result).Error
+	if err != nil {
+		return result, err
+	}
+	return result, nil
+}
+func (tr *TransactionRepository) CheckSameHour(restaurantId, userId uint, dateTime string) (bool, error) {
+	transaction := entities.Transaction{}
+	if err := tr.db.First(&transaction, "user_id=? and restaurant_id=? and date_time=?", userId, restaurantId, dateTime).Error; err != nil {
+		return false, err
+	}
+	return true, nil
 }

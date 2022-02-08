@@ -14,4 +14,5 @@ type TransactionResponse struct {
 	RestaurantID uint      `json:"restaurant_id"`
 	DateTime     time.Time `json:"date_time"`
 	Person       int       `json:"person"`
+	Total        int       `json:"total"`
 }
