@@ -149,11 +149,11 @@ func (rr *RestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetai
 
 func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 	restaurantD := []entities.RestaurantDetail{}
-	if err := rr.db.Not("status=?", "DISABLED").Not("status=?", "CLOSED").Not("status=?", "Waiting for approval").Find(&restaurantD).Error; err != nil {
+	if err := rr.db.Where("status=?", "OPEN").Find(&restaurantD).Error; err != nil {
 		return restaurantD, err
 	} else {
 
-		// fmt.Println("===> Semua resto yang open", restaurantD)
+		fmt.Println("===> Semua resto yang open", restaurantD)
 		for i := 0; i < len(restaurantD); i++ {
 			openDay := strings.Split(restaurantD[i].Open, ",")
 			closeDay := strings.Split(restaurantD[i].Close, ",")
