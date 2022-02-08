@@ -98,7 +98,17 @@ func (tr *TransactionRepository) UpdateUserBalance(userId uint, balance int) (en
 	return user, nil
 
 }
+func (tr *TransactionRepository) UpdateUserReputation(userId uint, reputation int) (entities.User, error) {
+	user := entities.User{}
+	updateUser := make(map[string]interface{})
+	if err := tr.db.First(&user, "id=?", userId).Error; err != nil {
+		return user, err
+	}
+	updateUser["reputation"] = reputation
+	tr.db.Model(&user).Updates(&updateUser)
+	return user, nil
 
+}
 func (tr *TransactionRepository) UpdateTransactionStatus(newTransaction entities.Transaction) (entities.Transaction, error) {
 	transaction := entities.Transaction{}
 	if err := tr.db.First(&transaction, "id=?", newTransaction.ID).Error; err != nil {
