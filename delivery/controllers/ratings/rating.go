@@ -76,7 +76,7 @@ func (rc RatingsController) Update() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
 
-		restaurantId, err := strconv.Atoi(c.Param("restaurantId"))
+		restaurantDetailId, err := strconv.Atoi(c.Param("restaurantId"))
 
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
@@ -87,7 +87,7 @@ func (rc RatingsController) Update() echo.HandlerFunc {
 		userID := int(claims["userid"].(float64))
 
 		data := entities.Rating{
-			RestaurantDetailID: uint(restaurantId),
+			RestaurantDetailID: uint(restaurantDetailId),
 			UserID:             uint(userID),
 			Rating:             ratingRequest.Rating,
 			Comment:            ratingRequest.Comment,

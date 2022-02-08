@@ -1,7 +1,7 @@
 package ratings
 
 type PostRatingRequest struct {
-	RestaurantDetailID int    `json:"restaurant_id"`
+	RestaurantDetailID int    `json:"restaurantdetail_id"`
 	Rating             int    `json:"rating"`
 	Comment            string `json:"comment"`
 }
