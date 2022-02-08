@@ -1,9 +1,9 @@
 package ratings
 
 type PostRatingRequest struct {
-	RestaurantID int    `json:"restaurant_id"`
-	Rating       int    `json:"rating"`
-	Comment      string `json:"comment"`
+	RestaurantDetailID int    `json:"restaurantdetail_id"`
+	Rating             int    `json:"rating"`
+	Comment            string `json:"comment"`
 }
 
 type UpdateRatingRequest struct {
