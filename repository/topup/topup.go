@@ -21,9 +21,7 @@ func (tr *TopUpRepository) Create(topup entities.TopUp) (entities.TopUp, error) 
 
 	topupdata := entities.TopUp{}
 
-	if err := tr.db.Preload("User").First(&topupdata, &topup.ID).Error; err != nil {
-		return topup, err
-	}
+	tr.db.Preload("User").First(&topupdata, &topup.ID)
 
 	return topupdata, nil
 }

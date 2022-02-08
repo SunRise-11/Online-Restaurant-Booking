@@ -187,7 +187,6 @@ func (tc TopUpController) Callback() echo.HandlerFunc {
 
 //FUNC FOR XENDIT
 func CreateInvoice(topUp entities.TopUp) (entities.TopUp, error) {
-
 	data := invoice.CreateParams{
 		ExternalID:  topUp.InvoiceID,
 		Amount:      float64(topUp.Total),

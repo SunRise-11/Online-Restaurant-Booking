@@ -64,7 +64,7 @@ func TestRatingsRepo(t *testing.T) {
 	t.Run("Create Rating 1", func(t *testing.T) {
 		var newRating entities.Rating
 		newRating.UserID = 1
-		newRating.RestaurantID = 1
+		newRating.RestaurantDetailID = 1
 		newRating.Comment = "Mantap"
 		newRating.Rating = 5
 		res, err := ratingRepo.Create(newRating)
@@ -81,7 +81,7 @@ func TestRatingsRepo(t *testing.T) {
 	t.Run("Update Rating", func(t *testing.T) {
 		var newRating entities.Rating
 		newRating.UserID = 1
-		newRating.RestaurantID = 1
+		newRating.RestaurantDetailID = 1
 		newRating.Comment = "Mantap Sekali"
 		newRating.Rating = 5
 		res, err := ratingRepo.Update(newRating)
@@ -107,7 +107,7 @@ func TestFalseRatingsRepo(t *testing.T) {
 
 		var newRating entities.Rating
 		newRating.UserID = 1
-		newRating.RestaurantID = 1
+		newRating.RestaurantDetailID = 1
 		newRating.Comment = "Mantap"
 		newRating.Rating = 5
 
@@ -125,7 +125,7 @@ func TestFalseRatingsRepo(t *testing.T) {
 	t.Run("FALSE Update Rating", func(t *testing.T) {
 		var newRating entities.Rating
 		newRating.UserID = 1
-		newRating.RestaurantID = 1
+		newRating.RestaurantDetailID = 1
 		newRating.Comment = "Mantap Sekali"
 		newRating.Rating = 5
 		res, err := ratingRepo.Update(newRating)

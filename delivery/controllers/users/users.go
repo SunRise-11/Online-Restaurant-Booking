@@ -40,9 +40,11 @@ func (uscon UsersController) RegisterUserCtrl() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		} else {
 			data := UserResponse{
-				ID:    res.ID,
-				Name:  res.Name,
-				Email: res.Email,
+				ID:         res.ID,
+				Name:       res.Name,
+				Email:      res.Email,
+				Balance:    res.Balance,
+				Reputation: res.Reputation,
 			}
 			response := UserResponseFormat{
 				Code:    http.StatusOK,
@@ -89,9 +91,11 @@ func (uscon UsersController) GetUserByIdCtrl() echo.HandlerFunc {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 			data := UserResponse{
-				ID:    res.ID,
-				Name:  res.Name,
-				Email: res.Email,
+				ID:         res.ID,
+				Name:       res.Name,
+				Email:      res.Email,
+				Balance:    res.Balance,
+				Reputation: res.Reputation,
 			}
 			response := UserResponseFormat{
 				Code:    http.StatusOK,
@@ -129,9 +133,11 @@ func (uscon UsersController) UpdateUserCtrl() echo.HandlerFunc {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 			data := UserResponse{
-				ID:    res.ID,
-				Name:  res.Name,
-				Email: res.Email,
+				ID:         res.ID,
+				Name:       res.Name,
+				Email:      res.Email,
+				Balance:    res.Balance,
+				Reputation: res.Reputation,
 			}
 			response := UserResponseFormat{
 				Code:    http.StatusOK,

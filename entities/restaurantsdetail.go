@@ -22,4 +22,5 @@ type RestaurantDetail struct {
 	Seats          int
 	Status         string `gorm:"default:DISABLED"`
 	Description    string
+	Rating         []Rating
 }

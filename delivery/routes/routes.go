@@ -56,7 +56,9 @@ func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.Users
 	e.GET("/transaction/history", tctrl.GetHistoryCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 	e.PUT("/transaction/accepted", tctrl.AcceptTransactionCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 	e.PUT("/transaction/rejected", tctrl.RejectTransactionCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
-	e.PUT("/transaction/success", tctrl.RejectTransactionCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
+	e.PUT("/transaction/success", tctrl.SuccessTransactionCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
+	e.PUT("/transaction/fail", tctrl.FailTransactionCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
+	e.PUT("/transaction/cancel", tctrl.CancelTransactionCtrl(), middleware.JWT(([]byte(common.JWT_SECRET_KEY))))
 
 	// ---------------------------------------------------------------------
 	// CRUD TopUp
