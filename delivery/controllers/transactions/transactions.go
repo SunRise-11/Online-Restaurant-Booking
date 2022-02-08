@@ -274,6 +274,10 @@ func (transcon TransactionsController) AcceptTransactionCtrl() echo.HandlerFunc 
 			ID:     newTransactionReq.ID,
 			Status: newTransactionReq.Status,
 		}
+		_, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.UserID, "waiting for confirmation")
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
 		res, err := transcon.Repo.UpdateTransactionStatus(newTransaction)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
@@ -363,7 +367,7 @@ func (transcon TransactionsController) SuccessTransactionCtrl() echo.HandlerFunc
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
-		user, err := transcon.Repo.GetReputationUser(newTransactionReq.UserID)
+		transaction, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.UserID, "Accepted")
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
@@ -371,7 +375,7 @@ func (transcon TransactionsController) SuccessTransactionCtrl() echo.HandlerFunc
 			ID:     newTransactionReq.ID,
 			Status: newTransactionReq.Status,
 		}
-		totalReputation := user.Reputation + 5
+		totalReputation := transaction.User.Reputation + 5
 		if totalReputation > 100 {
 			totalReputation = 100
 		}
