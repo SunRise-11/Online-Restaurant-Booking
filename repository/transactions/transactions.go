@@ -98,6 +98,15 @@ func (tr *TransactionRepository) UpdateUserBalance(userId uint, balance int) (en
 	return user, nil
 
 }
+func (tr *TransactionRepository) GetReputationUser(userId uint) (entities.User, error) {
+	user := entities.User{}
+	if err := tr.db.Select("reputation").Where("id=?", userId).First(&user).Error; err != nil {
+		return user, err
+	}
+
+	return user, nil
+
+}
 func (tr *TransactionRepository) UpdateUserReputation(userId uint, reputation int) (entities.User, error) {
 	user := entities.User{}
 	updateUser := make(map[string]interface{})
