@@ -14,9 +14,9 @@ type TransactionsInterface interface {
 	UpdateUserReputation(userId uint, reputation int) (entities.User, error)
 	UpdateTransactionStatus(newTransaction entities.Transaction) (entities.Transaction, error)
 	ShowAllTransaction(restaurantId uint) ([]entities.Transaction, error)
-	GetTransactionById(id uint) (entities.Transaction, error)
+	GetTransactionById(id, userId uint, status string) (entities.Transaction, error)
 	GetTotalSeat(restaurantId uint, dateTime string) (int, error)
 	CheckSameHour(restaurantId, userId uint, dateTime string) (bool, error)
 	GetReputationUser(userId uint) (entities.User, error)
-	GetTransactionUserByStatus(id uint, status string) (entities.Transaction, error)
+	GetTransactionUserByStatus(id, restaurant_id uint, status string) (entities.Transaction, error)
 }
