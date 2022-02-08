@@ -110,7 +110,7 @@ func (rr *RestaurantRepository) Get(restaurantId uint) (entities.Restaurant, ent
 func (rr *RestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
 	restaurantD := []entities.RestaurantDetail{}
 	// newrestaurantD := []entities.RestaurantDetail{}
-	// fmt.Println("=>open", open)
+	fmt.Println("=>open", open)
 	openstr := strconv.Itoa(open)
 
 	if err := rr.db.Where("status=? AND open LIKE ?", "OPEN", "%"+openstr+"%").Find(&restaurantD).Error; err != nil {
