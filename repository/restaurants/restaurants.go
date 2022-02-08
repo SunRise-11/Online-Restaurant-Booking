@@ -3,6 +3,7 @@ package restaurants
 import (
 	"Restobook/delivery/common"
 	"Restobook/entities"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -46,8 +47,8 @@ func (rr *RestaurantRepository) LoginRestaurant(email, password string) (entitie
 func (rr *RestaurantRepository) GetsWaiting() ([]entities.RestaurantDetail, error) {
 	restaurantD := []entities.RestaurantDetail{}
 
-	if err := rr.db.Where("status=?", "Waiting for approval").Find(&restaurantD).Error; err != nil {
-		return restaurantD, err
+	if err := rr.db.Where("status=?", "Waiting for approval").Find(&restaurantD).Error; err != nil || len(restaurantD) == 0 {
+		return restaurantD, errors.New("NOL")
 	} else {
 
 		for i := 0; i < len(restaurantD); i++ {
@@ -110,11 +111,11 @@ func (rr *RestaurantRepository) Get(restaurantId uint) (entities.Restaurant, ent
 func (rr *RestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
 	restaurantD := []entities.RestaurantDetail{}
 	// newrestaurantD := []entities.RestaurantDetail{}
-	fmt.Println("=>open", open)
+	// fmt.Println("=>open", open)
 	openstr := strconv.Itoa(open)
 
-	if err := rr.db.Where("status=? AND open LIKE ?", "OPEN", "%"+openstr+"%").Find(&restaurantD).Error; err != nil {
-		return restaurantD, err
+	if err := rr.db.Where("status=? AND open LIKE ?", "OPEN", "%"+openstr+"%").Find(&restaurantD).Error; err != nil || len(restaurantD) == 0 {
+		return restaurantD, errors.New("NOL")
 	} else {
 
 		for i := 0; i < len(restaurantD); i++ {
@@ -200,14 +201,11 @@ func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 func (rr *RestaurantRepository) GetExistSeat(restauranId uint, date_time string) ([]entities.Transaction, int, error) {
 	transactions := []entities.Transaction{}
 	result := 0
-	if err := rr.db.Where("restaurant_id=? AND date_time = ?", restauranId, date_time).Find(&transactions).Error; err != nil {
-		return transactions, result, err
+	if err := rr.db.Model(&entities.Transaction{}).Select("sum(persons) as total").Where("date_time=?", date_time).Where("restaurant_id=?", restauranId).Find(&result).Error; err != nil {
+		return transactions, result, errors.New("NOL")
 	} else {
-		if err := rr.db.Model(&entities.Transaction{}).Select("sum(persons) as total").Where("date_time=?", date_time).Where("restaurant_id=?", restauranId).Find(&result).Error; err != nil {
-			return transactions, result, err
-		} else {
-			return transactions, result, nil
-		}
+		fmt.Println("result setelah", result)
+		return transactions, result, nil
 	}
 
 }

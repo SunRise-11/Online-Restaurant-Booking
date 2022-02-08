@@ -134,10 +134,16 @@ func TestGetWaitingRestaurantsRepo(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
-	db.Migrator().DropTable(&entities.RestaurantDetail{})
+	t.Run("Approve Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Approve(1, "OPEN")
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
 
 	t.Run("Get Waiting Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.GetsWaiting()
+		fmt.Println("res", res)
+		fmt.Println("err", err)
 		assert.Equal(t, res, res)
 		assert.Error(t, err)
 	})
@@ -260,10 +266,8 @@ func TestGetsByOpenRestaurantsRepo(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
-	db.Migrator().DropTable(&entities.RestaurantDetail{})
-
 	t.Run("ERROR GetsByOpen Restaurant", func(t *testing.T) {
-		res, err := restaurantRepo.GetsByOpen(1)
+		res, err := restaurantRepo.GetsByOpen(4)
 		assert.Equal(t, res, res)
 		assert.Error(t, err)
 	})
@@ -276,11 +280,29 @@ func TestGetsRestaurantsRepo(t *testing.T) {
 
 	restaurantRepo := NewRestaurantsRepo(db)
 
+	t.Run("ERROR Gets Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Gets()
+		assert.Equal(t, res, res)
+		assert.Error(t, err)
+	})
+
 	t.Run("Register Restaurant", func(t *testing.T) {
 		hash := sha256.Sum256([]byte("resto123"))
 		password := fmt.Sprintf("%x", hash[:])
 		var newRestaurant entities.Restaurant
 		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
+
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant2@outlook.my"
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
@@ -321,13 +343,6 @@ func TestGetsRestaurantsRepo(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
-	db.Migrator().DropTable(&entities.RestaurantDetail{})
-
-	t.Run("ERROR Gets Restaurant", func(t *testing.T) {
-		res, err := restaurantRepo.Gets()
-		assert.Equal(t, res, res)
-		assert.Error(t, err)
-	})
 }
 
 func TestGetExistSeatRestaurantsRepo(t *testing.T) {
@@ -343,6 +358,18 @@ func TestGetExistSeatRestaurantsRepo(t *testing.T) {
 		password := fmt.Sprintf("%x", hash[:])
 		var newRestaurant entities.Restaurant
 		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
+
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant2@outlook.my"
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
@@ -371,8 +398,34 @@ func TestGetExistSeatRestaurantsRepo(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("Update Restaurant Detail", func(t *testing.T) {
+		var updateRestaurant entities.RestaurantDetail
+		updateRestaurant.Name = "Restaurant Nasi Padang"
+		updateRestaurant.Open = "Monday"
+		updateRestaurant.Close = "Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday"
+		updateRestaurant.Open_Hour = "21:00"
+		updateRestaurant.Close_Hour = "22:00"
+		updateRestaurant.Price = 10000
+		updateRestaurant.Latitude = 1
+		updateRestaurant.Longitude = 1
+		updateRestaurant.City = "Jakarta"
+		updateRestaurant.Address = "Jl.Taman Daan Mogot 2,no.5"
+		updateRestaurant.PhoneNumber = "0877"
+		updateRestaurant.ProfilePicture = "https://"
+		updateRestaurant.Seats = 200
+		updateRestaurant.Description = "Khas Rempah Sumbar"
+		res, err := restaurantRepo.UpdateDetail(uint(2), updateRestaurant)
+		assert.Equal(t, res.ID, uint(2))
+		assert.Nil(t, err)
+	})
+
 	t.Run("Approve Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.Approve(1, "OPEN")
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+	t.Run("Approve Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Approve(2, "OPEN")
 		assert.Equal(t, res, res)
 		assert.Nil(t, err)
 	})
@@ -406,6 +459,23 @@ func TestGetExistSeatRestaurantsRepo(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("Create Transactions", func(t *testing.T) {
+		loc, _ := time.LoadLocation("Asia/Singapore")
+		date_string := "2022-02-14 16:00"
+		var dateTime, _ = time.ParseInLocation("2006-01-02 15:04", date_string, loc)
+		fmt.Println("date_time", dateTime)
+
+		var newTransaction entities.Transaction
+		newTransaction.RestaurantID = 2
+		newTransaction.UserID = 1
+		newTransaction.DateTime = dateTime
+		newTransaction.Persons = 0
+		newTransaction.Total = 10000
+		res, err := transactionRepo.Create(newTransaction)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
 	t.Run("GetExistSeat Restaurant", func(t *testing.T) {
 		res, total_seat, err := restaurantRepo.GetExistSeat(1, "2022-02-14 16:00")
 		assert.Equal(t, res, res)
@@ -414,20 +484,25 @@ func TestGetExistSeatRestaurantsRepo(t *testing.T) {
 	})
 
 	t.Run("ERROR GetExistSeat Restaurant", func(t *testing.T) {
-		res, total_seat, err := restaurantRepo.GetExistSeat(1, "2022-02-14 10:00")
+		res, total_seat, err := restaurantRepo.GetExistSeat(0, "2022-02-14 16:00")
+		fmt.Println("res", res)
+		fmt.Println("total_seat", total_seat)
+		fmt.Println("err", err)
 		assert.Equal(t, res, res)
 		assert.Equal(t, total_seat, 0)
 		assert.Error(t, err)
 	})
-
-	db.Migrator().DropTable(&entities.Transaction{})
-
-	t.Run("ERROR GetExistSeat Restaurant", func(t *testing.T) {
-		res, total_seat, err := restaurantRepo.GetExistSeat(1, "2022-02-14 10:00")
+	fmt.Println("=======")
+	t.Run("=>>>>>ERROR GetExistSeat Restaurant", func(t *testing.T) {
+		res, total_seat, err := restaurantRepo.GetExistSeat(2, "2022-02-14 10:00")
+		fmt.Println("res resto2", res)
+		fmt.Println("total_seat resto2", total_seat)
+		fmt.Println("err resto2", err)
 		assert.Equal(t, res, res)
 		assert.Equal(t, total_seat, 0)
 		assert.Error(t, err)
 	})
+	fmt.Println("===========")
 }
 
 func TestUpdateRestaurantsRepo(t *testing.T) {
