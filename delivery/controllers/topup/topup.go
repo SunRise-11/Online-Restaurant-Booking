@@ -5,13 +5,11 @@ import (
 	"Restobook/entities"
 	"Restobook/repository/topup"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/xendit/xendit-go"
 	"github.com/xendit/xendit-go/invoice"
 )
 
@@ -189,7 +187,6 @@ func (tc TopUpController) Callback() echo.HandlerFunc {
 
 //FUNC FOR XENDIT
 func CreateInvoice(topUp entities.TopUp) (entities.TopUp, error) {
-	xendit.Opt.SecretKey = os.Getenv("XENDIT_SECRET_KEY")
 
 	data := invoice.CreateParams{
 		ExternalID:  topUp.InvoiceID,
