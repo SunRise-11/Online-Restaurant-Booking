@@ -151,19 +151,57 @@ func (rescon RestaurantsController) Approve() echo.HandlerFunc {
 
 func (rescon RestaurantsController) Gets() echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		if res, err := rescon.Repo.Gets(); err != nil || len(res) == 0 {
+		res, err := rescon.Repo.Gets()
+		if err != nil || len(res) == 0 {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
-		} else {
+		}
 
-			response := RestaurantResponseFormat{
-				Code:    http.StatusOK,
-				Message: "Successful Operation",
-				Data:    res,
+		responses := []RestaurantDResponse{}
+
+		for _, item := range res {
+			// ratingData := []ratings.RatingResponse{}
+			ratingss := []int{}
+
+			for _, r := range item.Rating {
+				// ratingData = append(ratingData, ratings.RatingResponse{
+				// 	RestaurantDetailID: int(r.RestaurantDetailID),
+				// 	UserID:             int(r.UserID),
+				// 	Username:           r.User.Name,
+				// 	Rating:             r.Rating,
+				// 	Comment:            r.Comment,
+				// })
+
+				ratingss = append(ratingss, r.Rating)
 			}
 
-			return c.JSON(http.StatusOK, response)
+			rating := CalculateRatings(ratingss)
+
+			responses = append(responses, RestaurantDResponse{
+				ID:             item.ID,
+				Name:           item.Name,
+				Open:           item.Open,
+				Close:          item.Close,
+				Open_Hour:      item.Open_Hour,
+				Close_Hour:     item.Close_Hour,
+				Price:          item.Price,
+				Latitude:       item.Latitude,
+				Longitude:      item.Longitude,
+				City:           item.City,
+				Address:        item.Address,
+				PhoneNumber:    item.PhoneNumber,
+				ProfilePicture: item.ProfilePicture,
+				Seats:          item.Seats,
+				Description:    item.Description,
+				Status:         item.Status,
+				Rating:         rating,
+			})
 		}
+		response := RestaurantResponseFormat{
+			Code:    http.StatusOK,
+			Message: "Successful Operation",
+			Data:    responses,
+		}
+		return c.JSON(http.StatusOK, response)
 
 	}
 }
@@ -425,4 +463,15 @@ func (rescon RestaurantsController) DeleteRestaurantCtrl() echo.HandlerFunc {
 			}
 		}
 	}
+}
+
+func CalculateRatings(ratings []int) (rating int) {
+	if len(ratings) < 1 {
+		return 0
+	}
+	for _, r := range ratings {
+		rating += r
+	}
+	rating = rating / len(ratings)
+	return
 }

@@ -31,7 +31,7 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
-		loc, _ := time.LoadLocation("Asia/Jakarta")
+		loc, _ := time.LoadLocation("Asia/Singapore")
 		var dateTime, _ = time.ParseInLocation("2006-01-02 15:04", newTransactionReq.DateTime, loc)
 		for i := 0; i < len(common.Daytoint); i++ {
 			if dateTime.Weekday().String() == common.Daytoint[i].Day {

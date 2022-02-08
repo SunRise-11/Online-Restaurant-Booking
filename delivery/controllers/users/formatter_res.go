@@ -13,7 +13,9 @@ type UserResponseFormat struct {
 }
 
 type UserResponse struct {
-	ID    uint   `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID         uint   `json:"id"`
+	Name       string `json:"name"`
+	Email      string `json:"email"`
+	Balance    int    `json:"balance"`
+	Reputation int    `json:"reputation"`
 }
