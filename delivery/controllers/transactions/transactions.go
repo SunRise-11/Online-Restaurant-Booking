@@ -274,26 +274,30 @@ func (transcon TransactionsController) AcceptTransactionCtrl() echo.HandlerFunc 
 			ID:     newTransactionReq.ID,
 			Status: newTransactionReq.Status,
 		}
-
-		if res, err := transcon.Repo.UpdateTransactionStatus(newTransaction); err != nil {
+		_, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.UserID, "waiting for confirmation")
+		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
-		} else {
-			data := TransactionResponse{
-				ID:           res.ID,
-				UserID:       res.UserID,
-				RestaurantID: res.RestaurantID,
-				DateTime:     res.DateTime,
-				Person:       res.Persons,
-				Total:        res.Total,
-			}
-			response := TransactionResponseFormat{
-				Code:    http.StatusOK,
-				Message: "Successful Operation",
-				Data:    data,
-			}
-			return c.JSON(http.StatusOK, response)
 		}
+		res, err := transcon.Repo.UpdateTransactionStatus(newTransaction)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
+		data := TransactionResponse{
+			ID:           res.ID,
+			UserID:       res.UserID,
+			RestaurantID: res.RestaurantID,
+			DateTime:     res.DateTime,
+			Person:       res.Persons,
+			Total:        res.Total,
+		}
+		response := TransactionResponseFormat{
+			Code:    http.StatusOK,
+			Message: "Successful Operation",
+			Data:    data,
+		}
+		return c.JSON(http.StatusOK, response)
 	}
+
 }
 func (transcon TransactionsController) RejectTransactionCtrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -346,5 +350,162 @@ func (transcon TransactionsController) RejectTransactionCtrl() echo.HandlerFunc 
 			}
 			return c.JSON(http.StatusOK, response)
 		}
+	}
+}
+func (transcon TransactionsController) SuccessTransactionCtrl() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		uid := c.Get("user").(*jwt.Token)
+		claims := uid.Claims.(jwt.MapClaims)
+		restoID := int(claims["restoid"].(float64))
+		if restoID == 0 {
+			return c.JSON(http.StatusUnauthorized, common.DefaultResponse{
+				Code:    http.StatusUnauthorized,
+				Message: "Unauthorized",
+			})
+		}
+		newTransactionReq := TransactionRequestFormat{}
+		if err := c.Bind(&newTransactionReq); err != nil {
+			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		}
+		transaction, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.UserID, "Accepted")
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
+		newTransaction := entities.Transaction{
+			ID:     newTransactionReq.ID,
+			Status: newTransactionReq.Status,
+		}
+		totalReputation := transaction.User.Reputation + 5
+		if totalReputation > 100 {
+			totalReputation = 100
+		}
+
+		if _, err := transcon.Repo.UpdateUserReputation(newTransactionReq.UserID, totalReputation); err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
+		res, err := transcon.Repo.UpdateTransactionStatus(newTransaction)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
+		data := TransactionResponse{
+			ID:           res.ID,
+			UserID:       res.UserID,
+			RestaurantID: res.RestaurantID,
+			DateTime:     res.DateTime,
+			Person:       res.Persons,
+			Total:        res.Total,
+		}
+		response := TransactionResponseFormat{
+			Code:    http.StatusOK,
+			Message: "Successful Operation",
+			Data:    data,
+		}
+		return c.JSON(http.StatusOK, response)
+
+	}
+}
+func (transcon TransactionsController) FailTransactionCtrl() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		uid := c.Get("user").(*jwt.Token)
+		claims := uid.Claims.(jwt.MapClaims)
+		restoID := int(claims["restoid"].(float64))
+		if restoID == 0 {
+			return c.JSON(http.StatusUnauthorized, common.DefaultResponse{
+				Code:    http.StatusUnauthorized,
+				Message: "Unauthorized",
+			})
+		}
+		newTransactionReq := TransactionRequestFormat{}
+		if err := c.Bind(&newTransactionReq); err != nil {
+			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		}
+		transaction, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.UserID, "Accepted")
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
+		newTransaction := entities.Transaction{
+			ID:     newTransactionReq.ID,
+			Status: newTransactionReq.Status,
+		}
+		totalReputation := transaction.User.Reputation - 3
+		if totalReputation < 0 {
+			totalReputation = 0
+		}
+
+		if _, err := transcon.Repo.UpdateUserReputation(newTransactionReq.UserID, totalReputation); err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
+		res, err := transcon.Repo.UpdateTransactionStatus(newTransaction)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
+		data := TransactionResponse{
+			ID:           res.ID,
+			UserID:       res.UserID,
+			RestaurantID: res.RestaurantID,
+			DateTime:     res.DateTime,
+			Person:       res.Persons,
+			Total:        res.Total,
+		}
+		response := TransactionResponseFormat{
+			Code:    http.StatusOK,
+			Message: "Successful Operation",
+			Data:    data,
+		}
+		return c.JSON(http.StatusOK, response)
+
+	}
+}
+func (transcon TransactionsController) CancelTransactionCtrl() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		uid := c.Get("user").(*jwt.Token)
+		claims := uid.Claims.(jwt.MapClaims)
+		userId := int(claims["userid"].(float64))
+		if userId == 0 {
+			return c.JSON(http.StatusUnauthorized, common.DefaultResponse{
+				Code:    http.StatusUnauthorized,
+				Message: "Unauthorized",
+			})
+		}
+		newTransactionReq := TransactionRequestFormat{}
+		if err := c.Bind(&newTransactionReq); err != nil {
+			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		}
+		transaction, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, "Accepted")
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
+		newTransaction := entities.Transaction{
+			ID:     newTransactionReq.ID,
+			Status: newTransactionReq.Status,
+		}
+		fmt.Println(transaction.User)
+		totalReputation := transaction.User.Reputation - 3
+		if totalReputation < 0 {
+			totalReputation = 0
+		}
+
+		if _, err := transcon.Repo.UpdateUserReputation(uint(userId), totalReputation); err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
+		res, err := transcon.Repo.UpdateTransactionStatus(newTransaction)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
+		data := TransactionResponse{
+			ID:           res.ID,
+			UserID:       res.UserID,
+			RestaurantID: res.RestaurantID,
+			DateTime:     res.DateTime,
+			Person:       res.Persons,
+			Total:        res.Total,
+		}
+		response := TransactionResponseFormat{
+			Code:    http.StatusOK,
+			Message: "Successful Operation",
+			Data:    data,
+		}
+		return c.JSON(http.StatusOK, response)
+
 	}
 }
