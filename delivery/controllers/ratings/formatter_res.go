@@ -1,7 +1,7 @@
 package ratings
 
 type RatingResponse struct {
-	RestaurantDetailID int    `json:"restaurantdetail_id"`
+	RestaurantDetailID int    `json:"restaurant_detail_id"`
 	UserID             int    `json:"user_id"`
 	Username           string `json:"username"`
 	Rating             int    `json:"rating"`
