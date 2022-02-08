@@ -192,6 +192,37 @@ func (transcon TransactionsController) GetAllWaitingForRestoCtrl() echo.HandlerF
 
 	}
 }
+func (transcon TransactionsController) GetAllAcceptedForRestoCtrl() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		uid := c.Get("user").(*jwt.Token)
+		claims := uid.Claims.(jwt.MapClaims)
+		restoID := int(claims["restoid"].(float64))
+		transactions, err := transcon.Repo.GetAllAcceptedForResto(uint(restoID))
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
+		data := []TransactionResponse{}
+		for _, transaction := range transactions {
+			data = append(
+				data, TransactionResponse{
+					ID:           transaction.ID,
+					UserID:       transaction.UserID,
+					RestaurantID: transaction.RestaurantID,
+					Person:       transaction.Persons,
+					DateTime:     transaction.DateTime,
+					Total:        transaction.Total,
+				},
+			)
+		}
+		response := TransactionResponseFormat{
+			Code:    http.StatusOK,
+			Message: "Successful Operation",
+			Data:    data,
+		}
+		return c.JSON(http.StatusOK, response)
+
+	}
+}
 func (transcon TransactionsController) GetHistoryCtrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		uid := c.Get("user").(*jwt.Token)

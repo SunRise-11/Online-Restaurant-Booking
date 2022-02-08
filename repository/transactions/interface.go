@@ -6,6 +6,7 @@ type TransactionsInterface interface {
 	Create(newTransaction entities.Transaction) (entities.Transaction, error)
 	GetAllWaiting(userId uint) ([]entities.Transaction, error)
 	GetAllWaitingForResto(restaurantId uint) ([]entities.Transaction, error)
+	GetAllAcceptedForResto(restaurantId uint) ([]entities.Transaction, error)
 	GetHistory(userId uint) ([]entities.Transaction, error)
 	GetAllAppointed(userId uint) ([]entities.Transaction, error)
 	GetBalance(userId uint) (entities.User, error)
