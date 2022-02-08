@@ -1,7 +1,6 @@
 package users
 
 import (
-	"Restobook/configs"
 	"Restobook/delivery/common"
 	"Restobook/entities"
 	"bytes"
@@ -22,8 +21,6 @@ import (
 var jwtToken string
 
 func TestResisterUser(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
 
 	ec := echo.New()
 
@@ -103,8 +100,7 @@ func TestResisterUser(t *testing.T) {
 }
 
 func TestLoginUser(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
+
 	ec := echo.New()
 
 	t.Run("400 Login User", func(t *testing.T) {
@@ -182,8 +178,7 @@ func TestLoginUser(t *testing.T) {
 }
 
 func TestGetUserByID(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
+
 	ec := echo.New()
 
 	t.Run("404 Get User", func(t *testing.T) {
@@ -235,8 +230,7 @@ func TestGetUserByID(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
+
 	ec := echo.New()
 
 	t.Run("400 Update User", func(t *testing.T) {
@@ -327,8 +321,6 @@ func TestUpdateUser(t *testing.T) {
 
 func TestDeleteUser(t *testing.T) {
 
-	config := configs.GetConfig()
-	fmt.Println(config)
 	ec := echo.New()
 
 	t.Run("404 Delete User", func(t *testing.T) {

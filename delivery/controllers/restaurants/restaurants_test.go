@@ -1,7 +1,6 @@
 package restaurants
 
 import (
-	"Restobook/configs"
 	"Restobook/delivery/common"
 	"Restobook/delivery/controllers/auth"
 	"Restobook/entities"
@@ -28,8 +27,6 @@ var jwtTokenRestaurant string
 var jwtTokenAdmin string
 
 func Test_Register_Admin(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
 
 	ec := echo.New()
 
@@ -84,12 +81,10 @@ func Test_Register_Admin(t *testing.T) {
 }
 
 func Test_Register_Restaurant(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
 
 	ec := echo.New()
 
-	t.Run("Bad Request Register Restaurant", func(t *testing.T) {
+	t.Run("400 Register Restaurant", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]int{
 			"email": 1,
 		})
@@ -112,7 +107,7 @@ func Test_Register_Restaurant(t *testing.T) {
 		assert.Equal(t, "Bad Request", responses.Message)
 	})
 
-	t.Run("ISE Register Restaurant", func(t *testing.T) {
+	t.Run("500 Register Restaurant", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]string{
 			"email":    "restaurant1@outlook.my",
 			"password": "resto123",
@@ -136,7 +131,7 @@ func Test_Register_Restaurant(t *testing.T) {
 		assert.Equal(t, "Internal Server Error", responses.Message)
 	})
 
-	t.Run("Success Register Restaurant", func(t *testing.T) {
+	t.Run("200 Register Restaurant", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]string{
 			"email":    "restaurant1@outlook.my",
 			"password": "resto123",
@@ -163,12 +158,10 @@ func Test_Register_Restaurant(t *testing.T) {
 }
 
 func Test_Login_Restaurant(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
 
 	ec := echo.New()
 
-	t.Run("Bad Request Register Restaurant", func(t *testing.T) {
+	t.Run("400 Register Restaurant", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]int{
 			"email": 1,
 		})
@@ -191,7 +184,7 @@ func Test_Login_Restaurant(t *testing.T) {
 		assert.Equal(t, "Bad Request", responses.Message)
 	})
 
-	t.Run("Not Found Login Restaurant", func(t *testing.T) {
+	t.Run("404 Login Restaurant", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]string{
 			"email":    "restaurant1@outlook.my",
 			"password": "resto123",
@@ -216,7 +209,7 @@ func Test_Login_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Found", responses.Message)
 	})
 
-	t.Run("Success Login Restaurant", func(t *testing.T) {
+	t.Run("200 Login Restaurant", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]string{
 			"email":    "restaurant1@outlook.my",
 			"password": "resto123",
@@ -243,12 +236,10 @@ func Test_Login_Restaurant(t *testing.T) {
 }
 
 func Test_GetWaiting_Restaurant(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
 
 	ec := echo.New()
 
-	t.Run("Not Found Waiting for approval by admin", func(t *testing.T) {
+	t.Run("404 Waiting for approval by admin", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		res := httptest.NewRecorder()
 
@@ -296,7 +287,7 @@ func Test_GetWaiting_Restaurant(t *testing.T) {
 		assert.Equal(t, "Successful Operation", responses.Message)
 	})
 
-	t.Run("Not Accepted Waiting for approval by admin", func(t *testing.T) {
+	t.Run("406 Waiting for approval by admin", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		res := httptest.NewRecorder()
 
@@ -319,7 +310,7 @@ func Test_GetWaiting_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Accepted", responses.Message)
 	})
 
-	t.Run("Success Get Waiting for approval by admin", func(t *testing.T) {
+	t.Run("200 Get Waiting for approval by admin", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		res := httptest.NewRecorder()
 
@@ -344,12 +335,10 @@ func Test_GetWaiting_Restaurant(t *testing.T) {
 
 }
 func Test_Approve_Restaurant(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
 
 	ec := echo.New()
 
-	t.Run("Bad Request Restaurant", func(t *testing.T) {
+	t.Run("400 Restaurant", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"resto_id": "1",
 			"status":   "OPEN",
@@ -377,7 +366,7 @@ func Test_Approve_Restaurant(t *testing.T) {
 		assert.Equal(t, "Bad Request", responses.Message)
 	})
 
-	t.Run("Not Accepted Approve Restaurant", func(t *testing.T) {
+	t.Run("406 Approve Restaurant", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"resto_id": 1,
 			"status":   "OPEN",
@@ -405,7 +394,7 @@ func Test_Approve_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Accepted", responses.Message)
 	})
 
-	t.Run("Not Found Approve Restaurant", func(t *testing.T) {
+	t.Run("404 Approve Restaurant", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"resto_id": 1,
 			"status":   "OPEN",
@@ -433,7 +422,7 @@ func Test_Approve_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Found", responses.Message)
 	})
 
-	t.Run("Success Approve Restaurant", func(t *testing.T) {
+	t.Run("200 Approve Restaurant", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"resto_id": 1,
 			"status":   "OPEN",
@@ -463,12 +452,10 @@ func Test_Approve_Restaurant(t *testing.T) {
 
 }
 func Test_GETS_Restaurant(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
 
 	ec := echo.New()
 
-	t.Run("Not Found Get Restaurants", func(t *testing.T) {
+	t.Run("404 Get Restaurants", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		res := httptest.NewRecorder()
 
@@ -487,7 +474,7 @@ func Test_GETS_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Found", responses.Message)
 	})
 
-	t.Run("Success Get Restaurants", func(t *testing.T) {
+	t.Run("200 Get Restaurants", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		res := httptest.NewRecorder()
 
@@ -508,12 +495,10 @@ func Test_GETS_Restaurant(t *testing.T) {
 }
 
 func Test_GetByOpen_Restaurant(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
 
 	ec := echo.New()
 
-	t.Run("Not Found GetByOpen Restaurants", func(t *testing.T) {
+	t.Run("404 GetByOpen Restaurants", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		res := httptest.NewRecorder()
 
@@ -532,7 +517,7 @@ func Test_GetByOpen_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Found", responses.Message)
 	})
 
-	t.Run("Not Found 2 GetByOpen Restaurants", func(t *testing.T) {
+	t.Run("404 GetByOpen Restaurants", func(t *testing.T) {
 
 		query := make(url.Values)
 		query.Set("date_time", "2022-03-07 08:00:00")
@@ -555,7 +540,7 @@ func Test_GetByOpen_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Found", responses.Message)
 	})
 
-	t.Run("Not Found 3 GetByOpen Restaurants", func(t *testing.T) {
+	t.Run("404 GetByOpen Restaurants", func(t *testing.T) {
 
 		query := make(url.Values)
 		query.Set("date_time", "2022-03-07 08:00:00")
@@ -578,7 +563,7 @@ func Test_GetByOpen_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Found", responses.Message)
 	})
 
-	t.Run("Success GetByOpen Restaurants", func(t *testing.T) {
+	t.Run("200 GetByOpen Restaurants", func(t *testing.T) {
 
 		query := make(url.Values)
 		query.Set("date_time", "2022-03-07 16:00:00")
@@ -601,7 +586,7 @@ func Test_GetByOpen_Restaurant(t *testing.T) {
 		assert.Equal(t, "Successful Operation", responses.Message)
 	})
 
-	t.Run("Success GetByOpen Restaurants", func(t *testing.T) {
+	t.Run("200 GetByOpen Restaurants", func(t *testing.T) {
 
 		query := make(url.Values)
 		query.Set("date_time", "2022-03-07 10:00:00")
@@ -624,7 +609,7 @@ func Test_GetByOpen_Restaurant(t *testing.T) {
 		assert.Equal(t, "Successful Operation", responses.Message)
 	})
 
-	t.Run("Success GetByOpen Restaurants", func(t *testing.T) {
+	t.Run("200 GetByOpen Restaurants", func(t *testing.T) {
 
 		query := make(url.Values)
 		query.Set("date_time", "2022-02-04 11:00:00")
@@ -650,12 +635,10 @@ func Test_GetByOpen_Restaurant(t *testing.T) {
 }
 
 func Test_GetRestoByID_Restaurant(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
 
 	ec := echo.New()
 
-	t.Run("Not Found GetRestoByID Restaurants", func(t *testing.T) {
+	t.Run("404 GetRestoByID Restaurants", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		res := httptest.NewRecorder()
 
@@ -678,7 +661,7 @@ func Test_GetRestoByID_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Found", responses.Message)
 	})
 
-	t.Run("Success GetRestoByID Restaurants", func(t *testing.T) {
+	t.Run("200 GetRestoByID Restaurants", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		res := httptest.NewRecorder()
 
@@ -704,12 +687,10 @@ func Test_GetRestoByID_Restaurant(t *testing.T) {
 }
 
 func Test_UpdateRestoByID_Restaurant(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
 
 	ec := echo.New()
 
-	t.Run("Bad Request UpdateRestoByID Restaurants", func(t *testing.T) {
+	t.Run("400 UpdateRestoByID Restaurants", func(t *testing.T) {
 
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"email": 1,
@@ -737,7 +718,7 @@ func Test_UpdateRestoByID_Restaurant(t *testing.T) {
 		assert.Equal(t, "Bad Request", responses.Message)
 	})
 
-	t.Run("Not Found UpdateRestoByID Restaurants", func(t *testing.T) {
+	t.Run("404 UpdateRestoByID Restaurants", func(t *testing.T) {
 
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"email": "adminupdate@outlook.my",
@@ -765,7 +746,7 @@ func Test_UpdateRestoByID_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Found", responses.Message)
 	})
 
-	t.Run("Success UpdateRestoByID Restaurants", func(t *testing.T) {
+	t.Run("200 UpdateRestoByID Restaurants", func(t *testing.T) {
 
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"email":    "adminupdate@outlook.my",
@@ -797,12 +778,10 @@ func Test_UpdateRestoByID_Restaurant(t *testing.T) {
 }
 
 func Test_CreateDetailRestoByID_Restaurant(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
 
 	ec := echo.New()
 
-	t.Run("Bad Request CreateDetailRestoByID Restaurants", func(t *testing.T) {
+	t.Run("400 CreateDetailRestoByID Restaurants", func(t *testing.T) {
 
 		reqBody, _ := json.Marshal(map[string]int{
 			"name": 1,
@@ -830,7 +809,7 @@ func Test_CreateDetailRestoByID_Restaurant(t *testing.T) {
 		assert.Equal(t, "Bad Request", responses.Message)
 	})
 
-	t.Run("Not Found CreateDetailRestoByID Restaurants", func(t *testing.T) {
+	t.Run("404 CreateDetailRestoByID Restaurants", func(t *testing.T) {
 
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"name": "Restaurant 1",
@@ -858,7 +837,7 @@ func Test_CreateDetailRestoByID_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Found", responses.Message)
 	})
 
-	t.Run("Success UpdateRestoByID Restaurants", func(t *testing.T) {
+	t.Run("200 UpdateRestoByID Restaurants", func(t *testing.T) {
 
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"name": "Restaurant 1",
@@ -889,12 +868,10 @@ func Test_CreateDetailRestoByID_Restaurant(t *testing.T) {
 }
 
 func Test_UpdateDetailRestoByID_Restaurant(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
 
 	ec := echo.New()
 
-	t.Run("Bad Request UpdateDetailRestoByID Restaurants", func(t *testing.T) {
+	t.Run("400 UpdateDetailRestoByID Restaurants", func(t *testing.T) {
 
 		reqBody, _ := json.Marshal(map[string]int{
 			"open_hour": 1,
@@ -922,7 +899,7 @@ func Test_UpdateDetailRestoByID_Restaurant(t *testing.T) {
 		assert.Equal(t, "Bad Request", responses.Message)
 	})
 
-	t.Run("Not Found UpdateDetailRestoByID Restaurants", func(t *testing.T) {
+	t.Run("404 UpdateDetailRestoByID Restaurants", func(t *testing.T) {
 
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"open_hour": "11:30",
@@ -950,7 +927,7 @@ func Test_UpdateDetailRestoByID_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Found", responses.Message)
 	})
 
-	t.Run("Success UpdateDetailRestoByID Restaurants", func(t *testing.T) {
+	t.Run("200 UpdateDetailRestoByID Restaurants", func(t *testing.T) {
 
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"Open_hour": "12:00",
@@ -981,12 +958,10 @@ func Test_UpdateDetailRestoByID_Restaurant(t *testing.T) {
 }
 
 func Test_DeleteDetailRestoByID_Restaurant(t *testing.T) {
-	config := configs.GetConfig()
-	fmt.Println(config)
 
 	ec := echo.New()
 
-	t.Run("Bad Request DeleteDetailRestoByID Restaurants", func(t *testing.T) {
+	t.Run("400 DeleteDetailRestoByID Restaurants", func(t *testing.T) {
 
 		req := httptest.NewRequest(http.MethodDelete, "/", nil)
 		res := httptest.NewRecorder()
@@ -1010,7 +985,7 @@ func Test_DeleteDetailRestoByID_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Accepted", responses.Message)
 	})
 
-	t.Run("Bad Request DeleteDetailRestoByID Restaurants", func(t *testing.T) {
+	t.Run("400 DeleteDetailRestoByID Restaurants", func(t *testing.T) {
 
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"resto_id": "2",
@@ -1038,7 +1013,7 @@ func Test_DeleteDetailRestoByID_Restaurant(t *testing.T) {
 		assert.Equal(t, "Bad Request", responses.Message)
 	})
 
-	t.Run("Not Found DeleteDetailRestoByID Restaurants", func(t *testing.T) {
+	t.Run("404 DeleteDetailRestoByID Restaurants", func(t *testing.T) {
 
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"resto_id": 1,
@@ -1066,7 +1041,7 @@ func Test_DeleteDetailRestoByID_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Found", responses.Message)
 	})
 
-	t.Run("Success DeleteDetailRestoByID Restaurants", func(t *testing.T) {
+	t.Run("200 DeleteDetailRestoByID Restaurants", func(t *testing.T) {
 
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"resto_id": 1,

@@ -1,240 +1,562 @@
 package restaurants
 
-// func TestRestaurantsRepo(t *testing.T) {
-// 	config := configs.GetConfig()
-// 	db := utils.InitDB(config)
+import (
+	"Restobook/configs"
+	"Restobook/entities"
+	"Restobook/repository/transactions"
+	"Restobook/repository/users"
+	"Restobook/utils"
+	"crypto/sha256"
+	"fmt"
+	"testing"
+	"time"
 
-// 	restaurantRepo := NewRestaurantsRepo(db)
+	"github.com/stretchr/testify/assert"
+)
 
-// 	t.Run("Register Restaurant 1", func(t *testing.T) {
-// 		hash := sha256.Sum256([]byte("resto123"))
-// 		password := fmt.Sprintf("%x", hash[:])
-// 		var newRestaurant entities.Restaurant
-// 		newRestaurant.Email = "restaurant1@outlook.my"
-// 		newRestaurant.Password = password
+func TestRegisterRestaurantsRepo(t *testing.T) {
+	config := configs.GetConfig()
+	db := utils.InitDB(config)
 
-// 		res, err := restaurantRepo.Register(newRestaurant)
-// 		assert.Equal(t, res, res)
-// 		assert.Nil(t, err)
-// 	})
+	restaurantRepo := NewRestaurantsRepo(db)
 
-// 	t.Run("Show RestaurantID 1", func(t *testing.T) {
-// 		res, resD, err := restaurantRepo.Get(1)
-// 		assert.Equal(t, res.ID, uint(1))
-// 		assert.Equal(t, resD.ID, uint(1))
-// 		assert.Nil(t, err)
-// 	})
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
 
-// 	t.Run("Login RestaurantID 1", func(t *testing.T) {
-// 		hash := sha256.Sum256([]byte("resto123"))
-// 		password := fmt.Sprintf("%x", hash[:])
-// 		var loginUser entities.User
-// 		loginUser.Email = "restaurant1@outlook.my"
-// 		loginUser.Password = password
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+	t.Run("ERROR Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
 
-// 		res, err := restaurantRepo.LoginRestaurant(loginUser.Email, loginUser.Password)
-// 		assert.Equal(t, res.ID, uint(1))
-// 		assert.Nil(t, err)
-// 	})
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Error(t, err)
+	})
 
-// 	t.Run("Update RestaurantID 1", func(t *testing.T) {
-// 		hash := sha256.Sum256([]byte("resto123"))
-// 		password := fmt.Sprintf("%x", hash[:])
-// 		var updateRestaurant entities.Restaurant
-// 		updateRestaurant.Email = "restaurant1@outlook.my"
-// 		updateRestaurant.Password = password
+}
 
-// 		res, err := restaurantRepo.Update(uint(1), updateRestaurant)
-// 		assert.Equal(t, res.ID, uint(1))
-// 		assert.Nil(t, err)
-// 	})
+func TestLoginRestaurantsRepo(t *testing.T) {
+	config := configs.GetConfig()
+	db := utils.InitDB(config)
 
-// 	t.Run("Update Detail RestaurantID 1", func(t *testing.T) {
-// 		var updateRestaurant entities.RestaurantDetail
-// 		updateRestaurant.Name = "Restaurant Nasi Padang"
-// 		updateRestaurant.Open = "Monday"
-// 		updateRestaurant.Close = "Friday"
-// 		updateRestaurant.OperationalHour = "10:00 - 17:00"
-// 		updateRestaurant.Price = 10000
-// 		updateRestaurant.Latitude = 1
-// 		updateRestaurant.Longitude = 1
-// 		updateRestaurant.City = "Jakarta"
-// 		updateRestaurant.Address = "Jl.Taman Daan Mogot 2,no.5"
-// 		updateRestaurant.PhoneNumber = "0877"
-// 		updateRestaurant.ProfilePicture = "https://"
-// 		updateRestaurant.Seats = 200
-// 		updateRestaurant.Description = "Khas Rempah Sumbar"
-// 		res, err := restaurantRepo.UpdateDetail(uint(1), updateRestaurant)
-// 		assert.Equal(t, res.ID, uint(1))
-// 		assert.Nil(t, err)
-// 	})
+	restaurantRepo := NewRestaurantsRepo(db)
 
-// 	t.Run("All Waiting RestaurantID 1", func(t *testing.T) {
-// 		res, err := restaurantRepo.GetsWaiting()
-// 		assert.Equal(t, res, res)
-// 		assert.Nil(t, err)
-// 	})
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
 
-// 	t.Run("Approve RestaurantID 1", func(t *testing.T) {
-// 		res, err := restaurantRepo.Approve(uint(1), "OPEN")
-// 		assert.Equal(t, res.ID, uint(1))
-// 		assert.Nil(t, err)
-// 	})
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
 
-// 	t.Run("Show Open by Day", func(t *testing.T) {
-// 		res, err := restaurantRepo.GetsByOpen(0, 10)
-// 		assert.Equal(t, res, res)
-// 		assert.Nil(t, err)
-// 	})
+	t.Run("Login Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
 
-// 	t.Run("Show Open", func(t *testing.T) {
-// 		res, err := restaurantRepo.Gets()
-// 		assert.Equal(t, res, res)
-// 		assert.Nil(t, err)
-// 	})
+		res, err := restaurantRepo.LoginRestaurant(newRestaurant.Email, newRestaurant.Password)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
 
-// 	t.Run("Delete RestaurantID 1", func(t *testing.T) {
-// 		res, err := restaurantRepo.Delete(1)
-// 		assert.Equal(t, res.ID, uint(1))
-// 		assert.Nil(t, err)
-// 	})
-// }
+	t.Run("ERROR Login Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto1234"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
 
-// func TestFalseRestaurantsRepo(t *testing.T) {
-// 	config := configs.GetConfig()
-// 	db := utils.InitDB(config)
+		res, err := restaurantRepo.LoginRestaurant(newRestaurant.Email, newRestaurant.Password)
+		assert.Equal(t, res, res)
+		assert.Error(t, err)
+	})
 
-// 	restaurantRepo := NewRestaurantsRepo(db)
+}
 
-// 	t.Run("Register Restaurant 2", func(t *testing.T) {
-// 		hash := sha256.Sum256([]byte("resto123"))
-// 		password := fmt.Sprintf("%x", hash[:])
-// 		var newRestaurant entities.Restaurant
-// 		newRestaurant.Email = "restaurant2@outlook.my"
-// 		newRestaurant.Password = password
+func TestGetWaitingRestaurantsRepo(t *testing.T) {
+	config := configs.GetConfig()
+	db := utils.InitDB(config)
 
-// 		res, err := restaurantRepo.Register(newRestaurant)
-// 		assert.Equal(t, res, res)
-// 		assert.Nil(t, err)
-// 	})
+	restaurantRepo := NewRestaurantsRepo(db)
 
-// 	t.Run("FALSE Register Restaurant 2", func(t *testing.T) {
-// 		hash := sha256.Sum256([]byte("resto123"))
-// 		password := fmt.Sprintf("%x", hash[:])
-// 		var newRestaurant entities.Restaurant
-// 		newRestaurant.Email = "restaurant2@outlook.my"
-// 		newRestaurant.Password = password
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
 
-// 		res, err := restaurantRepo.Register(newRestaurant)
-// 		assert.Equal(t, res, res)
-// 		assert.Error(t, err)
-// 	})
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
 
-// 	t.Run("Register Restaurant 3", func(t *testing.T) {
-// 		hash := sha256.Sum256([]byte("resto123"))
-// 		password := fmt.Sprintf("%x", hash[:])
-// 		var newRestaurant entities.Restaurant
-// 		newRestaurant.Email = "restaurant3@outlook.my"
-// 		newRestaurant.Password = password
+	t.Run("Update Restaurant Detail", func(t *testing.T) {
+		var updateRestaurant entities.RestaurantDetail
+		updateRestaurant.Name = "Restaurant Nasi Padang"
+		updateRestaurant.Open = "Monday,Tuesday"
+		updateRestaurant.Close = "Wednesday,Thursday,Friday,Saturday,Sunday"
+		updateRestaurant.Open_Hour = "10:00"
+		updateRestaurant.Close_Hour = "17:00"
+		updateRestaurant.Price = 10000
+		updateRestaurant.Latitude = 1
+		updateRestaurant.Longitude = 1
+		updateRestaurant.City = "Jakarta"
+		updateRestaurant.Address = "Jl.Taman Daan Mogot 2,no.5"
+		updateRestaurant.PhoneNumber = "0877"
+		updateRestaurant.ProfilePicture = "https://"
+		updateRestaurant.Seats = 200
+		updateRestaurant.Description = "Khas Rempah Sumbar"
+		res, err := restaurantRepo.UpdateDetail(uint(1), updateRestaurant)
+		assert.Equal(t, res.ID, uint(1))
+		assert.Nil(t, err)
+	})
 
-// 		res, err := restaurantRepo.Register(newRestaurant)
-// 		assert.Equal(t, res, res)
-// 		assert.Nil(t, err)
-// 	})
+	t.Run("Get Waiting Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.GetsWaiting()
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
 
-// 	t.Run("FALSE Show RestaurantID 4", func(t *testing.T) {
-// 		res, resD, err := restaurantRepo.Get(4)
-// 		assert.Equal(t, res.ID, uint(0))
-// 		assert.Equal(t, resD.ID, uint(0))
-// 		assert.Error(t, err)
-// 	})
+	db.Migrator().DropTable(&entities.RestaurantDetail{})
 
-// 	t.Run("FALSE Login Restaurant 4", func(t *testing.T) {
-// 		hash := sha256.Sum256([]byte("herlianto1234"))
-// 		password := fmt.Sprintf("%x", hash[:])
-// 		var loginUser entities.User
-// 		loginUser.Email = "restaurant4@outlook.my"
-// 		loginUser.Password = password
+	t.Run("Get Waiting Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.GetsWaiting()
+		assert.Equal(t, res, res)
+		assert.Error(t, err)
+	})
+}
 
-// 		res, err := restaurantRepo.LoginRestaurant(loginUser.Email, loginUser.Password)
-// 		assert.Equal(t, res.ID, uint(0))
-// 		assert.Error(t, err)
-// 	})
+func TestApproveRestaurantsRepo(t *testing.T) {
+	config := configs.GetConfig()
+	db := utils.InitDB(config)
 
-// 	t.Run("FALSE Update RestaurantD 3", func(t *testing.T) {
-// 		hash := sha256.Sum256([]byte("herlianto123"))
-// 		password := fmt.Sprintf("%x", hash[:])
-// 		var updateRestaurant entities.Restaurant
-// 		updateRestaurant.Email = "herlianto@outlook.my"
-// 		updateRestaurant.Password = password
+	restaurantRepo := NewRestaurantsRepo(db)
 
-// 		res, err := restaurantRepo.Update(uint(2), updateRestaurant)
-// 		assert.Equal(t, res.ID, uint(0))
-// 		assert.Error(t, err)
-// 	})
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
 
-// 	t.Run("Update Detail RestaurantID 3", func(t *testing.T) {
-// 		var updateRestaurant entities.RestaurantDetail
-// 		updateRestaurant.Name = "Restaurant Nasi Padang"
-// 		updateRestaurant.Open = "Monday"
-// 		updateRestaurant.Close = "Friday"
-// 		updateRestaurant.OperationalHour = "10:00 - 17:00"
-// 		updateRestaurant.Price = 10000
-// 		updateRestaurant.Latitude = 1
-// 		updateRestaurant.Longitude = 1
-// 		updateRestaurant.City = "Jakarta"
-// 		updateRestaurant.Address = "Jl.Taman Daan Mogot 2,no.5"
-// 		updateRestaurant.PhoneNumber = "0877"
-// 		updateRestaurant.ProfilePicture = "https://"
-// 		updateRestaurant.Seats = 200
-// 		updateRestaurant.Description = "Khas Rempah Sumbar"
-// 		res, err := restaurantRepo.UpdateDetail(uint(3), updateRestaurant)
-// 		assert.Equal(t, res.ID, uint(3))
-// 		assert.Nil(t, err)
-// 	})
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
 
-// 	t.Run("FALSE Update Detail RestaurantID 4", func(t *testing.T) {
-// 		var updateRestaurant entities.RestaurantDetail
-// 		updateRestaurant.Name = "Restaurant Nasi Padang"
+	t.Run("Approve Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Approve(uint(1), "OPEN")
+		assert.Equal(t, res.ID, uint(1))
+		assert.Nil(t, err)
+	})
 
-// 		res, err := restaurantRepo.UpdateDetail(uint(4), updateRestaurant)
-// 		assert.Equal(t, res.ID, uint(0))
-// 		assert.Error(t, err)
-// 	})
+	t.Run("ERROR Approve Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Approve(2, "OPEN")
+		assert.Equal(t, res, res)
+		assert.Error(t, err)
+	})
 
-// 	t.Run("FALSE Approve RestaurantID 4", func(t *testing.T) {
-// 		res, err := restaurantRepo.Approve(uint(4), "OPEN")
-// 		assert.Equal(t, res.ID, uint(0))
-// 		assert.Error(t, err)
-// 	})
+}
 
-// 	t.Run("FALSE Delete RestaurantID 4", func(t *testing.T) {
-// 		res, err := restaurantRepo.Delete(4)
-// 		assert.Equal(t, res.ID, uint(0))
-// 		assert.Error(t, err)
-// 	})
+func TestGetRestaurantsRepo(t *testing.T) {
+	config := configs.GetConfig()
+	db := utils.InitDB(config)
 
-// 	db.Migrator().DropTable(&entities.RestaurantDetail{})
-// 	db.Migrator().DropTable(&entities.Restaurant{})
+	restaurantRepo := NewRestaurantsRepo(db)
 
-// 	t.Run("FALSE Show Waiting", func(t *testing.T) {
-// 		res, err := restaurantRepo.GetsWaiting()
-// 		assert.Equal(t, res, res)
-// 		assert.Error(t, err)
-// 	})
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
 
-// 	t.Run("FALSE Show open by day", func(t *testing.T) {
-// 		res, err := restaurantRepo.GetsByOpen(00, 00)
-// 		assert.Equal(t, res, res)
-// 		assert.Error(t, err)
-// 	})
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
 
-// 	t.Run("FALSE Show all open", func(t *testing.T) {
-// 		res, err := restaurantRepo.Gets()
-// 		assert.Equal(t, res, res)
-// 		assert.Error(t, err)
-// 	})
+	t.Run("Get Restaurant", func(t *testing.T) {
+		res, resD, err := restaurantRepo.Get(uint(1))
+		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, resD, resD)
+		assert.Nil(t, err)
+	})
 
-// 	db.AutoMigrate(entities.RestaurantDetail{})
-// 	db.AutoMigrate(entities.Restaurant{})
-// }
+	t.Run("ERROR Get Restaurant", func(t *testing.T) {
+		res, resD, err := restaurantRepo.Get(uint(2))
+		assert.Equal(t, res.ID, uint(0))
+		assert.Equal(t, resD, resD)
+		assert.Error(t, err)
+	})
+
+}
+
+func TestGetsByOpenRestaurantsRepo(t *testing.T) {
+	config := configs.GetConfig()
+	db := utils.InitDB(config)
+
+	restaurantRepo := NewRestaurantsRepo(db)
+
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
+
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Update Restaurant Detail", func(t *testing.T) {
+		var updateRestaurant entities.RestaurantDetail
+		updateRestaurant.Name = "Restaurant Nasi Padang"
+		updateRestaurant.Open = "Monday,Tuesday"
+		updateRestaurant.Close = "Wednesday,Thursday,Friday,Saturday,Sunday"
+		updateRestaurant.Open_Hour = "10:00"
+		updateRestaurant.Close_Hour = "17:00"
+		updateRestaurant.Price = 10000
+		updateRestaurant.Latitude = 1
+		updateRestaurant.Longitude = 1
+		updateRestaurant.City = "Jakarta"
+		updateRestaurant.Address = "Jl.Taman Daan Mogot 2,no.5"
+		updateRestaurant.PhoneNumber = "0877"
+		updateRestaurant.ProfilePicture = "https://"
+		updateRestaurant.Seats = 200
+		updateRestaurant.Description = "Khas Rempah Sumbar"
+		res, err := restaurantRepo.UpdateDetail(uint(1), updateRestaurant)
+		assert.Equal(t, res.ID, uint(1))
+		assert.Nil(t, err)
+	})
+
+	t.Run("Approve Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Approve(1, "OPEN")
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("GetsByOpen Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.GetsByOpen(1)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	db.Migrator().DropTable(&entities.RestaurantDetail{})
+
+	t.Run("ERROR GetsByOpen Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.GetsByOpen(1)
+		assert.Equal(t, res, res)
+		assert.Error(t, err)
+	})
+
+}
+
+func TestGetsRestaurantsRepo(t *testing.T) {
+	config := configs.GetConfig()
+	db := utils.InitDB(config)
+
+	restaurantRepo := NewRestaurantsRepo(db)
+
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
+
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Update Restaurant Detail", func(t *testing.T) {
+		var updateRestaurant entities.RestaurantDetail
+		updateRestaurant.Name = "Restaurant Nasi Padang"
+		updateRestaurant.Open = "Monday,Tuesday"
+		updateRestaurant.Close = "Wednesday,Thursday,Friday,Saturday,Sunday"
+		updateRestaurant.Open_Hour = "10:00"
+		updateRestaurant.Close_Hour = "17:00"
+		updateRestaurant.Price = 10000
+		updateRestaurant.Latitude = 1
+		updateRestaurant.Longitude = 1
+		updateRestaurant.City = "Jakarta"
+		updateRestaurant.Address = "Jl.Taman Daan Mogot 2,no.5"
+		updateRestaurant.PhoneNumber = "0877"
+		updateRestaurant.ProfilePicture = "https://"
+		updateRestaurant.Seats = 200
+		updateRestaurant.Description = "Khas Rempah Sumbar"
+		res, err := restaurantRepo.UpdateDetail(uint(1), updateRestaurant)
+		assert.Equal(t, res.ID, uint(1))
+		assert.Nil(t, err)
+	})
+
+	t.Run("Approve Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Approve(1, "OPEN")
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Gets Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Gets()
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	db.Migrator().DropTable(&entities.RestaurantDetail{})
+
+	t.Run("ERROR Gets Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Gets()
+		assert.Equal(t, res, res)
+		assert.Error(t, err)
+	})
+}
+
+func TestGetExistSeatRestaurantsRepo(t *testing.T) {
+	config := configs.GetConfig()
+	db := utils.InitDB(config)
+
+	restaurantRepo := NewRestaurantsRepo(db)
+	userRepo := users.NewUsersRepo(db)
+	transactionRepo := transactions.NewTransactionRepo(db)
+
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
+
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Update Restaurant Detail", func(t *testing.T) {
+		var updateRestaurant entities.RestaurantDetail
+		updateRestaurant.Name = "Restaurant Nasi Padang"
+		updateRestaurant.Open = "Monday,Tuesday"
+		updateRestaurant.Close = "Wednesday,Thursday,Friday,Saturday,Sunday"
+		updateRestaurant.Open_Hour = "10:00"
+		updateRestaurant.Close_Hour = "21:00"
+		updateRestaurant.Price = 10000
+		updateRestaurant.Latitude = 1
+		updateRestaurant.Longitude = 1
+		updateRestaurant.City = "Jakarta"
+		updateRestaurant.Address = "Jl.Taman Daan Mogot 2,no.5"
+		updateRestaurant.PhoneNumber = "0877"
+		updateRestaurant.ProfilePicture = "https://"
+		updateRestaurant.Seats = 200
+		updateRestaurant.Description = "Khas Rempah Sumbar"
+		res, err := restaurantRepo.UpdateDetail(uint(1), updateRestaurant)
+		assert.Equal(t, res.ID, uint(1))
+		assert.Nil(t, err)
+	})
+
+	t.Run("Approve Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Approve(1, "OPEN")
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Register User", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("herli123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newUser entities.User
+		newUser.Email = "herlianto@outlook.my"
+		newUser.Password = password
+
+		res, err := userRepo.Register(newUser)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Create Transactions", func(t *testing.T) {
+		loc, _ := time.LoadLocation("Asia/Singapore")
+		date_string := "2022-02-14 16:00"
+		var dateTime, _ = time.ParseInLocation("2006-01-02 15:04", date_string, loc)
+		fmt.Println("date_time", dateTime)
+
+		var newTransaction entities.Transaction
+		newTransaction.RestaurantID = 1
+		newTransaction.UserID = 1
+		newTransaction.DateTime = dateTime
+		newTransaction.Persons = 1
+		newTransaction.Total = 10000
+		res, err := transactionRepo.Create(newTransaction)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("GetExistSeat Restaurant", func(t *testing.T) {
+		res, total_seat, err := restaurantRepo.GetExistSeat(1, "2022-02-14 16:00")
+		assert.Equal(t, res, res)
+		assert.Equal(t, total_seat, 1)
+		assert.Nil(t, err)
+	})
+
+	t.Run("ERROR GetExistSeat Restaurant", func(t *testing.T) {
+		res, total_seat, err := restaurantRepo.GetExistSeat(1, "2022-02-14 10:00")
+		assert.Equal(t, res, res)
+		assert.Equal(t, total_seat, 0)
+		assert.Error(t, err)
+	})
+
+	db.Migrator().DropTable(&entities.Transaction{})
+
+	t.Run("ERROR GetExistSeat Restaurant", func(t *testing.T) {
+		res, total_seat, err := restaurantRepo.GetExistSeat(1, "2022-02-14 10:00")
+		assert.Equal(t, res, res)
+		assert.Equal(t, total_seat, 0)
+		assert.Error(t, err)
+	})
+}
+
+func TestUpdateRestaurantsRepo(t *testing.T) {
+	config := configs.GetConfig()
+	db := utils.InitDB(config)
+
+	restaurantRepo := NewRestaurantsRepo(db)
+
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
+
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Update Restaurant", func(t *testing.T) {
+		var updateRestaurant entities.Restaurant
+		updateRestaurant.Email = "restaurant1@outlook.my"
+		updateRestaurant.Password = "resto123"
+		res, err := restaurantRepo.Update(uint(1), updateRestaurant)
+		assert.Equal(t, res.ID, uint(1))
+		assert.Nil(t, err)
+	})
+	t.Run("ERROR Update Restaurant", func(t *testing.T) {
+		var updateRestaurant entities.Restaurant
+		updateRestaurant.Email = "restaurant1@outlook.my"
+		updateRestaurant.Password = "resto123"
+		res, err := restaurantRepo.Update(uint(2), updateRestaurant)
+		assert.Equal(t, res.ID, uint(0))
+		assert.Error(t, err)
+	})
+
+}
+
+func TestDeleteRestaurantsRepo(t *testing.T) {
+	config := configs.GetConfig()
+	db := utils.InitDB(config)
+
+	restaurantRepo := NewRestaurantsRepo(db)
+
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
+
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Delete Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Delete(uint(1))
+		assert.Equal(t, res.ID, uint(1))
+		assert.Nil(t, err)
+	})
+
+	t.Run("ERROR Delete Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Delete(uint(2))
+		assert.Equal(t, res.ID, uint(0))
+		assert.Error(t, err)
+	})
+
+}
+
+func TestUpdateDetailRestaurantsRepo(t *testing.T) {
+	config := configs.GetConfig()
+	db := utils.InitDB(config)
+
+	restaurantRepo := NewRestaurantsRepo(db)
+
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
+
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Update Restaurant Detail", func(t *testing.T) {
+		var updateRestaurant entities.RestaurantDetail
+		updateRestaurant.Name = "Restaurant Nasi Padang"
+		updateRestaurant.Open = "Monday,Tuesday"
+		updateRestaurant.Close = "Wednesday,Thursday,Friday,Saturday,Sunday"
+		updateRestaurant.Open_Hour = "10:00"
+		updateRestaurant.Close_Hour = "17:00"
+		updateRestaurant.Price = 10000
+		updateRestaurant.Latitude = 1
+		updateRestaurant.Longitude = 1
+		updateRestaurant.City = "Jakarta"
+		updateRestaurant.Address = "Jl.Taman Daan Mogot 2,no.5"
+		updateRestaurant.PhoneNumber = "0877"
+		updateRestaurant.ProfilePicture = "https://"
+		updateRestaurant.Seats = 200
+		updateRestaurant.Description = "Khas Rempah Sumbar"
+		res, err := restaurantRepo.UpdateDetail(uint(1), updateRestaurant)
+		assert.Equal(t, res.ID, uint(1))
+		assert.Nil(t, err)
+	})
+
+	t.Run("ERROR Update Restaurant Detail", func(t *testing.T) {
+		var updateRestaurant entities.RestaurantDetail
+		updateRestaurant.Name = "Restaurant Nasi Padang"
+		updateRestaurant.Open = "Monday,Tuesday"
+		updateRestaurant.Close = "Wednesday,Thursday,Friday,Saturday,Sunday"
+		updateRestaurant.Open_Hour = "10:00"
+		updateRestaurant.Close_Hour = "17:00"
+		updateRestaurant.Price = 10000
+		updateRestaurant.Latitude = 1
+		updateRestaurant.Longitude = 1
+		updateRestaurant.City = "Jakarta"
+		updateRestaurant.Address = "Jl.Taman Daan Mogot 2,no.5"
+		updateRestaurant.PhoneNumber = "0877"
+		updateRestaurant.ProfilePicture = "https://"
+		updateRestaurant.Seats = 200
+		updateRestaurant.Description = "Khas Rempah Sumbar"
+		res, err := restaurantRepo.UpdateDetail(uint(2), updateRestaurant)
+		assert.Equal(t, res.ID, uint(0))
+		assert.Error(t, err)
+	})
+
+}
