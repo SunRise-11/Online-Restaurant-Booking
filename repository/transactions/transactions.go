@@ -81,7 +81,7 @@ func (tr *TransactionRepository) GetBalance(userId uint) (entities.User, error) 
 }
 func (tr *TransactionRepository) GetRestoDetail(restaurantId uint) (entities.RestaurantDetail, error) {
 	resto := entities.RestaurantDetail{}
-	if err := tr.db.Select("price", "seats", "open", "operational_hour", "status").Where("id=?", restaurantId).First(&resto).Error; err != nil {
+	if err := tr.db.Select("price", "seats", "open", "open_hour", "close_hour", "status").Where("id=?", restaurantId).First(&resto).Error; err != nil {
 		return resto, err
 	}
 	return resto, nil

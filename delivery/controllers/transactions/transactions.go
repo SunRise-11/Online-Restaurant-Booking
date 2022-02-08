@@ -46,27 +46,28 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
-		operationalHour := restoDetail.OperationalHour
+		openHour := restoDetail.Open_Hour
+		closeHour := restoDetail.Close_Hour
 		if !strings.Contains(restoDetail.Open, fmt.Sprint(day)) || restoDetail.Status != "OPEN" {
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"code":    http.StatusInternalServerError,
 				"message": "This Restaurant is Not Open Today",
 			})
 		}
-		minHoursFormat := newTransactionReq.DateTime[0:11] + operationalHour[:2] + ":00"
-		maxHoursFormat := newTransactionReq.DateTime[0:11] + operationalHour[8:10] + ":00"
+		minHoursFormat := newTransactionReq.DateTime[0:11] + openHour[:]
+		maxHoursFormat := newTransactionReq.DateTime[0:11] + closeHour[:]
 		minHours, _ := time.ParseInLocation("2006-01-02 15:04", minHoursFormat, loc)
 		maxHours, _ := time.ParseInLocation("2006-01-02 15:04", maxHoursFormat, loc)
-		if dateTime.After(maxHours) || dateTime.Equal(maxHours) {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    http.StatusInternalServerError,
-				"message": "Sorry This Restaurant already closed",
-			})
-		}
 		if dateTime.Before(minHours) {
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"code":    http.StatusInternalServerError,
 				"message": "Sorry This Restaurant is Not Open Yet",
+			})
+		}
+		if dateTime.After(maxHours) || dateTime.Equal(maxHours) {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    http.StatusInternalServerError,
+				"message": "Sorry This Restaurant already closed",
 			})
 		}
 
