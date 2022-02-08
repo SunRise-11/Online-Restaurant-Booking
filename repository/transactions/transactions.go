@@ -56,7 +56,15 @@ func (tr *TransactionRepository) GetAllAppointed(userId uint) ([]entities.Transa
 }
 func (tr *TransactionRepository) GetTransactionById(id uint) (entities.Transaction, error) {
 	transaction := entities.Transaction{}
-	if err := tr.db.Preload("User").First(&transaction).Error; err != nil {
+	if err := tr.db.Preload("User").Where("id=?", id).First(&transaction).Error; err != nil {
+		return transaction, err
+	}
+
+	return transaction, nil
+}
+func (tr *TransactionRepository) GetTransactionUserByStatus(id uint, status string) (entities.Transaction, error) {
+	transaction := entities.Transaction{}
+	if err := tr.db.Preload("User").Where("id=? and status=?", id, status).First(&transaction).Error; err != nil {
 		return transaction, err
 	}
 

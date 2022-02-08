@@ -18,4 +18,5 @@ type TransactionsInterface interface {
 	GetTotalSeat(restaurantId uint, dateTime string) (int, error)
 	CheckSameHour(restaurantId, userId uint, dateTime string) (bool, error)
 	GetReputationUser(userId uint) (entities.User, error)
+	GetTransactionUserByStatus(id uint, status string) (entities.Transaction, error)
 }
