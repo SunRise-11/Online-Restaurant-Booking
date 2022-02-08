@@ -192,6 +192,37 @@ func (transcon TransactionsController) GetAllWaitingForRestoCtrl() echo.HandlerF
 
 	}
 }
+func (transcon TransactionsController) GetAllAcceptedForRestoCtrl() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		uid := c.Get("user").(*jwt.Token)
+		claims := uid.Claims.(jwt.MapClaims)
+		restoID := int(claims["restoid"].(float64))
+		transactions, err := transcon.Repo.GetAllAcceptedForResto(uint(restoID))
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
+		data := []TransactionResponse{}
+		for _, transaction := range transactions {
+			data = append(
+				data, TransactionResponse{
+					ID:           transaction.ID,
+					UserID:       transaction.UserID,
+					RestaurantID: transaction.RestaurantID,
+					Person:       transaction.Persons,
+					DateTime:     transaction.DateTime,
+					Total:        transaction.Total,
+				},
+			)
+		}
+		response := TransactionResponseFormat{
+			Code:    http.StatusOK,
+			Message: "Successful Operation",
+			Data:    data,
+		}
+		return c.JSON(http.StatusOK, response)
+
+	}
+}
 func (transcon TransactionsController) GetHistoryCtrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		uid := c.Get("user").(*jwt.Token)
@@ -274,7 +305,7 @@ func (transcon TransactionsController) AcceptTransactionCtrl() echo.HandlerFunc 
 			ID:     newTransactionReq.ID,
 			Status: newTransactionReq.Status,
 		}
-		_, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, "waiting for confirmation")
+		_, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, uint(restoID), "waiting for confirmation")
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
@@ -315,7 +346,7 @@ func (transcon TransactionsController) RejectTransactionCtrl() echo.HandlerFunc 
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
-		res, err := transcon.Repo.GetTransactionById(newTransactionReq.ID)
+		res, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, uint(restoID), "waiting for confirmation")
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 
@@ -367,7 +398,7 @@ func (transcon TransactionsController) SuccessTransactionCtrl() echo.HandlerFunc
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
-		transaction, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, "Accepted")
+		transaction, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, uint(restoID), "Accepted")
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
@@ -419,7 +450,7 @@ func (transcon TransactionsController) FailTransactionCtrl() echo.HandlerFunc {
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
-		transaction, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.UserID, "Accepted")
+		transaction, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, uint(restoID), "Accepted")
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
@@ -471,7 +502,7 @@ func (transcon TransactionsController) CancelTransactionCtrl() echo.HandlerFunc 
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
-		transaction, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, "Accepted")
+		transaction, err := transcon.Repo.GetTransactionById(newTransactionReq.ID, uint(userId), "Accepted")
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
@@ -479,12 +510,20 @@ func (transcon TransactionsController) CancelTransactionCtrl() echo.HandlerFunc 
 			ID:     newTransactionReq.ID,
 			Status: newTransactionReq.Status,
 		}
-		fmt.Println(transaction.User)
 		totalReputation := transaction.User.Reputation - 3
 		if totalReputation < 0 {
 			totalReputation = 0
 		}
-
+		newBalance := transaction.User.Balance - 20000
+		if newBalance < 0 {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    http.StatusInternalServerError,
+				"message": "Your Money is Not Enough For Cancel This Transaction",
+			})
+		}
+		if _, err := transcon.Repo.UpdateUserBalance(uint(userId), newBalance); err != nil {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		}
 		if _, err := transcon.Repo.UpdateUserReputation(uint(userId), totalReputation); err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}

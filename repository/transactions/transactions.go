@@ -38,6 +38,14 @@ func (tr *TransactionRepository) GetAllWaitingForResto(restaurantId uint) ([]ent
 	}
 	return transaction, nil
 }
+func (tr *TransactionRepository) GetAllAcceptedForResto(restaurantId uint) ([]entities.Transaction, error) {
+	transaction := []entities.Transaction{}
+
+	if err := tr.db.Where("restaurant_id=? and status=?", restaurantId, "Accepted").Find(&transaction).Error; err != nil {
+		return transaction, err
+	}
+	return transaction, nil
+}
 func (tr *TransactionRepository) GetHistory(userId uint) ([]entities.Transaction, error) {
 	transaction := []entities.Transaction{}
 
@@ -54,17 +62,17 @@ func (tr *TransactionRepository) GetAllAppointed(userId uint) ([]entities.Transa
 	}
 	return transaction, nil
 }
-func (tr *TransactionRepository) GetTransactionById(id uint) (entities.Transaction, error) {
+func (tr *TransactionRepository) GetTransactionById(id, userId uint, status string) (entities.Transaction, error) {
 	transaction := entities.Transaction{}
-	if err := tr.db.Preload("User").Where("id=?", id).First(&transaction).Error; err != nil {
+	if err := tr.db.Preload("User").Where("id=? and user_id=? and status=?", id, userId, status).First(&transaction).Error; err != nil {
 		return transaction, err
 	}
 
 	return transaction, nil
 }
-func (tr *TransactionRepository) GetTransactionUserByStatus(id uint, status string) (entities.Transaction, error) {
+func (tr *TransactionRepository) GetTransactionUserByStatus(id, restaurant_id uint, status string) (entities.Transaction, error) {
 	transaction := entities.Transaction{}
-	if err := tr.db.Preload("User").Where("id=? and status=?", id, status).First(&transaction).Error; err != nil {
+	if err := tr.db.Preload("User").Where("id=? and restaurant_id=? and status=?", id, restaurant_id, status).First(&transaction).Error; err != nil {
 		return transaction, err
 	}
 
