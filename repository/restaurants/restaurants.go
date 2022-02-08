@@ -149,7 +149,7 @@ func (rr *RestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetai
 
 func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 	restaurantD := []entities.RestaurantDetail{}
-	if err := rr.db.Where("status=?", "OPEN").Find(&restaurantD).Error; err != nil {
+	if err := rr.db.Preload("Rating").Where("status=?", "OPEN").Find(&restaurantD).Error; err != nil {
 		return restaurantD, err
 	} else {
 
