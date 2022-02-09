@@ -1,12 +1,12 @@
 package users
 
 type LoginRequestFormat struct {
-	Email    string `json:"email" form:"email"`
-	Password string `json:"password" form:"password"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 type UserRequestFormat struct {
-	Email        string `json:"email" form:"email"`
-	Password     string `json:"password" form:"password"`
-	Name         string `json:"name" form:"name"`
-	Phone_Number int    `json:"phone_number" form:"phone_number"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	Name         string `json:"name"`
+	Phone_Number string `json:"phone_number"`
 }
