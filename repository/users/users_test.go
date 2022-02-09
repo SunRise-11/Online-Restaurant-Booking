@@ -29,6 +29,19 @@ func TestRegisterAdminRepo(t *testing.T) {
 		assert.Equal(t, res, res)
 		assert.Nil(t, err)
 	})
+	t.Run("ERROR Register Admin", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("herlianto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newUser entities.User
+		newUser.Name = "admin"
+		newUser.Email = "admin@outlook.my"
+		newUser.Password = password
+		newUser.PhoneNumber = "0877"
+
+		res, err := userRepo.RegisterAdmin(newUser)
+		assert.Equal(t, res, res)
+		assert.Error(t, err)
+	})
 }
 
 func TestRegisterUsersRepo(t *testing.T) {

@@ -51,7 +51,7 @@ func NewAdminControllers(usrep users.UsersInterface) *AdminController {
 func (admcon AdminController) RegisterAdminCtrl() echo.HandlerFunc {
 
 	return func(c echo.Context) error {
-		newAdminReq := AdminRequestFormat{}
+		newAdminReq := RegisterRequestFormat{}
 
 		if err := c.Bind(&newAdminReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
@@ -80,20 +80,21 @@ func (admcon AdminController) RegisterAdminCtrl() echo.HandlerFunc {
 
 			return c.JSON(http.StatusOK, response)
 		}
-
 	}
+
 }
 
 func (admcon AdminController) LoginAdminCtrl() echo.HandlerFunc {
+
 	return func(c echo.Context) error {
 		loginFormat := LoginRequestFormat{}
-		if err := c.Bind(&loginFormat); err != nil {
+		if err := c.Bind(&loginFormat); err != nil || loginFormat.Email == "" || loginFormat.Password == "" {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
 
 		hash := sha256.Sum256([]byte(loginFormat.Password))
 		stringPassword := fmt.Sprintf("%x", hash[:])
-		if res, err := admcon.Repo.LoginUser(loginFormat.Email, stringPassword); err != nil || res.Email == "" || res.ID == 0 {
+		if res, err := admcon.Repo.LoginUser(loginFormat.Email, stringPassword); err != nil || res.ID == 0 {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 			token, _ := CreateTokenAuthAdmin(res.ID)
@@ -104,6 +105,6 @@ func (admcon AdminController) LoginAdminCtrl() echo.HandlerFunc {
 				Token:   token,
 			})
 		}
-
 	}
+
 }

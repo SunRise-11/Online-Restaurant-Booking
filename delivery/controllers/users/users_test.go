@@ -16,16 +16,17 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
-var jwtToken string
+var jwtTokenUser string
 
-func TestResisterUser(t *testing.T) {
+func Test_Resister_User(t *testing.T) {
 
 	ec := echo.New()
 
 	t.Run("400 Register User", func(t *testing.T) {
-		reqBody, _ := json.Marshal(map[string]int{
+		reqBody, _ := json.Marshal(map[string]interface{}{
 			"name": 1,
 		})
 
@@ -49,9 +50,10 @@ func TestResisterUser(t *testing.T) {
 
 	t.Run("500 Register User", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]string{
-			"name":     "herlianto",
-			"email":    "herlianto@outlook.my",
-			"password": "herlianto123",
+			"name":         "user",
+			"email":        "user@outlook.my",
+			"password":     "user123",
+			"phone_number": "0877",
 		})
 
 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
@@ -74,9 +76,9 @@ func TestResisterUser(t *testing.T) {
 
 	t.Run("200 Register User", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]string{
-			"name":     "herlianto",
-			"email":    "herlianto@outlook.my",
-			"password": "herlianto123",
+			"name":     "user",
+			"email":    "user@outlook.my",
+			"password": "user123",
 		})
 
 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
@@ -99,7 +101,7 @@ func TestResisterUser(t *testing.T) {
 
 }
 
-func TestLoginUser(t *testing.T) {
+func Test_Login_User(t *testing.T) {
 
 	ec := echo.New()
 
@@ -128,8 +130,8 @@ func TestLoginUser(t *testing.T) {
 
 	t.Run("404 Login User", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]string{
-			"email":    "herlianto@outlook.my",
-			"password": "herlianto1232",
+			"email":    "user@outlook.my",
+			"password": "user123",
 		})
 
 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
@@ -152,8 +154,8 @@ func TestLoginUser(t *testing.T) {
 
 	t.Run("200 Login User", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]string{
-			"email":    "herlianto@outlook.my",
-			"password": "herlianto123",
+			"email":    "user@outlook.my",
+			"password": "user123",
 		})
 
 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
@@ -169,7 +171,7 @@ func TestLoginUser(t *testing.T) {
 
 		responses := LoginResponseFormat{}
 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
-		jwtToken = responses.Token
+		jwtTokenUser = responses.Token
 
 		assert.Equal(t, 200, responses.Code)
 		assert.Equal(t, "Successful Operation", responses.Message)
@@ -177,7 +179,7 @@ func TestLoginUser(t *testing.T) {
 
 }
 
-func TestGetUserByID(t *testing.T) {
+func Test_Get_User(t *testing.T) {
 
 	ec := echo.New()
 
@@ -186,13 +188,13 @@ func TestGetUserByID(t *testing.T) {
 		res := httptest.NewRecorder()
 
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenUser))
 
 		context := ec.NewContext(req, res)
 		context.SetPath("/users")
 
 		userCtrl := NewUsersControllers(mockFalseUserRepository{})
-		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(userCtrl.GetUserByIdCtrl())(context); err != nil {
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(userCtrl.GetUserCtrl())(context); err != nil {
 			log.Fatal(err)
 			return
 		}
@@ -209,13 +211,13 @@ func TestGetUserByID(t *testing.T) {
 		res := httptest.NewRecorder()
 
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenUser))
 
 		context := ec.NewContext(req, res)
 		context.SetPath("/users")
 
 		userCtrl := NewUsersControllers(mockUserRepository{})
-		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(userCtrl.GetUserByIdCtrl())(context); err != nil {
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(userCtrl.GetUserCtrl())(context); err != nil {
 			log.Fatal(err)
 			return
 		}
@@ -229,7 +231,7 @@ func TestGetUserByID(t *testing.T) {
 
 }
 
-func TestUpdateUser(t *testing.T) {
+func Test_Update_User(t *testing.T) {
 
 	ec := echo.New()
 
@@ -242,10 +244,10 @@ func TestUpdateUser(t *testing.T) {
 		res := httptest.NewRecorder()
 
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenUser))
 
 		context := ec.NewContext(req, res)
-		context.SetPath("/users")
+		context.SetPath("/user")
 
 		userCtrl := NewUsersControllers(mockFalseUserRepository{})
 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(userCtrl.UpdateUserCtrl())(context); err != nil {
@@ -262,18 +264,18 @@ func TestUpdateUser(t *testing.T) {
 
 	t.Run("404 Update User", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]string{
-			"name":     "herlianto",
-			"email":    "herlianto@outlook.my",
-			"password": "herlianto123",
+			"name":     "user",
+			"email":    "user@outlook.my",
+			"password": "user123",
 		})
 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
 		res := httptest.NewRecorder()
 
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenUser))
 
 		context := ec.NewContext(req, res)
-		context.SetPath("/users")
+		context.SetPath("/user")
 
 		userCtrl := NewUsersControllers(mockFalseUserRepository{})
 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(userCtrl.UpdateUserCtrl())(context); err != nil {
@@ -290,19 +292,20 @@ func TestUpdateUser(t *testing.T) {
 
 	t.Run("200 Update User", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]string{
-			"name":     "herlianto",
-			"email":    "herlianto@outlook.my",
-			"password": "herlianto123",
+			"name":         "herlianto",
+			"email":        "herlianto@outlook.my",
+			"password":     "herlianto123",
+			"phone_number": "0877",
 		})
 
 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
 		res := httptest.NewRecorder()
 
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenUser))
 
 		context := ec.NewContext(req, res)
-		context.SetPath("/users")
+		context.SetPath("/user")
 
 		userCtrl := NewUsersControllers(mockUserRepository{})
 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(userCtrl.UpdateUserCtrl())(context); err != nil {
@@ -319,7 +322,7 @@ func TestUpdateUser(t *testing.T) {
 
 }
 
-func TestDeleteUser(t *testing.T) {
+func Test_Delete_User(t *testing.T) {
 
 	ec := echo.New()
 
@@ -328,10 +331,10 @@ func TestDeleteUser(t *testing.T) {
 		res := httptest.NewRecorder()
 
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenUser))
 
 		context := ec.NewContext(req, res)
-		context.SetPath("/users")
+		context.SetPath("/user")
 
 		userCtrl := NewUsersControllers(mockFalseUserRepository{})
 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(userCtrl.DeleteUserCtrl())(context); err != nil {
@@ -351,10 +354,10 @@ func TestDeleteUser(t *testing.T) {
 		res := httptest.NewRecorder()
 
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenUser))
 
 		context := ec.NewContext(req, res)
-		context.SetPath("/users")
+		context.SetPath("/user")
 
 		userCtrl := NewUsersControllers(mockUserRepository{})
 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(userCtrl.DeleteUserCtrl())(context); err != nil {
@@ -374,55 +377,97 @@ func TestDeleteUser(t *testing.T) {
 type mockUserRepository struct{}
 
 func (m mockUserRepository) RegisterAdmin(newUser entities.User) (entities.User, error) {
-	return entities.User{ID: 1, Name: "admin"}, nil
+	return entities.User{}, nil
 }
 
 func (m mockUserRepository) Register(newUser entities.User) (entities.User, error) {
-	return entities.User{ID: 1, Name: "herlianto"}, nil
+	hash := sha256.Sum256([]byte(newUser.Password))
+	passwordS := fmt.Sprintf("%x", hash[:])
+	return entities.User{
+		Model:       gorm.Model{},
+		ID:          1,
+		Email:       newUser.Email,
+		Password:    passwordS,
+		Name:        newUser.Name,
+		PhoneNumber: newUser.PhoneNumber,
+		Reputation:  80,
+		Balance:     0,
+	}, nil
 }
 
 func (m mockUserRepository) LoginUser(email, password string) (entities.User, error) {
-	hash := sha256.Sum256([]byte("herlianto123"))
-	passwordS := fmt.Sprintf("%x", hash[:])
-	return entities.User{ID: 1, Name: "herlianto", Password: passwordS, Email: "herlianto@outlook.my"}, nil
+	return entities.User{
+		Model:       gorm.Model{},
+		ID:          1,
+		Email:       email,
+		Name:        "user",
+		PhoneNumber: "0877",
+		Reputation:  80,
+		Balance:     0,
+	}, nil
 }
 
 func (m mockUserRepository) Get(userID uint) (entities.User, error) {
-	return entities.User{ID: 1, Name: "herlianto"}, nil
+	return entities.User{
+		Model:       gorm.Model{},
+		ID:          userID,
+		Email:       "user@outlook.my",
+		Name:        "user",
+		PhoneNumber: "0877",
+		Reputation:  80,
+		Balance:     0,
+	}, nil
 }
 
 func (m mockUserRepository) Update(userID uint, updateUser entities.User) (entities.User, error) {
-	return entities.User{ID: 1, Name: "andrew"}, nil
+	hash := sha256.Sum256([]byte(updateUser.Password))
+	passwordS := fmt.Sprintf("%x", hash[:])
+	return entities.User{
+		Model:       gorm.Model{},
+		ID:          userID,
+		Email:       updateUser.Email,
+		Password:    passwordS,
+		Name:        updateUser.Name,
+		PhoneNumber: updateUser.PhoneNumber,
+		Reputation:  80,
+		Balance:     0,
+	}, nil
 }
 
 func (m mockUserRepository) Delete(userID uint) (entities.User, error) {
-	return entities.User{ID: 0}, nil
+	return entities.User{
+		Model:       gorm.Model{},
+		ID:          userID,
+		Email:       "user@outlook.my",
+		Name:        "user",
+		PhoneNumber: "0877",
+		Reputation:  80,
+		Balance:     0,
+	}, nil
 }
 
 type mockFalseUserRepository struct{}
 
 func (m mockFalseUserRepository) RegisterAdmin(newUser entities.User) (entities.User, error) {
-	return entities.User{ID: 0, Name: "admin"}, errors.New("")
+	return entities.User{}, errors.New("FAILED REGISTER ADMIN")
 }
 
 func (m mockFalseUserRepository) Register(newUser entities.User) (entities.User, error) {
-	return entities.User{ID: 0, Name: "herlianto"}, errors.New("")
+	return entities.User{}, errors.New("FAILED REGISTER USER")
 }
 
 func (m mockFalseUserRepository) LoginUser(email, password string) (entities.User, error) {
-	hash := sha256.Sum256([]byte("herlianto123"))
-	passwordS := fmt.Sprintf("%x", hash[:])
-	return entities.User{ID: 1, Name: "herlianto", Password: passwordS, Email: "herlianto@outlook.my"}, errors.New("")
+	return entities.User{}, errors.New("FAILED LOGIN")
 }
 
 func (m mockFalseUserRepository) Get(userID uint) (entities.User, error) {
-	return entities.User{ID: 0, Name: "herlianto"}, errors.New("")
+	return entities.User{}, errors.New("FAILED GET")
 }
 
 func (m mockFalseUserRepository) Update(userID uint, updateUser entities.User) (entities.User, error) {
-	return entities.User{ID: 0, Name: "andrew"}, errors.New("")
+	return entities.User{}, errors.New("FAILED UPDATE")
 }
 
 func (m mockFalseUserRepository) Delete(userID uint) (entities.User, error) {
-	return entities.User{ID: 0}, errors.New("")
+	return entities.User{}, errors.New("FAILED DELETE")
 }
