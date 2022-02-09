@@ -27,7 +27,7 @@ func (rr *RestaurantRepository) Register(newRestaurant entities.Restaurant) (ent
 
 	newRestaurant.RestaurantDetailID = restaurantD.ID
 
-	if err := rr.db.Save(&newRestaurant).Error; err != nil {
+	if err := rr.db.Save(&newRestaurant).Error; err != nil || newRestaurant.ID == 0 {
 		return newRestaurant, errors.New("FAILED REGISTER")
 	} else {
 		return newRestaurant, nil
@@ -38,7 +38,7 @@ func (rr *RestaurantRepository) Register(newRestaurant entities.Restaurant) (ent
 func (rr *RestaurantRepository) Login(email, password string) (entities.Restaurant, error) {
 	var restaurant entities.Restaurant
 
-	if err := rr.db.Where("Email = ? AND Password=?", email, password).First(&restaurant).Error; err != nil {
+	if err := rr.db.Where("Email = ? AND Password=?", email, password).First(&restaurant).Error; err != nil || restaurant.ID == 0 {
 		return restaurant, errors.New("FAILED LOGIN")
 	} else {
 		return restaurant, nil
@@ -49,7 +49,7 @@ func (rr *RestaurantRepository) Login(email, password string) (entities.Restaura
 func (rr *RestaurantRepository) Update(restaurantId uint, updateRestaurant entities.Restaurant) (entities.Restaurant, error) {
 	restaurant := entities.Restaurant{}
 
-	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil {
+	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil || restaurant.ID == 0 {
 		return restaurant, errors.New("FAILED UPDATE")
 	} else {
 		rr.db.Model(&restaurant).Updates(updateRestaurant)
@@ -62,7 +62,7 @@ func (rr *RestaurantRepository) Get(restaurantId uint) (entities.Restaurant, ent
 	restaurant := entities.Restaurant{}
 	restaurantD := entities.RestaurantDetail{}
 
-	if err := rr.db.First(&restaurant, restaurantId).Error; err != nil {
+	if err := rr.db.First(&restaurant, restaurantId).Error; err != nil || restaurant.ID == 0 {
 		return restaurant, restaurantD, errors.New("FAILED GET")
 	} else {
 		rr.db.First(&restaurantD, restaurant.RestaurantDetailID)
@@ -155,7 +155,7 @@ func (rr *RestaurantRepository) CreateDetail(restaurantId uint, updateRestaurant
 		Status:         "Waiting for approval",
 	}
 
-	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil {
+	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil || restaurant.ID == 0 {
 		return restaurantD, errors.New("FAILED CREATE DETAIL")
 	} else {
 		rr.db.First(&restaurantD, "id=?", restaurant.RestaurantDetailID)
@@ -189,7 +189,7 @@ func (rr *RestaurantRepository) UpdateDetail(restaurantId uint, updateRestaurant
 		}
 	}
 
-	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil {
+	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil || restaurant.ID == 0 {
 		return restaurantD, errors.New("FAILED UPDATE DETAIL")
 	} else {
 		rr.db.First(&restaurantD, "id=?", restaurant.RestaurantDetailID)
@@ -275,7 +275,7 @@ func (rr *RestaurantRepository) GetsWaiting() ([]entities.RestaurantDetail, erro
 func (rr *RestaurantRepository) Approve(restaurantId uint, status string) (entities.RestaurantDetail, error) {
 	restaurantD := entities.RestaurantDetail{}
 
-	if err := rr.db.Preload("Restaurant").First(&restaurantD, "id=?", restaurantId).Error; err != nil {
+	if err := rr.db.Preload("Restaurant").First(&restaurantD, "id=?", restaurantId).Error; err != nil || restaurantD.ID == 0 {
 		return restaurantD, errors.New("FAILED APPROVE")
 	} else {
 		updateStatus := entities.RestaurantDetail{
@@ -289,7 +289,7 @@ func (rr *RestaurantRepository) Approve(restaurantId uint, status string) (entit
 
 func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 	restaurantD := []entities.RestaurantDetail{}
-	if err := rr.db.Preload("Rating").Where("status=?", "OPEN").Find(&restaurantD).Error; err != nil {
+	if err := rr.db.Preload("Rating").Where("status=?", "OPEN").Find(&restaurantD).Error; err != nil || len(restaurantD) == 0 {
 		return restaurantD, errors.New("FAILED GETS")
 	} else {
 
@@ -392,7 +392,7 @@ func (rr *RestaurantRepository) GetExistSeat(restauranId uint, date_time string)
 func (rr *RestaurantRepository) Delete(restaurantId uint) (entities.Restaurant, error) {
 	restaurant := entities.Restaurant{}
 
-	if err := rr.db.First(&restaurant, "id=?", restaurantId).Delete(&restaurant).Error; err != nil {
+	if err := rr.db.First(&restaurant, "id=?", restaurantId).Delete(&restaurant).Error; err != nil || restaurant.ID == 0 {
 		return restaurant, errors.New("FAILED DELETE")
 	} else {
 		return restaurant, nil
