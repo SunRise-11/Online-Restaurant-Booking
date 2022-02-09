@@ -420,6 +420,38 @@ func TestCallback(t *testing.T) {
 		assert.Equal(t, "Not Accepted", responses.Message)
 	})
 
+	t.Run("Callback Bad Request when Binding Success", func(t *testing.T) {
+
+		reqBody, _ := json.Marshal(map[string]int{
+			"external_id": 2,
+			"status":      1,
+		})
+
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
+
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-Callback-Token", common.XENDIT_CALLBACK_TOKEN)
+
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+
+		context := ec.NewContext(req, res)
+		context.SetPath("/topup/callback")
+
+		topupCtrl := NewTopUpControllers(mockTopupRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(topupCtrl.Callback())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		responses := TopUpResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+
+		assert.Equal(t, 400, responses.Code)
+		assert.Equal(t, "Bad Request", responses.Message)
+	})
+
 	t.Run("Callback Not Found", func(t *testing.T) {
 
 		reqBody, _ := json.Marshal(map[string]string{
@@ -450,6 +482,38 @@ func TestCallback(t *testing.T) {
 
 		assert.Equal(t, 404, responses.Code)
 		assert.Equal(t, "Not Found", responses.Message)
+	})
+
+	t.Run("Callback Bad Request when Binding Success", func(t *testing.T) {
+
+		reqBody, _ := json.Marshal(map[string]string{
+			"external_id": "XENDIT INVOICE ID",
+			"status":      "PAID",
+		})
+
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
+
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-Callback-Token", common.XENDIT_CALLBACK_TOKEN)
+
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
+
+		context := ec.NewContext(req, res)
+		context.SetPath("/topup/callback")
+
+		topupCtrl := NewTopUpControllers(mockFalseTopup2Repository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(topupCtrl.Callback())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		responses := TopUpResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+
+		assert.Equal(t, 400, responses.Code)
+		assert.Equal(t, "Bad Request", responses.Message)
 	})
 }
 
@@ -540,5 +604,36 @@ func (mt mockFalseTopupRepository) GetUser(userId int) (entities.User, error) {
 }
 
 func (mt mockFalseTopupRepository) UpdateUserBalance(userId int, user entities.User) (entities.User, error) {
+	return entities.User{ID: 1, Balance: 10000}, errors.New("")
+}
+
+type mockFalseTopup2Repository struct{}
+
+func (mt mockFalseTopup2Repository) Create(topup entities.TopUp) (entities.TopUp, error) {
+	invoiceId := strings.ToUpper(strings.ReplaceAll(uuid.New().String(), "-", ""))
+	return entities.TopUp{ID: 1, UserID: 1, InvoiceID: "UNIT TESTING " + invoiceId, PaymentUrl: "", Total: 10000, Status: "PENDING"}, errors.New("")
+}
+
+func (mt mockFalseTopup2Repository) GetAllWaiting(userId uint) ([]entities.TopUp, error) {
+	return []entities.TopUp{{ID: 1, UserID: 1, InvoiceID: "XENDIT INVOICE ID", PaymentUrl: "XENDIT PAYMENT URL", Total: 10000, Status: "PENDING"}}, errors.New("")
+}
+
+func (mt mockFalseTopup2Repository) GetAllPaid(userId uint) ([]entities.TopUp, error) {
+	return []entities.TopUp{{ID: 1, UserID: 1, InvoiceID: "XENDIT INVOICE ID", PaymentUrl: "XENDIT PAYMENT URL", Total: 10000, Status: "PAID"}}, errors.New("")
+}
+
+func (mt mockFalseTopup2Repository) Update(extId string, topUp entities.TopUp) (entities.TopUp, error) {
+	return entities.TopUp{ID: 1, UserID: 1, InvoiceID: "XENDIT INVOICE ID", PaymentUrl: "XENDIT PAYMENT URL", Total: 10000, Status: "PAID"}, errors.New("")
+}
+
+func (mt mockFalseTopup2Repository) GetByInvoice(extId string) (entities.TopUp, error) {
+	return entities.TopUp{ID: 1, UserID: 1, InvoiceID: "XENDIT INVOICE ID", PaymentUrl: "XENDIT PAYMENT URL", Total: 10000, Status: "PENDING"}, nil
+}
+
+func (mt mockFalseTopup2Repository) GetUser(userId int) (entities.User, error) {
+	return entities.User{ID: 1, Balance: 10000}, errors.New("")
+}
+
+func (mt mockFalseTopup2Repository) UpdateUserBalance(userId int, user entities.User) (entities.User, error) {
 	return entities.User{ID: 1, Balance: 10000}, errors.New("")
 }
