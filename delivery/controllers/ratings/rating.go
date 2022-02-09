@@ -46,9 +46,6 @@ func (rc RatingsController) Create() echo.HandlerFunc {
 		ratingData, err := rc.Repo.Create(data)
 		if err != nil {
 			ratingData, err = rc.Repo.Update(data)
-			if err != nil {
-				return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
-			}
 		}
 
 		response := RatingResponse{
