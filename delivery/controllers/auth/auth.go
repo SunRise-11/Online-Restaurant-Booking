@@ -52,6 +52,7 @@ func (admcon AdminController) RegisterAdminCtrl() echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 		newAdminReq := AdminRequestFormat{}
+
 		if err := c.Bind(&newAdminReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}

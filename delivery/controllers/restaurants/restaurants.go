@@ -27,7 +27,7 @@ func NewRestaurantsControllers(resrep restaurants.RestaurantsInterface) *Restaur
 func (rescon RestaurantsController) RegisterRestoCtrl() echo.HandlerFunc {
 
 	return func(c echo.Context) error {
-		newUserReq := RestaurantRequestFormat{}
+		newUserReq := RegisterRequestFormat{}
 		if err := c.Bind(&newUserReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
@@ -41,11 +41,11 @@ func (rescon RestaurantsController) RegisterRestoCtrl() echo.HandlerFunc {
 		if res, err := rescon.Repo.Register(newResto); err != nil || res.ID == 0 {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		} else {
-			data := RestaurantResponse{
+			data := RestaurantResponseFormat{
 				ID:    res.ID,
 				Email: res.Email,
 			}
-			response := RestaurantResponseFormat{
+			response := RestaurantsResponseFormat{
 				Code:    http.StatusOK,
 				Message: "Successful Operation",
 				Data:    data,
@@ -66,7 +66,7 @@ func (rescon RestaurantsController) LoginRestoCtrl() echo.HandlerFunc {
 
 		hash := sha256.Sum256([]byte(loginFormat.Password))
 		stringPassword := fmt.Sprintf("%x", hash[:])
-		if res, err := rescon.Repo.LoginRestaurant(loginFormat.Email, stringPassword); err != nil || res.Email == "" || res.ID == 0 {
+		if res, err := rescon.Repo.Login(loginFormat.Email, stringPassword); err != nil || res.Email == "" || res.ID == 0 {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 			token, _ := auth.CreateTokenAuthRestaurant(res.ID)
@@ -76,6 +76,207 @@ func (rescon RestaurantsController) LoginRestoCtrl() echo.HandlerFunc {
 				Message: "Successful Operation",
 				Token:   token,
 			})
+		}
+
+	}
+}
+
+func (rescon RestaurantsController) UpdateMyRestoCtrl() echo.HandlerFunc {
+
+	return func(c echo.Context) error {
+		uid := c.Get("user").(*jwt.Token)
+		claims := uid.Claims.(jwt.MapClaims)
+		restoID := int(claims["restoid"].(float64))
+
+		updateRestoReq := RegisterRequestFormat{}
+		if err := c.Bind(&updateRestoReq); err != nil {
+			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		}
+
+		hash := sha256.Sum256([]byte(updateRestoReq.Password))
+		stringPassword := fmt.Sprintf("%x", hash[:])
+		updateResto := entities.Restaurant{
+			Email:    updateRestoReq.Email,
+			Password: stringPassword,
+		}
+
+		if res, err := rescon.Repo.Update(uint(restoID), updateResto); err != nil || res.ID == 0 {
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+		} else {
+			data := RestaurantResponseFormat{
+				ID:    res.ID,
+				Email: res.Email,
+			}
+			response := RestaurantsResponseFormat{
+				Code:    http.StatusOK,
+				Message: "Successful Operation",
+				Data:    data,
+			}
+
+			return c.JSON(http.StatusOK, response)
+		}
+
+	}
+}
+
+func (rescon RestaurantsController) GetMyRestoCtrl() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		uid := c.Get("user").(*jwt.Token)
+		claims := uid.Claims.(jwt.MapClaims)
+		restoID := int(claims["restoid"].(float64))
+
+		if res, resD, err := rescon.Repo.Get(uint(restoID)); err != nil || res.ID == 0 {
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+		} else {
+
+			restaurantDetail := RestaurantDetailResponseFormat{
+				ID:             resD.ID,
+				Status:         resD.Status,
+				ProfilePicture: resD.ProfilePicture,
+				Name:           resD.Name,
+				Description:    resD.Description,
+				Open:           resD.Open,
+				Close:          resD.Close,
+				Open_Hour:      resD.Open_Hour,
+				Close_Hour:     resD.Close_Hour,
+				Address:        resD.Address,
+				City:           resD.City,
+				Latitude:       resD.Latitude,
+				Longitude:      resD.Longitude,
+				PhoneNumber:    resD.PhoneNumber,
+				Seats:          resD.Seats,
+				Price:          resD.Price,
+			}
+
+			response := RestaurantsResponseFormat{
+				Code:    http.StatusOK,
+				Message: "Successful Operation",
+				Data:    restaurantDetail,
+			}
+
+			return c.JSON(http.StatusOK, response)
+		}
+
+	}
+}
+
+func (rescon RestaurantsController) CreateDetailRestoCtrl() echo.HandlerFunc {
+
+	return func(c echo.Context) error {
+		uid := c.Get("user").(*jwt.Token)
+		claims := uid.Claims.(jwt.MapClaims)
+		restoID := int(claims["restoid"].(float64))
+
+		createRestoDReq := CreateRestaurantDetailRequestFormat{}
+		if err := c.Bind(&createRestoDReq); err != nil {
+			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		}
+
+		createRestoD := entities.RestaurantDetail{
+			Name:           createRestoDReq.Name,
+			Open:           createRestoDReq.Open,
+			Close:          createRestoDReq.Close,
+			Open_Hour:      createRestoDReq.Open_Hour,
+			Close_Hour:     createRestoDReq.Close_Hour,
+			Price:          createRestoDReq.Price,
+			Latitude:       createRestoDReq.Latitude,
+			Longitude:      createRestoDReq.Longitude,
+			City:           createRestoDReq.City,
+			Address:        createRestoDReq.Address,
+			PhoneNumber:    createRestoDReq.PhoneNumber,
+			ProfilePicture: createRestoDReq.ProfilePicture,
+			Seats:          createRestoDReq.Seats,
+			Description:    createRestoDReq.Description,
+		}
+
+		if res, err := rescon.Repo.CreateDetail(uint(restoID), createRestoD); err != nil || res.ID == 0 {
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+		} else {
+
+			restaurantDetail := RestaurantDetailResponseFormat{
+				ID:             res.ID,
+				Status:         res.Status,
+				ProfilePicture: res.ProfilePicture,
+				Name:           res.Name,
+				Description:    res.Description,
+				Open:           res.Open,
+				Close:          res.Close,
+				Open_Hour:      res.Open_Hour,
+				Close_Hour:     res.Close_Hour,
+				Address:        res.Address,
+				City:           res.City,
+				Latitude:       res.Latitude,
+				Longitude:      res.Longitude,
+				PhoneNumber:    res.PhoneNumber,
+				Seats:          res.Seats,
+				Price:          res.Price,
+			}
+
+			response := RestaurantsResponseFormat{
+				Code:    http.StatusOK,
+				Message: "Successful Operation",
+				Data:    restaurantDetail,
+			}
+
+			return c.JSON(http.StatusOK, response)
+		}
+
+	}
+}
+
+func (rescon RestaurantsController) UpdateDetailRestoCtrl() echo.HandlerFunc {
+
+	return func(c echo.Context) error {
+		uid := c.Get("user").(*jwt.Token)
+		claims := uid.Claims.(jwt.MapClaims)
+		restoID := int(claims["restoid"].(float64))
+
+		updateRestoDReq := UpdateRestaurantDetailRequestFormat{}
+		if err := c.Bind(&updateRestoDReq); err != nil {
+			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		}
+
+		updateRestoD := entities.RestaurantDetail{
+			Open:           updateRestoDReq.Open,
+			Close:          updateRestoDReq.Close,
+			Open_Hour:      updateRestoDReq.Open_Hour,
+			Close_Hour:     updateRestoDReq.Close_Hour,
+			Price:          updateRestoDReq.Price,
+			PhoneNumber:    updateRestoDReq.PhoneNumber,
+			ProfilePicture: updateRestoDReq.ProfilePicture,
+			Seats:          updateRestoDReq.Seats,
+			Description:    updateRestoDReq.Description,
+		}
+
+		if res, err := rescon.Repo.UpdateDetail(uint(restoID), updateRestoD); err != nil {
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
+		} else {
+
+			restaurantDetail := RestaurantDetailResponseFormat{
+				ID:             res.ID,
+				Status:         res.Status,
+				ProfilePicture: res.ProfilePicture,
+				Name:           res.Name,
+				Description:    res.Description,
+				Open:           res.Open,
+				Close:          res.Close,
+				Open_Hour:      res.Open_Hour,
+				Close_Hour:     res.Close_Hour,
+				Address:        res.Address,
+				City:           res.City,
+				Latitude:       res.Latitude,
+				Longitude:      res.Longitude,
+				PhoneNumber:    res.PhoneNumber,
+				Seats:          res.Seats,
+				Price:          res.Price,
+			}
+			response := RestaurantsResponseFormat{
+				Code:    http.StatusOK,
+				Message: "Successful Operation",
+				Data:    restaurantDetail,
+			}
+
+			return c.JSON(http.StatusOK, response)
 		}
 
 	}
@@ -96,7 +297,7 @@ func (rescon RestaurantsController) GetsWaiting() echo.HandlerFunc {
 				return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 			} else {
 
-				response := RestaurantResponseFormat{
+				response := RestaurantsResponseFormat{
 					Code:    http.StatusOK,
 					Message: "Successful Operation",
 					Data:    res,
@@ -117,7 +318,7 @@ func (rescon RestaurantsController) Approve() echo.HandlerFunc {
 		restoID := claims["restoid"]
 		userID := claims["userid"]
 
-		approveRestaurant := ApproveRestaurantDRequestFormat{}
+		approveRestaurant := ApproveRequestFormat{}
 		if err := c.Bind(&approveRestaurant); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
@@ -129,14 +330,15 @@ func (rescon RestaurantsController) Approve() echo.HandlerFunc {
 				return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 			} else {
 
-				responses := RestaurantDApproveResponse{
+				responses := RestaurantResponseFormat{
 					ID:          res.ID,
 					Name:        res.Name,
+					Email:       res.Restaurant[0].Email,
 					PhoneNumber: res.PhoneNumber,
 					Status:      res.Status,
 				}
 
-				response := RestaurantResponseFormat{
+				response := RestaurantsResponseFormat{
 					Code:    http.StatusOK,
 					Message: "Successful Operation",
 					Data:    responses,
@@ -156,47 +358,45 @@ func (rescon RestaurantsController) Gets() echo.HandlerFunc {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 
-		responses := []RestaurantDResponse{}
+		responses := []RestaurantDetailResponseFormat{}
 
-		for _, item := range res {
-			// ratingData := []ratings.RatingResponse{}
-			ratingss := []int{}
-
-			for _, r := range item.Rating {
-				// ratingData = append(ratingData, ratings.RatingResponse{
-				// 	RestaurantDetailID: int(r.RestaurantDetailID),
-				// 	UserID:             int(r.UserID),
-				// 	Username:           r.User.Name,
-				// 	Rating:             r.Rating,
-				// 	Comment:            r.Comment,
-				// })
-
-				ratingss = append(ratingss, r.Rating)
+		for _, restaurant := range res {
+			score := []int{}
+			rating := 0
+			values := 0
+			for _, value := range restaurant.Rating {
+				score = append(score, value.Rating)
 			}
 
-			rating := CalculateRatings(ratingss)
-
-			responses = append(responses, RestaurantDResponse{
-				ID:             item.ID,
-				Name:           item.Name,
-				Open:           item.Open,
-				Close:          item.Close,
-				Open_Hour:      item.Open_Hour,
-				Close_Hour:     item.Close_Hour,
-				Price:          item.Price,
-				Latitude:       item.Latitude,
-				Longitude:      item.Longitude,
-				City:           item.City,
-				Address:        item.Address,
-				PhoneNumber:    item.PhoneNumber,
-				ProfilePicture: item.ProfilePicture,
-				Seats:          item.Seats,
-				Description:    item.Description,
-				Status:         item.Status,
+			if len(score) < 1 {
+				rating = 0
+			} else {
+				for _, value := range score {
+					values += value
+				}
+				rating = values / len(score)
+			}
+			responses = append(responses, RestaurantDetailResponseFormat{
+				ID:             restaurant.ID,
+				Name:           restaurant.Name,
+				Open:           restaurant.Open,
+				Close:          restaurant.Close,
+				Open_Hour:      restaurant.Open_Hour,
+				Close_Hour:     restaurant.Close_Hour,
+				Price:          restaurant.Price,
+				Latitude:       restaurant.Latitude,
+				Longitude:      restaurant.Longitude,
+				City:           restaurant.City,
+				Address:        restaurant.Address,
+				PhoneNumber:    restaurant.PhoneNumber,
+				ProfilePicture: restaurant.ProfilePicture,
+				Seats:          restaurant.Seats,
+				Description:    restaurant.Description,
+				Status:         restaurant.Status,
 				Rating:         rating,
 			})
 		}
-		response := RestaurantResponseFormat{
+		response := RestaurantsResponseFormat{
 			Code:    http.StatusOK,
 			Message: "Successful Operation",
 			Data:    responses,
@@ -215,7 +415,7 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 
 		if res, err := rescon.Repo.Gets(); err != nil || len(res) == 0 {
 			fmt.Println("======================================")
-			fmt.Println("=>ERROR Gets", res)
+			fmt.Println("=>ERROR Gets", err, "<=>", res)
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 			fmt.Println("======================================")
@@ -241,7 +441,7 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 			fmt.Println("=>FIND dayyoint", daytoint)
 			if res, err := rescon.Repo.GetsByOpen(daytoint); err != nil {
 				fmt.Println("======================================")
-				fmt.Println("=>ERROR GetsByOpen", res)
+				fmt.Println("=>ERROR GetsByOpen", err, "<=>", res)
 				return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 			} else {
 				newRestaurantD := []entities.RestaurantDetail{}
@@ -260,14 +460,13 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 						fmt.Println("=>FIND date_time_parse_noutc", date_time_parse_noutc)
 						if _, total_seat, err := rescon.Repo.GetExistSeat(res[i].ID, date_time_parse_noutc); err != nil {
 							fmt.Println("======================================")
-							fmt.Println("=>ERROR GetExistSeat because no transaction with restaurantID", res[i].ID)
+							fmt.Println("=>ERROR GetExistSeat because no transaction with restaurantID", res[i].ID, "<=>", err, "<=>", total_seat)
 							newRestaurantD = append(newRestaurantD, res[i])
-							response := RestaurantResponseFormat{
+							response := RestaurantsResponseFormat{
 								Code:    http.StatusOK,
 								Message: "Successful Operation",
 								Data:    newRestaurantD,
 							}
-
 							return c.JSON(http.StatusOK, response)
 						} else {
 							fmt.Println("======================================")
@@ -278,7 +477,7 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 
 					}
 				}
-				response := RestaurantResponseFormat{
+				response := RestaurantsResponseFormat{
 					Code:    http.StatusOK,
 					Message: "Successful Operation",
 					Data:    newRestaurantD,
@@ -291,155 +490,7 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 	}
 }
 
-func (rescon RestaurantsController) GetRestoByIdCtrl() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		uid := c.Get("user").(*jwt.Token)
-		claims := uid.Claims.(jwt.MapClaims)
-		restoID := int(claims["restoid"].(float64))
-
-		if res, resD, err := rescon.Repo.Get(uint(restoID)); err != nil || res.ID == 0 {
-			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
-		} else {
-			data := RestaurantResponse{
-				ID:    res.ID,
-				Email: res.Email,
-				Data:  resD,
-			}
-			response := RestaurantResponseFormat{
-				Code:    http.StatusOK,
-				Message: "Successful Operation",
-				Data:    data,
-			}
-
-			return c.JSON(http.StatusOK, response)
-		}
-
-	}
-}
-
-func (rescon RestaurantsController) UpdateRestoByIdCtrl() echo.HandlerFunc {
-
-	return func(c echo.Context) error {
-		uid := c.Get("user").(*jwt.Token)
-		claims := uid.Claims.(jwt.MapClaims)
-		restoID := int(claims["restoid"].(float64))
-
-		updateRestoReq := RestaurantRequestFormat{}
-		if err := c.Bind(&updateRestoReq); err != nil {
-			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
-		}
-
-		hash := sha256.Sum256([]byte(updateRestoReq.Password))
-		stringPassword := fmt.Sprintf("%x", hash[:])
-		updateResto := entities.Restaurant{
-			Email:    updateRestoReq.Email,
-			Password: stringPassword,
-		}
-
-		if res, err := rescon.Repo.Update(uint(restoID), updateResto); err != nil || res.ID == 0 {
-			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
-		} else {
-			data := RestaurantResponse{
-				ID:    res.ID,
-				Email: res.Email,
-			}
-			response := RestaurantResponseFormat{
-				Code:    http.StatusOK,
-				Message: "Successful Operation",
-				Data:    data,
-			}
-
-			return c.JSON(http.StatusOK, response)
-		}
-
-	}
-}
-
-func (rescon RestaurantsController) CreateDetailRestoByIdCtrl() echo.HandlerFunc {
-
-	return func(c echo.Context) error {
-		uid := c.Get("user").(*jwt.Token)
-		claims := uid.Claims.(jwt.MapClaims)
-		restoID := int(claims["restoid"].(float64))
-
-		createRestoDReq := CreateRestaurantDRequestFormat{}
-		if err := c.Bind(&createRestoDReq); err != nil {
-			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
-		}
-
-		createRestoD := entities.RestaurantDetail{
-			Name:           createRestoDReq.Name,
-			Open:           createRestoDReq.Open,
-			Close:          createRestoDReq.Close,
-			Open_Hour:      createRestoDReq.Open_Hour,
-			Close_Hour:     createRestoDReq.Close_Hour,
-			Price:          createRestoDReq.Price,
-			Latitude:       createRestoDReq.Latitude,
-			Longitude:      createRestoDReq.Longitude,
-			City:           createRestoDReq.City,
-			Address:        createRestoDReq.Address,
-			PhoneNumber:    createRestoDReq.PhoneNumber,
-			ProfilePicture: createRestoDReq.ProfilePicture,
-			Seats:          createRestoDReq.Seats,
-			Description:    createRestoDReq.Description,
-			Status:         "Waiting for approval",
-		}
-
-		if res, err := rescon.Repo.UpdateDetail(uint(restoID), createRestoD); err != nil || res.ID == 0 {
-			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
-		} else {
-			response := RestaurantResponseFormat{
-				Code:    http.StatusOK,
-				Message: "Successful Operation",
-				Data:    res,
-			}
-
-			return c.JSON(http.StatusOK, response)
-		}
-
-	}
-}
-
-func (rescon RestaurantsController) UpdateDetailRestoByIdCtrl() echo.HandlerFunc {
-
-	return func(c echo.Context) error {
-		uid := c.Get("user").(*jwt.Token)
-		claims := uid.Claims.(jwt.MapClaims)
-		restoID := int(claims["restoid"].(float64))
-
-		updateRestoDReq := UpdateRestaurantDRequestFormat{}
-		if err := c.Bind(&updateRestoDReq); err != nil {
-			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
-		}
-
-		updateRestoD := entities.RestaurantDetail{
-			Open:           updateRestoDReq.Open,
-			Close:          updateRestoDReq.Close,
-			Open_Hour:      updateRestoDReq.Open_Hour,
-			Close_Hour:     updateRestoDReq.Close_Hour,
-			Price:          updateRestoDReq.Price,
-			PhoneNumber:    updateRestoDReq.PhoneNumber,
-			ProfilePicture: updateRestoDReq.ProfilePicture,
-			Seats:          updateRestoDReq.Seats,
-			Description:    updateRestoDReq.Description,
-		}
-
-		if res, err := rescon.Repo.UpdateDetail(uint(restoID), updateRestoD); err != nil {
-			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
-		} else {
-			response := RestaurantResponseFormat{
-				Code:    http.StatusOK,
-				Message: "Successful Operation",
-				Data:    res,
-			}
-
-			return c.JSON(http.StatusOK, response)
-		}
-
-	}
-}
-
-func (rescon RestaurantsController) DeleteRestaurantCtrl() echo.HandlerFunc {
+func (rescon RestaurantsController) DeleteRestoCtrl() echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 		uid := c.Get("user").(*jwt.Token)
@@ -450,7 +501,7 @@ func (rescon RestaurantsController) DeleteRestaurantCtrl() echo.HandlerFunc {
 		if userID != nil || restoID != nil {
 			return c.JSON(http.StatusNotAcceptable, common.NewStatusNotAcceptable())
 		} else {
-			delRestaurant := DeleteRestauranRequestFormat{}
+			delRestaurant := DeleteRequestFormat{}
 			if err := c.Bind(&delRestaurant); err != nil {
 				return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 			}
@@ -463,15 +514,4 @@ func (rescon RestaurantsController) DeleteRestaurantCtrl() echo.HandlerFunc {
 			}
 		}
 	}
-}
-
-func CalculateRatings(ratings []int) (rating int) {
-	if len(ratings) < 1 {
-		return 0
-	}
-	for _, r := range ratings {
-		rating += r
-	}
-	rating = rating / len(ratings)
-	return
 }
