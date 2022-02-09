@@ -2,6 +2,7 @@ package topup
 
 import (
 	"Restobook/entities"
+	"errors"
 
 	"gorm.io/gorm"
 )
@@ -29,8 +30,8 @@ func (tr *TopUpRepository) Create(topup entities.TopUp) (entities.TopUp, error) 
 func (tr *TopUpRepository) GetAllWaiting(userId uint) ([]entities.TopUp, error) {
 	topupdata := []entities.TopUp{}
 
-	if err := tr.db.Where("status = ?", "PENDING").Find(&topupdata, "user_id = ?", userId).Error; err != nil {
-		return topupdata, err
+	if err := tr.db.Where("status = ?", "PENDING").Find(&topupdata, "user_id = ?", userId).Error; err != nil || len(topupdata) == 0 {
+		return topupdata, errors.New("FAILED GET ALL WAITING")
 	}
 
 	return topupdata, nil
@@ -39,8 +40,8 @@ func (tr *TopUpRepository) GetAllWaiting(userId uint) ([]entities.TopUp, error) 
 func (tr *TopUpRepository) GetAllPaid(userId uint) ([]entities.TopUp, error) {
 	topupdata := []entities.TopUp{}
 
-	if err := tr.db.Where("status = ?", "PAID").Find(&topupdata, "user_id = ?", userId).Error; err != nil {
-		return topupdata, err
+	if err := tr.db.Where("status = ?", "PAID").Find(&topupdata, "user_id = ?", userId).Error; err != nil || len(topupdata) == 0 {
+		return topupdata, errors.New("FAILED GET ALL PAID")
 	}
 
 	return topupdata, nil
@@ -71,8 +72,8 @@ func (tr *TopUpRepository) GetByInvoice(extId string) (entities.TopUp, error) {
 func (tr *TopUpRepository) GetUser(userId int) (entities.User, error) {
 	user := entities.User{}
 
-	if err := tr.db.First(&user, "id= ?", userId).Error; err != nil {
-		return user, err
+	if err := tr.db.First(&user, "id= ?", userId).Error; err != nil || user.ID == 0 {
+		return user, errors.New("FAILED GET USER")
 	}
 
 	return user, nil
