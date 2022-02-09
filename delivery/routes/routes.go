@@ -35,16 +35,20 @@ func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.Users
 	// ---------------------------------------------------------------------
 	// CRUD Restaurants
 	// ---------------------------------------------------------------------
+
 	e.POST("/restaurants/register", rctrl.RegisterRestoCtrl())
 	e.POST("/restaurants/login", rctrl.LoginRestoCtrl())
+
+	e.GET("/myrestaurant", rctrl.GetMyRestoCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
+	e.PUT("/myrestaurant", rctrl.UpdateMyRestoCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
+
+	e.POST("/myrestaurant/detail", rctrl.CreateDetailRestoCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
+	e.PUT("/myrestaurant/detail", rctrl.UpdateDetailRestoCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
+
+	e.DELETE("/myrestaurant", rctrl.DeleteRestoCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
+
 	e.GET("/restaurants", rctrl.Gets())
 	e.GET("/restaurants/open", rctrl.GetsByOpen())
-
-	e.GET("/restaurant", rctrl.GetRestoByIdCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
-	e.PUT("/restaurant", rctrl.UpdateRestoByIdCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
-	e.POST("/restaurant/detail", rctrl.CreateDetailRestoByIdCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
-	e.PUT("/restaurant/detail", rctrl.UpdateDetailRestoByIdCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
-	e.DELETE("/restaurant", rctrl.DeleteRestaurantCtrl(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
 
 	// ---------------------------------------------------------------------
 	// CRUD Transactions

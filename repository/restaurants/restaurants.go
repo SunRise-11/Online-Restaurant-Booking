@@ -27,68 +27,33 @@ func (rr *RestaurantRepository) Register(newRestaurant entities.Restaurant) (ent
 
 	newRestaurant.RestaurantDetailID = restaurantD.ID
 
-	if err := rr.db.Save(&newRestaurant).Error; err != nil {
-		return newRestaurant, err
+	if err := rr.db.Save(&newRestaurant).Error; err != nil || newRestaurant.ID == 0 {
+		return newRestaurant, errors.New("FAILED REGISTER")
+	} else {
+		return newRestaurant, nil
 	}
 
-	return newRestaurant, nil
 }
 
-func (rr *RestaurantRepository) LoginRestaurant(email, password string) (entities.Restaurant, error) {
+func (rr *RestaurantRepository) Login(email, password string) (entities.Restaurant, error) {
 	var restaurant entities.Restaurant
 
-	if err := rr.db.Where("Email = ? AND Password=?", email, password).First(&restaurant).Error; err != nil {
-		return restaurant, err
+	if err := rr.db.Where("Email = ? AND Password=?", email, password).First(&restaurant).Error; err != nil || restaurant.ID == 0 {
+		return restaurant, errors.New("FAILED LOGIN")
+	} else {
+		return restaurant, nil
 	}
 
-	return restaurant, nil
 }
 
-func (rr *RestaurantRepository) GetsWaiting() ([]entities.RestaurantDetail, error) {
-	restaurantD := []entities.RestaurantDetail{}
+func (rr *RestaurantRepository) Update(restaurantId uint, updateRestaurant entities.Restaurant) (entities.Restaurant, error) {
+	restaurant := entities.Restaurant{}
 
-	if err := rr.db.Where("status=?", "Waiting for approval").Find(&restaurantD).Error; err != nil || len(restaurantD) == 0 {
-		return restaurantD, errors.New("NOL")
+	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil || restaurant.ID == 0 {
+		return restaurant, errors.New("FAILED UPDATE")
 	} else {
-
-		for i := 0; i < len(restaurantD); i++ {
-			openDay := strings.Split(restaurantD[i].Open, ",")
-			closeDay := strings.Split(restaurantD[i].Close, ",")
-			openStr := ""
-			closeStr := ""
-			for j := 0; j < len(openDay); j++ {
-				for k := 0; k < len(common.Daytoint); k++ {
-					if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
-						openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
-					}
-				}
-			}
-			for l := 0; l < len(closeDay); l++ {
-				for m := 0; m < len(common.Daytoint); m++ {
-					if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
-						closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
-					}
-				}
-			}
-			restaurantD[i].Open = openStr
-			restaurantD[i].Close = closeStr
-		}
-
-		return restaurantD, nil
-	}
-}
-
-func (rr *RestaurantRepository) Approve(restaurantId uint, status string) (entities.RestaurantDetail, error) {
-	restaurantD := entities.RestaurantDetail{}
-
-	if err := rr.db.First(&restaurantD, "id=?", restaurantId).Error; err != nil {
-		return restaurantD, err
-	} else {
-		updateStatus := entities.RestaurantDetail{
-			Status: status,
-		}
-		rr.db.Model(&restaurantD).Updates(updateStatus)
-		return restaurantD, nil
+		rr.db.Model(&restaurant).Updates(updateRestaurant)
+		return restaurant, nil
 	}
 
 }
@@ -97,131 +62,38 @@ func (rr *RestaurantRepository) Get(restaurantId uint) (entities.Restaurant, ent
 	restaurant := entities.Restaurant{}
 	restaurantD := entities.RestaurantDetail{}
 
-	if err := rr.db.First(&restaurant, restaurantId).Error; err != nil {
-		return restaurant, restaurantD, err
+	if err := rr.db.First(&restaurant, restaurantId).Error; err != nil || restaurant.ID == 0 {
+		return restaurant, restaurantD, errors.New("FAILED GET")
 	} else {
-
 		rr.db.First(&restaurantD, restaurant.RestaurantDetailID)
+		openDay := strings.Split(restaurantD.Open, ",")
+		closeDay := strings.Split(restaurantD.Close, ",")
+		openStr := ""
+		closeStr := ""
+
+		for j := 0; j < len(openDay); j++ {
+			for k := 0; k < len(common.Daytoint); k++ {
+				if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
+					openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
+				}
+			}
+		}
+		for l := 0; l < len(closeDay); l++ {
+			for m := 0; m < len(common.Daytoint); m++ {
+				if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
+					closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
+				}
+			}
+		}
+		restaurantD.Open = openStr
+		restaurantD.Close = closeStr
 
 		return restaurant, restaurantD, nil
 	}
 
 }
 
-func (rr *RestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
-	restaurantD := []entities.RestaurantDetail{}
-	// newrestaurantD := []entities.RestaurantDetail{}
-	// fmt.Println("=>open", open)
-	openstr := strconv.Itoa(open)
-
-	if err := rr.db.Where("status=? AND open LIKE ?", "OPEN", "%"+openstr+"%").Find(&restaurantD).Error; err != nil || len(restaurantD) == 0 {
-		return restaurantD, errors.New("NOL")
-	} else {
-
-		for i := 0; i < len(restaurantD); i++ {
-			openDay := strings.Split(restaurantD[i].Open, ",")
-			closeDay := strings.Split(restaurantD[i].Close, ",")
-			openStr := ""
-			closeStr := ""
-
-			for j := 0; j < len(openDay); j++ {
-				for k := 0; k < len(common.Daytoint); k++ {
-					if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
-						openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
-					}
-				}
-			}
-			for l := 0; l < len(closeDay); l++ {
-				for m := 0; m < len(common.Daytoint); m++ {
-					if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
-						closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
-					}
-				}
-			}
-			restaurantD[i].Open = openStr
-			restaurantD[i].Close = closeStr
-
-		}
-
-		return restaurantD, nil
-	}
-
-}
-
-func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
-	restaurantD := []entities.RestaurantDetail{}
-	if err := rr.db.Preload("Rating").Where("status=?", "OPEN").Find(&restaurantD).Error; err != nil {
-		return restaurantD, err
-	} else {
-
-		fmt.Println("===> Semua resto yang open", restaurantD)
-		for i := 0; i < len(restaurantD); i++ {
-			openDay := strings.Split(restaurantD[i].Open, ",")
-			closeDay := strings.Split(restaurantD[i].Close, ",")
-			openStr := ""
-			closeStr := ""
-			openH := strings.Split(restaurantD[i].Open_Hour, ":")
-			closeH := strings.Split(restaurantD[i].Close_Hour, ":")
-
-			openHHour := openH[0]
-			openHMinute := openH[1]
-
-			closeHHour := closeH[0]
-			closeHMinute := closeH[1]
-
-			for j := 0; j < len(openDay); j++ {
-				for k := 0; k < len(common.Daytoint); k++ {
-					if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
-						openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
-					}
-				}
-			}
-			// fmt.Println("openSTR", openStr)
-			for l := 0; l < len(closeDay); l++ {
-				for m := 0; m < len(common.Daytoint); m++ {
-					if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
-						closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
-					}
-				}
-			}
-			// fmt.Println("closeSTR", closeStr)
-
-			restaurantD[i].Open = openStr
-			restaurantD[i].Close = closeStr
-			restaurantD[i].Open_Hour = openHHour + ":" + openHMinute
-			restaurantD[i].Close_Hour = closeHHour + ":" + closeHMinute
-
-		}
-
-		return restaurantD, nil
-	}
-
-}
-
-func (rr *RestaurantRepository) GetExistSeat(restauranId uint, date_time string) ([]entities.Transaction, int, error) {
-	transactions := []entities.Transaction{}
-	result := 0
-	if err := rr.db.Model(&entities.Transaction{}).Select("sum(persons) as total").Where("date_time=?", date_time).Where("restaurant_id=?", restauranId).Find(&result).Error; err != nil {
-		return transactions, result, errors.New("NOL")
-	} else {
-		fmt.Println("result setelah", result)
-		return transactions, result, nil
-	}
-
-}
-
-func (rr *RestaurantRepository) Update(restaurantId uint, updateRestaurant entities.Restaurant) (entities.Restaurant, error) {
-	restaurant := entities.Restaurant{}
-
-	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil {
-		return restaurant, err
-	}
-	rr.db.Model(&restaurant).Updates(updateRestaurant)
-
-	return restaurant, nil
-}
-
-func (rr *RestaurantRepository) UpdateDetail(restaurantId uint, updateRestaurantD entities.RestaurantDetail) (entities.RestaurantDetail, error) {
+func (rr *RestaurantRepository) CreateDetail(restaurantId uint, updateRestaurantD entities.RestaurantDetail) (entities.RestaurantDetail, error) {
 	restaurant := entities.Restaurant{}
 	restaurantD := entities.RestaurantDetail{}
 
@@ -283,25 +155,245 @@ func (rr *RestaurantRepository) UpdateDetail(restaurantId uint, updateRestaurant
 		Status:         "Waiting for approval",
 	}
 
-	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil {
-		return restaurantD, err
+	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil || restaurant.ID == 0 {
+		return restaurantD, errors.New("FAILED CREATE DETAIL")
+	} else {
+		rr.db.First(&restaurantD, "id=?", restaurant.RestaurantDetailID)
+		rr.db.Model(&restaurantD).Updates(parsingint)
+		return parsingstring, nil
 	}
 
-	rr.db.First(&restaurantD, "id=?", restaurant.RestaurantDetailID)
-	rr.db.Model(&restaurantD).Updates(parsingint)
-	return parsingstring, nil
+}
+
+func (rr *RestaurantRepository) UpdateDetail(restaurantId uint, updateRestaurantD entities.RestaurantDetail) (entities.RestaurantDetail, error) {
+	restaurant := entities.Restaurant{}
+	restaurantD := entities.RestaurantDetail{}
+
+	openDay := strings.Split(updateRestaurantD.Open, ",")
+	closeDay := strings.Split(updateRestaurantD.Close, ",")
+	openInt := ""
+	closeInt := ""
+	for j := 0; j < len(openDay); j++ {
+		for k := 0; k < len(common.Daytoint); k++ {
+			if openDay[j] == common.Daytoint[k].Day {
+				openInt += fmt.Sprintf("%v,", common.Daytoint[k].No)
+			}
+		}
+	}
+
+	for j := 0; j < len(closeDay); j++ {
+		for k := 0; k < len(common.Daytoint); k++ {
+			if closeDay[j] == common.Daytoint[k].Day {
+				closeInt += fmt.Sprintf("%v,", common.Daytoint[k].No)
+			}
+		}
+	}
+
+	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil || restaurant.ID == 0 {
+		return restaurantD, errors.New("FAILED UPDATE DETAIL")
+	} else {
+		rr.db.First(&restaurantD, "id=?", restaurant.RestaurantDetailID)
+
+		parsingint := entities.RestaurantDetail{
+			ID:             restaurantId,
+			Name:           restaurantD.Name,
+			Open:           openInt,
+			Close:          closeInt,
+			Open_Hour:      updateRestaurantD.Open_Hour,
+			Close_Hour:     updateRestaurantD.Close_Hour,
+			Price:          updateRestaurantD.Price,
+			Latitude:       restaurantD.Latitude,
+			Longitude:      restaurantD.Longitude,
+			City:           restaurantD.City,
+			Address:        restaurantD.Address,
+			PhoneNumber:    updateRestaurantD.PhoneNumber,
+			ProfilePicture: updateRestaurantD.ProfilePicture,
+			Seats:          updateRestaurantD.Seats,
+			Description:    updateRestaurantD.Description,
+			Status:         "Waiting for approval",
+		}
+
+		parsingstring := entities.RestaurantDetail{
+			ID:             restaurantId,
+			Name:           restaurantD.Name,
+			Open:           updateRestaurantD.Open,
+			Close:          updateRestaurantD.Close,
+			Open_Hour:      updateRestaurantD.Open_Hour,
+			Close_Hour:     updateRestaurantD.Close_Hour,
+			Price:          updateRestaurantD.Price,
+			Latitude:       restaurantD.Latitude,
+			Longitude:      restaurantD.Longitude,
+			City:           restaurantD.City,
+			Address:        restaurantD.Address,
+			PhoneNumber:    updateRestaurantD.PhoneNumber,
+			ProfilePicture: updateRestaurantD.ProfilePicture,
+			Seats:          updateRestaurantD.Seats,
+			Description:    updateRestaurantD.Description,
+			Status:         "Waiting for approval",
+		}
+
+		rr.db.Model(&restaurantD).Updates(parsingint)
+		return parsingstring, nil
+	}
+
+}
+
+func (rr *RestaurantRepository) GetsWaiting() ([]entities.RestaurantDetail, error) {
+	restaurantD := []entities.RestaurantDetail{}
+
+	if err := rr.db.Where("status=?", "Waiting for approval").Find(&restaurantD).Error; err != nil || len(restaurantD) == 0 {
+		return restaurantD, errors.New("FAILED GETS WAITING")
+	} else {
+
+		for i := 0; i < len(restaurantD); i++ {
+			openDay := strings.Split(restaurantD[i].Open, ",")
+			closeDay := strings.Split(restaurantD[i].Close, ",")
+			openStr := ""
+			closeStr := ""
+			for j := 0; j < len(openDay); j++ {
+				for k := 0; k < len(common.Daytoint); k++ {
+					if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
+						openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
+					}
+				}
+			}
+			for l := 0; l < len(closeDay); l++ {
+				for m := 0; m < len(common.Daytoint); m++ {
+					if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
+						closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
+					}
+				}
+			}
+			restaurantD[i].Open = openStr
+			restaurantD[i].Close = closeStr
+		}
+
+		return restaurantD, nil
+	}
+}
+
+func (rr *RestaurantRepository) Approve(restaurantId uint, status string) (entities.RestaurantDetail, error) {
+	restaurantD := entities.RestaurantDetail{}
+
+	if err := rr.db.Preload("Restaurant").First(&restaurantD, "id=?", restaurantId).Error; err != nil || restaurantD.ID == 0 {
+		return restaurantD, errors.New("FAILED APPROVE")
+	} else {
+		updateStatus := entities.RestaurantDetail{
+			Status: status,
+		}
+		rr.db.Model(&restaurantD).Updates(updateStatus)
+		return restaurantD, nil
+	}
+
+}
+
+func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
+	restaurantD := []entities.RestaurantDetail{}
+	if err := rr.db.Preload("Rating").Where("status=?", "OPEN").Find(&restaurantD).Error; err != nil || len(restaurantD) == 0 {
+		return restaurantD, errors.New("FAILED GETS")
+	} else {
+
+		fmt.Println("===> Semua resto yang open", restaurantD)
+		for i := 0; i < len(restaurantD); i++ {
+			openDay := strings.Split(restaurantD[i].Open, ",")
+			closeDay := strings.Split(restaurantD[i].Close, ",")
+			openStr := ""
+			closeStr := ""
+			openH := strings.Split(restaurantD[i].Open_Hour, ":")
+			closeH := strings.Split(restaurantD[i].Close_Hour, ":")
+
+			openHHour := openH[0]
+			openHMinute := openH[1]
+
+			closeHHour := closeH[0]
+			closeHMinute := closeH[1]
+
+			for j := 0; j < len(openDay); j++ {
+				for k := 0; k < len(common.Daytoint); k++ {
+					if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
+						openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
+					}
+				}
+			}
+			// fmt.Println("openSTR", openStr)
+			for l := 0; l < len(closeDay); l++ {
+				for m := 0; m < len(common.Daytoint); m++ {
+					if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
+						closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
+					}
+				}
+			}
+			// fmt.Println("closeSTR", closeStr)
+
+			restaurantD[i].Open = openStr
+			restaurantD[i].Close = closeStr
+			restaurantD[i].Open_Hour = openHHour + ":" + openHMinute
+			restaurantD[i].Close_Hour = closeHHour + ":" + closeHMinute
+
+		}
+
+		return restaurantD, nil
+	}
+
+}
+
+func (rr *RestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
+	restaurantD := []entities.RestaurantDetail{}
+	// newrestaurantD := []entities.RestaurantDetail{}
+	// fmt.Println("=>open", open)
+	openstr := strconv.Itoa(open)
+
+	if err := rr.db.Where("status=? AND open LIKE ?", "OPEN", "%"+openstr+"%").Find(&restaurantD).Error; err != nil || len(restaurantD) == 0 {
+		return restaurantD, errors.New("FAILED GETS BY OPEN")
+	} else {
+
+		for i := 0; i < len(restaurantD); i++ {
+			openDay := strings.Split(restaurantD[i].Open, ",")
+			closeDay := strings.Split(restaurantD[i].Close, ",")
+			openStr := ""
+			closeStr := ""
+
+			for j := 0; j < len(openDay); j++ {
+				for k := 0; k < len(common.Daytoint); k++ {
+					if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
+						openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
+					}
+				}
+			}
+			for l := 0; l < len(closeDay); l++ {
+				for m := 0; m < len(common.Daytoint); m++ {
+					if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
+						closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
+					}
+				}
+			}
+			restaurantD[i].Open = openStr
+			restaurantD[i].Close = closeStr
+
+		}
+
+		return restaurantD, nil
+	}
+
+}
+
+func (rr *RestaurantRepository) GetExistSeat(restauranId uint, date_time string) ([]entities.Transaction, int, error) {
+	transactions := []entities.Transaction{}
+	result := 0
+	if err := rr.db.Model(&entities.Transaction{}).Select("sum(persons) as total").Where("date_time=?", date_time).Where("restaurant_id=?", restauranId).Find(&result).Error; err != nil {
+		return transactions, result, errors.New("FAILED GET EXIST SEAT")
+	} else {
+		fmt.Println("result setelah", result)
+		return transactions, result, nil
+	}
 
 }
 
 func (rr *RestaurantRepository) Delete(restaurantId uint) (entities.Restaurant, error) {
 	restaurant := entities.Restaurant{}
 
-	// if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil {
-	// 	return restaurant, err
-	// }
-
-	if err := rr.db.First(&restaurant, "id=?", restaurantId).Delete(&restaurant).Error; err != nil {
-		return restaurant, err
+	if err := rr.db.First(&restaurant, "id=?", restaurantId).Delete(&restaurant).Error; err != nil || restaurant.ID == 0 {
+		return restaurant, errors.New("FAILED DELETE")
 	} else {
 		return restaurant, nil
 	}
