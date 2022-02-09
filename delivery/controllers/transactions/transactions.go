@@ -31,7 +31,7 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
-		loc, _ := time.LoadLocation("Asia/Singapore")
+		loc, _ := time.LoadLocation("Asia/Jakarta")
 		var dateTime, _ = time.ParseInLocation("2006-01-02 15:04", newTransactionReq.DateTime, loc)
 		for i := 0; i < len(common.Daytoint); i++ {
 			if dateTime.Weekday().String() == common.Daytoint[i].Day {
@@ -81,9 +81,6 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		}
 
 		seat, _ := transcon.Repo.GetTotalSeat(newTransactionReq.RestaurantID, newTransactionReq.DateTime)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
-		}
 		isExist, _ := transcon.Repo.CheckSameHour(newTransactionReq.RestaurantID, uint(userID), newTransactionReq.DateTime)
 		if isExist {
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -95,7 +92,7 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		if newTransactionReq.Persons > seatAvailable {
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"code":    http.StatusInternalServerError,
-				"message": "Just " + fmt.Sprint(seatAvailable) + " Seats Available at This Hour ",
+				"message": "Just " + fmt.Sprint(seatAvailable) + " Seats Available at This Hour",
 			})
 		}
 		if _, err := transcon.Repo.UpdateUserBalance(uint(userID), balance); err != nil {
@@ -291,12 +288,6 @@ func (transcon TransactionsController) AcceptTransactionCtrl() echo.HandlerFunc 
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
 		restoID := int(claims["restoid"].(float64))
-		if restoID == 0 {
-			return c.JSON(http.StatusUnauthorized, common.DefaultResponse{
-				Code:    http.StatusUnauthorized,
-				Message: "Unauthorized",
-			})
-		}
 		newTransactionReq := TransactionRequestFormat{}
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
@@ -336,12 +327,6 @@ func (transcon TransactionsController) RejectTransactionCtrl() echo.HandlerFunc 
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
 		restoID := int(claims["restoid"].(float64))
-		if restoID == 0 {
-			return c.JSON(http.StatusUnauthorized, common.DefaultResponse{
-				Code:    http.StatusUnauthorized,
-				Message: "Unauthorized",
-			})
-		}
 		newTransactionReq := TransactionRequestFormat{}
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
@@ -388,12 +373,6 @@ func (transcon TransactionsController) SuccessTransactionCtrl() echo.HandlerFunc
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
 		restoID := int(claims["restoid"].(float64))
-		if restoID == 0 {
-			return c.JSON(http.StatusUnauthorized, common.DefaultResponse{
-				Code:    http.StatusUnauthorized,
-				Message: "Unauthorized",
-			})
-		}
 		newTransactionReq := TransactionRequestFormat{}
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
@@ -440,12 +419,6 @@ func (transcon TransactionsController) FailTransactionCtrl() echo.HandlerFunc {
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
 		restoID := int(claims["restoid"].(float64))
-		if restoID == 0 {
-			return c.JSON(http.StatusUnauthorized, common.DefaultResponse{
-				Code:    http.StatusUnauthorized,
-				Message: "Unauthorized",
-			})
-		}
 		newTransactionReq := TransactionRequestFormat{}
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
@@ -492,12 +465,6 @@ func (transcon TransactionsController) CancelTransactionCtrl() echo.HandlerFunc 
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
 		userId := int(claims["userid"].(float64))
-		if userId == 0 {
-			return c.JSON(http.StatusUnauthorized, common.DefaultResponse{
-				Code:    http.StatusUnauthorized,
-				Message: "Unauthorized",
-			})
-		}
 		newTransactionReq := TransactionRequestFormat{}
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
