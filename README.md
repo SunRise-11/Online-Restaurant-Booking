@@ -1,8 +1,56 @@
+[Contributors][contributors-shield][contributors-url]
+
 # Restobook
 
 ## Description
 
-Coming Soon
+<!-- Description -->
+<br />
+<div align="center">
+  <a href="https://github.com/herlianto-github/Restobook">
+    <img src="images/logo.png" alt="Logo" width="80" height="80">
+  </a>
+
+<h3 align="center">Restobook</h3>
+
+  <p align="center">
+    coming soon
+    <br />
+    <a href="https://github.com/herlianto-github/Restobook"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/herlianto-github/Restobook">Wireframe</a>
+    ·
+    <a href="https://github.com/herlianto-github/Restobook/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/herlianto-github/Restobook/issues">Request Feature</a>
+  </p>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<details open>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#description">About The Project</a>
+      <ul>
+        <li><a href="#depedencies">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#how_to_contribute">Contributing</a></li>    
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
 
 ## Getting Started
 
@@ -11,7 +59,6 @@ Coming Soon
 - [Git](https://git-scm.com)
 - [Golang](https://go.dev)
 - [Visual Studio Code](https://code.visualstudio.com)
-
 
 ### How To Contribute
 
@@ -126,3 +173,6 @@ Coming Soon
 ## Acknowledgments
 
 - [Layered Architecture](https://www.oreilly.com/library/view/software-architecture-patterns/9781491971437/ch01.html)
+
+[controbutors-shield]: https://img.shields.io/github/contributors/herlianto-github/Restobook.svg?style=for-the-badge
+[contributors-url]: https://github.com/herlianto-github/Restobook/graphs/contributors
