@@ -28,22 +28,17 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		claims := uid.Claims.(jwt.MapClaims)
 		userID := int(claims["userid"].(float64))
 		newTransactionReq := TransactionRequestFormat{}
-		fmt.Println("userId", userID)
 		if err := c.Bind(&newTransactionReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
-		fmt.Println(newTransactionReq)
 		loc, _ := time.LoadLocation("Asia/Jakarta")
 		var dateTime, _ = time.ParseInLocation("2006-01-02 15:04", newTransactionReq.DateTime, loc)
-		fmt.Println("date", dateTime)
 		for i := 0; i < len(common.Daytoint); i++ {
 			if dateTime.Weekday().String() == common.Daytoint[i].Day {
 				day = common.Daytoint[i].No
 			}
 		}
-		fmt.Println("Day:", day)
 		balanceUser, err := transcon.Repo.GetBalance(uint(userID))
-		fmt.Println(balanceUser)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
@@ -51,7 +46,6 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
-		fmt.Println("resto", restoDetail)
 		openHour := restoDetail.Open_Hour
 		closeHour := restoDetail.Close_Hour
 		if !strings.Contains(restoDetail.Open, fmt.Sprint(day)) || restoDetail.Status != "OPEN" {
@@ -78,9 +72,7 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		}
 
 		total = newTransactionReq.Persons * restoDetail.Price
-		fmt.Println("Total", total)
 		balance = balanceUser.Balance - total
-		fmt.Println("Balance:", balance)
 		if balance < 0 {
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"code":    http.StatusInternalServerError,
@@ -89,7 +81,6 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		}
 
 		seat, _ := transcon.Repo.GetTotalSeat(newTransactionReq.RestaurantID, newTransactionReq.DateTime)
-		fmt.Println("seat", seat)
 		isExist, _ := transcon.Repo.CheckSameHour(newTransactionReq.RestaurantID, uint(userID), newTransactionReq.DateTime)
 		if isExist {
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -118,7 +109,6 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
-		fmt.Println("res crate:", res)
 		data := TransactionResponse{
 			ID:           res.ID,
 			UserID:       res.UserID,
@@ -208,7 +198,6 @@ func (transcon TransactionsController) GetAllAcceptedForRestoCtrl() echo.Handler
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
-		fmt.Println(transactions)
 		data := []TransactionResponse{}
 		for _, transaction := range transactions {
 			data = append(

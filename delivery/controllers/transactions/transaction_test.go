@@ -1878,9 +1878,6 @@ func (m mockTransactionRepository) UpdateTransactionStatus(newTransaction entiti
 	}
 
 }
-func (m mockTransactionRepository) ShowAllTransaction(restaurantId uint) ([]entities.Transaction, error) {
-	return []entities.Transaction{}, nil
-}
 func (m mockTransactionRepository) GetTransactionById(id, userId uint, status string) (entities.Transaction, error) {
 	if id == 2 {
 		return entities.Transaction{
@@ -2019,9 +2016,7 @@ func (m mockFalseTransactionRepository) UpdateUserReputation(userId uint, reputa
 func (m mockFalseTransactionRepository) UpdateTransactionStatus(newTransaction entities.Transaction) (entities.Transaction, error) {
 	return entities.Transaction{}, errors.New("")
 }
-func (m mockFalseTransactionRepository) ShowAllTransaction(restaurantId uint) ([]entities.Transaction, error) {
-	return []entities.Transaction{}, errors.New("")
-}
+
 func (m mockFalseTransactionRepository) GetTransactionById(id, userId uint, status string) (entities.Transaction, error) {
 	return entities.Transaction{}, errors.New("")
 }

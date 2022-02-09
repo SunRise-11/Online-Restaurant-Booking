@@ -2,6 +2,7 @@ package transactions
 
 import (
 	"Restobook/entities"
+	"errors"
 
 	"gorm.io/gorm"
 )
@@ -16,8 +17,8 @@ func NewTransactionRepo(db *gorm.DB) *TransactionRepository {
 
 func (tr *TransactionRepository) Create(newTransaction entities.Transaction) (entities.Transaction, error) {
 	err := tr.db.Save(&newTransaction).Error
-	if err != nil {
-		return newTransaction, err
+	if err != nil || newTransaction.ID == 0 {
+		return newTransaction, errors.New("FAILED CREATE TRANSACTION")
 	}
 
 	return newTransaction, nil
@@ -25,72 +26,67 @@ func (tr *TransactionRepository) Create(newTransaction entities.Transaction) (en
 func (tr *TransactionRepository) GetAllWaiting(userId uint) ([]entities.Transaction, error) {
 	transaction := []entities.Transaction{}
 
-	if err := tr.db.Where("user_id=? and status=?", userId, "waiting for confirmation").Find(&transaction).Error; err != nil {
-		return transaction, err
+	if err := tr.db.Where("user_id=? and status=?", userId, "waiting for confirmation").Find(&transaction).Error; err != nil || len(transaction) == 0 {
+		return transaction, errors.New("FAILED GET DATA")
 	}
+
 	return transaction, nil
 }
 func (tr *TransactionRepository) GetAllWaitingForResto(restaurantId uint) ([]entities.Transaction, error) {
 	transaction := []entities.Transaction{}
 
-	if err := tr.db.Where("restaurant_id=? and status=?", restaurantId, "waiting for confirmation").Find(&transaction).Error; err != nil {
-		return transaction, err
+	if err := tr.db.Where("restaurant_id=? and status=?", restaurantId, "waiting for confirmation").Find(&transaction).Error; err != nil || len(transaction) == 0 {
+		return transaction, errors.New("FAILED GET DATA")
 	}
+
 	return transaction, nil
 }
 func (tr *TransactionRepository) GetAllAcceptedForResto(restaurantId uint) ([]entities.Transaction, error) {
 	transaction := []entities.Transaction{}
 
-	if err := tr.db.Where("restaurant_id=? and status=?", restaurantId, "Accepted").Find(&transaction).Error; err != nil {
-		return transaction, err
+	if err := tr.db.Where("restaurant_id=? and status=?", restaurantId, "Accepted").Find(&transaction).Error; err != nil || len(transaction) == 0 {
+		return transaction, errors.New("FAILED GET DATA")
 	}
 	return transaction, nil
 }
 func (tr *TransactionRepository) GetHistory(userId uint) ([]entities.Transaction, error) {
 	transaction := []entities.Transaction{}
 
-	if err := tr.db.Where("user_id=?", userId).Where("status in ?", []string{"Success", "Fail", "Cancel", "Rejected"}).Find(&transaction).Error; err != nil {
-		return transaction, err
+	if err := tr.db.Where("user_id=?", userId).Where("status in ?", []string{"Success", "Fail", "Cancel", "Rejected"}).Find(&transaction).Error; err != nil || len(transaction) == 0 {
+		return transaction, errors.New("FAILED GET DATA")
 	}
 	return transaction, nil
 }
 func (tr *TransactionRepository) GetAllAppointed(userId uint) ([]entities.Transaction, error) {
 	transaction := []entities.Transaction{}
 
-	if err := tr.db.Where("user_id=? and status=? ", userId, "Accepted").Find(&transaction).Error; err != nil {
-		return transaction, err
+	if err := tr.db.Where("user_id=? and status=? ", userId, "Accepted").Find(&transaction).Error; err != nil || len(transaction) == 0 {
+		return transaction, errors.New("FAILED GET DATA")
 	}
 	return transaction, nil
 }
 func (tr *TransactionRepository) GetTransactionById(id, userId uint, status string) (entities.Transaction, error) {
 	transaction := entities.Transaction{}
-	if err := tr.db.Preload("User").Where("id=? and user_id=? and status=?", id, userId, status).First(&transaction).Error; err != nil {
-		return transaction, err
+	if err := tr.db.Preload("User").Where("id=? and user_id=? and status=?", id, userId, status).First(&transaction).Error; err != nil || transaction.ID == 0 {
+		return transaction, errors.New("FAILED GET DATA")
 	}
 
 	return transaction, nil
 }
 func (tr *TransactionRepository) GetTransactionUserByStatus(id, restaurant_id uint, status string) (entities.Transaction, error) {
 	transaction := entities.Transaction{}
-	if err := tr.db.Preload("User").Where("id=? and restaurant_id=? and status=?", id, restaurant_id, status).First(&transaction).Error; err != nil {
-		return transaction, err
+	if err := tr.db.Preload("User").Where("id=? and restaurant_id=? and status=?", id, restaurant_id, status).First(&transaction).Error; err != nil || transaction.ID == 0 {
+		return transaction, errors.New("FAILED GET DATA")
 	}
 
 	return transaction, nil
 }
-func (tr *TransactionRepository) ShowAllTransaction(restaurantId uint) ([]entities.Transaction, error) {
-	transaction := []entities.Transaction{}
 
-	if err := tr.db.Where("restaurant_id=? and status=? ", restaurantId, "waiting for confirmation").Find(&transaction).Error; err != nil {
-		return transaction, err
-	}
-	return transaction, nil
-}
 func (tr *TransactionRepository) GetBalance(userId uint) (entities.User, error) {
 	user := entities.User{}
 
 	if err := tr.db.Select("balance").Where("id=?", userId).First(&user).Error; err != nil {
-		return user, err
+		return user, errors.New("FAILED GET DATA")
 	}
 
 	return user, nil
@@ -98,7 +94,7 @@ func (tr *TransactionRepository) GetBalance(userId uint) (entities.User, error) 
 func (tr *TransactionRepository) GetRestoDetail(restaurantId uint) (entities.RestaurantDetail, error) {
 	resto := entities.RestaurantDetail{}
 	if err := tr.db.Select("price", "seats", "open", "open_hour", "close_hour", "status").Where("id=?", restaurantId).First(&resto).Error; err != nil {
-		return resto, err
+		return resto, errors.New("FAILED GET DATA")
 	}
 	return resto, nil
 }
@@ -106,8 +102,8 @@ func (tr *TransactionRepository) GetRestoDetail(restaurantId uint) (entities.Res
 func (tr *TransactionRepository) UpdateUserBalance(userId uint, balance int) (entities.User, error) {
 	user := entities.User{}
 	updateUser := make(map[string]interface{})
-	if err := tr.db.First(&user, "id=?", userId).Error; err != nil {
-		return user, err
+	if err := tr.db.First(&user, "id=?", userId).Error; err != nil || user.ID == 0 {
+		return user, errors.New("FAILED UPDATE DATA")
 	}
 	updateUser["balance"] = balance
 	tr.db.Model(&user).Updates(&updateUser)
@@ -117,7 +113,7 @@ func (tr *TransactionRepository) UpdateUserBalance(userId uint, balance int) (en
 func (tr *TransactionRepository) GetReputationUser(userId uint) (entities.User, error) {
 	user := entities.User{}
 	if err := tr.db.Select("reputation").Where("id=?", userId).First(&user).Error; err != nil {
-		return user, err
+		return user, errors.New("FAILED GET DATA")
 	}
 
 	return user, nil
@@ -126,8 +122,8 @@ func (tr *TransactionRepository) GetReputationUser(userId uint) (entities.User, 
 func (tr *TransactionRepository) UpdateUserReputation(userId uint, reputation int) (entities.User, error) {
 	user := entities.User{}
 	updateUser := make(map[string]interface{})
-	if err := tr.db.First(&user, "id=?", userId).Error; err != nil {
-		return user, err
+	if err := tr.db.First(&user, "id=?", userId).Error; err != nil || user.ID == 0 {
+		return user, errors.New("FAILED UPDATE DATA")
 	}
 	updateUser["reputation"] = reputation
 	tr.db.Model(&user).Updates(&updateUser)
@@ -136,8 +132,8 @@ func (tr *TransactionRepository) UpdateUserReputation(userId uint, reputation in
 }
 func (tr *TransactionRepository) UpdateTransactionStatus(newTransaction entities.Transaction) (entities.Transaction, error) {
 	transaction := entities.Transaction{}
-	if err := tr.db.First(&transaction, "id=?", newTransaction.ID).Error; err != nil {
-		return transaction, err
+	if err := tr.db.First(&transaction, "id=?", newTransaction.ID).Error; err != nil || transaction.ID == 0 {
+		return transaction, errors.New("FAILED UPDATE DATA")
 	}
 	tr.db.Model(&transaction).Updates(newTransaction)
 	return transaction, nil
@@ -154,8 +150,8 @@ func (tr *TransactionRepository) GetTotalSeat(restaurantId uint, dateTime string
 }
 func (tr *TransactionRepository) CheckSameHour(restaurantId, userId uint, dateTime string) (bool, error) {
 	transaction := entities.Transaction{}
-	if err := tr.db.First(&transaction, "user_id=? and restaurant_id=? and date_time=?", userId, restaurantId, dateTime).Error; err != nil {
-		return false, err
+	if err := tr.db.First(&transaction, "user_id=? and restaurant_id=? and date_time=?", userId, restaurantId, dateTime).Error; err != nil || transaction.ID == 0 {
+		return false, errors.New("FAILED GET DATA")
 	}
 	return true, nil
 }
