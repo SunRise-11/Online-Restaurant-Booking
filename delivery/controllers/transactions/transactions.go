@@ -229,16 +229,17 @@ func (transcon TransactionsController) GetHistoryCtrl() echo.HandlerFunc {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
-		data := []TransactionResponse{}
+		data := []TransactionHistoryResponse{}
 		for _, transaction := range transactions {
 			data = append(
-				data, TransactionResponse{
+				data, TransactionHistoryResponse{
 					ID:           transaction.ID,
 					UserID:       transaction.UserID,
 					RestaurantID: transaction.RestaurantID,
 					Person:       transaction.Persons,
 					DateTime:     transaction.DateTime,
 					Total:        transaction.Total,
+					Status:       transaction.Status,
 				},
 			)
 		}

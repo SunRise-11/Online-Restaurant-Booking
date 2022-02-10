@@ -16,3 +16,12 @@ type TransactionResponse struct {
 	Person       int       `json:"person"`
 	Total        int       `json:"total"`
 }
+type TransactionHistoryResponse struct {
+	ID           uint      `json:"id"`
+	UserID       uint      `json:"user_id"`
+	RestaurantID uint      `json:"restaurant_id"`
+	DateTime     time.Time `json:"date_time"`
+	Person       int       `json:"person"`
+	Total        int       `json:"total"`
+	Status       string    `json:"status"`
+}
