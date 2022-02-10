@@ -961,6 +961,7 @@ func TestCancelTransaction(t *testing.T) {
 		assert.Equal(t, 200, responses.Code)
 		assert.Equal(t, "Successful Operation", responses.Message)
 	})
+
 	t.Run("Error Get Transaction By Id", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]interface{}{
 			"id":     2,
@@ -1120,7 +1121,51 @@ func TestCancelTransaction(t *testing.T) {
 		assert.Equal(t, 500, responses.Code)
 		assert.Equal(t, "Internal Server Error", responses.Message)
 	})
+	t.Run("Login User For Error", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]string{
+			"email":    "andrew@outlook.my",
+			"password": "andrew123",
+		})
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
+		req.Header.Set("Content-Type", "application/json")
+
+		context := e.NewContext(req, res)
+		context.SetPath("/users/login")
+
+		userCtrl := users.NewUsersControllers(mockUserRepository{})
+		userCtrl.LoginAuthCtrl()(context)
+
+		responses := users.LoginResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		jwtTokenUser = responses.Token
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
+	t.Run("Error Update Compare", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]interface{}{
+			"id":     1,
+			"status": "waiting for confirmation",
+		})
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenUser))
+		req.Header.Set("Content-Type", "application/json")
+
+		context := e.NewContext(req, res)
+		context.SetPath("/transaction/cancel")
+
+		restoCtrl := NewTransactionsControllers(mockTransactionRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restoCtrl.CancelTransactionCtrl())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
+		responses := TransactionResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		assert.Equal(t, 500, responses.Code)
+		assert.Equal(t, "You Cant Cancel This Transaction at This Time", responses.Message)
+	})
 }
 func TestAcceptTransaction(t *testing.T) {
 	e := echo.New()
@@ -1878,7 +1923,7 @@ func (m mockTransactionRepository) UpdateTransactionStatus(newTransaction entiti
 	}
 
 }
-func (m mockTransactionRepository) GetTransactionById(id, userId uint, status string) (entities.Transaction, error) {
+func (m mockTransactionRepository) GetTransactionById(id, userId uint) (entities.Transaction, error) {
 	if id == 2 {
 		return entities.Transaction{
 			ID:           id,
@@ -1908,7 +1953,7 @@ func (m mockTransactionRepository) GetTransactionById(id, userId uint, status st
 			ID:           id,
 			UserID:       userId,
 			RestaurantID: id,
-			Status:       "Accepted",
+			Status:       "waiting for confirmation",
 			User: entities.User{
 				ID:         2,
 				Reputation: 0,
@@ -1921,6 +1966,18 @@ func (m mockTransactionRepository) GetTransactionById(id, userId uint, status st
 			UserID:       userId,
 			RestaurantID: id,
 			Status:       "Accepted",
+			User: entities.User{
+				ID:         2,
+				Reputation: 0,
+				Balance:    100000,
+			},
+		}, nil
+	} else if userId == 4 {
+		return entities.Transaction{
+			ID:           id,
+			UserID:       userId,
+			RestaurantID: id,
+			Status:       "Cancel",
 			User: entities.User{
 				ID:         2,
 				Reputation: 0,
@@ -2017,7 +2074,7 @@ func (m mockFalseTransactionRepository) UpdateTransactionStatus(newTransaction e
 	return entities.Transaction{}, errors.New("")
 }
 
-func (m mockFalseTransactionRepository) GetTransactionById(id, userId uint, status string) (entities.Transaction, error) {
+func (m mockFalseTransactionRepository) GetTransactionById(id, userId uint) (entities.Transaction, error) {
 	return entities.Transaction{}, errors.New("")
 }
 func (m mockFalseTransactionRepository) GetTotalSeat(restaurantId uint, dateTime string) (int, error) {
