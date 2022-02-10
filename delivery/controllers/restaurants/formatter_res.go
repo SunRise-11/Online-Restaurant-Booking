@@ -39,3 +39,35 @@ type RestaurantResponseFormat struct {
 	PhoneNumber string `json:"phone"`
 	Status      string `json:"status"`
 }
+
+type ExportPDFResponseFormat struct {
+	Date    string      `json:"date"`
+	Name    string      `json:"name"`
+	Address string      `json:"address"`
+	Orders  interface{} `json:"Orders"`
+	Seats   interface{} `json:"Seats"`
+	Total   interface{} `json:"Total"`
+}
+
+type ExportPDF_Order_Response struct {
+	Number_of_success_orders  string `json:"number_of_success_orders"`
+	Number_of_fail_orders     string `json:"number_of_fail_orders"`
+	Number_of_cancel_orders   string `json:"number_of_cancel_orders"`
+	Total_orders              string `json:"total_orders"`
+	Number_of_rejected_orders string `json:"number_of_rejected_orders"`
+}
+
+type ExportPDF_Seats_Response struct {
+	Number_of_success_seats  string `json:"number_of_success_seats"`
+	Number_of_fail_seats     string `json:"number_of_fail_seats"`
+	Number_of_cancel_seats   string `json:"number_of_cancel_seats"`
+	Total_seats              string `json:"total_seats"`
+	Number_of_rejected_seats string `json:"number_of_rejected_seats"`
+}
+
+type ExportPDF_Total_Response struct {
+	Number_of_success_total string `json:"number_of_success_total"`
+	Number_of_fail_total    string `json:"number_of_fail_total"`
+	Number_of_cancel_total  string `json:"number_of_cancel_total"`
+	Total                   string `json:"total"`
+}

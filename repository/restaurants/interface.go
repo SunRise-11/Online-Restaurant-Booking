@@ -15,4 +15,5 @@ type RestaurantsInterface interface {
 	GetsByOpen(open int) ([]entities.RestaurantDetail, error)
 	GetExistSeat(restauranId uint, date_time string) ([]entities.Transaction, int, error)
 	Delete(restaurantId uint) (entities.Restaurant, error)
+	Export(restaurantId uint, date_time string) ([]entities.Transaction, error)
 }
