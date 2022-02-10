@@ -2078,7 +2078,7 @@ func (m mockRestaurantRepository) Register(newUser entities.Restaurant) (entitie
 	return entities.Restaurant{ID: 1, Email: "restaurant1@outlook.my"}, nil
 }
 
-func (m mockRestaurantRepository) LoginRestaurant(email, password string) (entities.Restaurant, error) {
+func (m mockRestaurantRepository) Login(email, password string) (entities.Restaurant, error) {
 	hash := sha256.Sum256([]byte(password))
 	passwordS := fmt.Sprintf("%x", hash[:])
 	if email == "restaurant1@outlook.my" {
@@ -2131,4 +2131,7 @@ func (m mockRestaurantRepository) UpdateDetail(restaurantID uint, updateUser ent
 
 func (m mockRestaurantRepository) Delete(restaurantID uint) (entities.Restaurant, error) {
 	return entities.Restaurant{ID: 1}, nil
+}
+func (m mockRestaurantRepository) CreateDetail(restaurantId uint, updateRestaurantD entities.RestaurantDetail) (entities.RestaurantDetail, error) {
+	return entities.RestaurantDetail{ID: 1}, nil
 }
