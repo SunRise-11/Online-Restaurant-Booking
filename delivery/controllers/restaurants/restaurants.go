@@ -3,6 +3,7 @@ package restaurants
 import (
 	"Restobook/delivery/common"
 	"Restobook/delivery/controllers/auth"
+	"Restobook/delivery/helpers"
 	"Restobook/entities"
 	"Restobook/repository/restaurants"
 	"crypto/sha256"
@@ -596,6 +597,8 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 				Message: "Successful Operation",
 				Data:    responses,
 			}
+
+			helpers.CreatePDFReport(res[0].Restaurant.RestaurantDetail.Name, res[0].Restaurant.RestaurantDetail.Address, date_time_split[0])
 
 			return c.JSON(http.StatusOK, response)
 		}
