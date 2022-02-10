@@ -548,7 +548,7 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 				} else if res[i].Status == "Cancel" {
 					cancelOrder += 1
 					cancelSeat += res[i].Persons
-					cancelTotal += res[i].Persons * 20000
+					cancelTotal += 20000
 				} else if res[i].Status == "Rejected" {
 					rejectedOrder += 1
 					rejectedSeat += res[i].Persons
