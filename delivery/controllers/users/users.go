@@ -32,9 +32,10 @@ func (uscon UsersController) RegisterUserCtrl() echo.HandlerFunc {
 		hash := sha256.Sum256([]byte(newUserReq.Password))
 		stringPassword := fmt.Sprintf("%x", hash[:])
 		newUser := entities.User{
-			Email:    newUserReq.Email,
-			Password: stringPassword,
-			Name:     newUserReq.Name,
+			Email:       newUserReq.Email,
+			Password:    stringPassword,
+			Name:        newUserReq.Name,
+			PhoneNumber: newUserReq.Phone_Number,
 		}
 		if res, err := uscon.Repo.Register(newUser); err != nil || res.ID == 0 {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())

@@ -410,16 +410,16 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		date_time := c.QueryParam("date_time")
-		fmt.Println("======================================")
-		fmt.Println("DATE_TIME", date_time)
+		// fmt.Println("======================================")
+		// fmt.Println("DATE_TIME", date_time)
 
 		if res, err := rescon.Repo.Gets(); err != nil || len(res) == 0 {
-			fmt.Println("======================================")
-			fmt.Println("=>ERROR Gets", err, "<=>", res)
+			// fmt.Println("======================================")
+			// fmt.Println("=>ERROR Gets", err, "<=>", res)
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
-			fmt.Println("======================================")
-			fmt.Println("=>SUCCESS Gets", res)
+			// fmt.Println("======================================")
+			// fmt.Println("=>SUCCESS Gets", res)
 			date_time_parse, _ := time.Parse("2006-01-02 15:04:05", date_time)
 			date_time_split := strings.Split(date_time, " ")
 
@@ -434,20 +434,20 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 			timeall := strings.Split(time, ":")
 			timealls := timeall[0] + timeall[1]
 			timeallsInt, _ := strconv.Atoi(timealls)
-			fmt.Println("======================================")
-			fmt.Println("=>FIND date_time_parse", date_time_parse)
-			fmt.Println("=>FIND DayOpen in", day)
-			fmt.Println("=>FIND TimeOpen in", timeallsInt)
-			fmt.Println("=>FIND dayyoint", daytoint)
+			// fmt.Println("======================================")
+			// fmt.Println("=>FIND date_time_parse", date_time_parse)
+			// fmt.Println("=>FIND DayOpen in", day)
+			// fmt.Println("=>FIND TimeOpen in", timeallsInt)
+			// fmt.Println("=>FIND dayyoint", daytoint)
 			if res, err := rescon.Repo.GetsByOpen(daytoint); err != nil {
-				fmt.Println("======================================")
-				fmt.Println("=>ERROR GetsByOpen", err, "<=>", res)
+				// fmt.Println("======================================")
+				// fmt.Println("=>ERROR GetsByOpen", err, "<=>", res)
 				return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 			} else {
 				newRestaurantD := []entities.RestaurantDetail{}
 				for i := 0; i < len(res); i++ {
-					fmt.Println("======================================")
-					fmt.Println("=>SUCCESS GetsByOpen", res[i])
+					// fmt.Println("======================================")
+					// fmt.Println("=>SUCCESS GetsByOpen", res[i])
 					splitOH := strings.Split(res[i].Open_Hour, ":")
 					allOH, _ := strconv.Atoi(splitOH[0] + splitOH[1])
 
@@ -456,11 +456,11 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 
 					if timeallsInt >= allOH && timeallsInt <= allCH {
 						date_time_parse_noutc := date_time_split[0] + " " + date_time_split[1]
-						fmt.Println("======================================")
-						fmt.Println("=>FIND date_time_parse_noutc", date_time_parse_noutc)
+						// fmt.Println("======================================")
+						// fmt.Println("=>FIND date_time_parse_noutc", date_time_parse_noutc)
 						if _, total_seat, err := rescon.Repo.GetExistSeat(res[i].ID, date_time_parse_noutc); err != nil {
-							fmt.Println("======================================")
-							fmt.Println("=>ERROR GetExistSeat because no transaction with restaurantID", res[i].ID, "<=>", err, "<=>", total_seat)
+							// fmt.Println("======================================")
+							// fmt.Println("=>ERROR GetExistSeat because no transaction with restaurantID", res[i].ID, "<=>", err, "<=>", total_seat)
 							newRestaurantD = append(newRestaurantD, res[i])
 							response := RestaurantsResponseFormat{
 								Code:    http.StatusOK,
@@ -469,8 +469,8 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 							}
 							return c.JSON(http.StatusOK, response)
 						} else {
-							fmt.Println("======================================")
-							fmt.Println("=>SUCCESS GetExistSeat", total_seat)
+							// fmt.Println("======================================")
+							// fmt.Println("=>SUCCESS GetExistSeat", total_seat)
 							res[i].Seats = res[i].Seats - total_seat
 							newRestaurantD = append(newRestaurantD, res[i])
 						}
@@ -513,5 +513,92 @@ func (rescon RestaurantsController) DeleteRestoCtrl() echo.HandlerFunc {
 				return c.JSON(http.StatusOK, common.NewSuccessOperationResponse())
 			}
 		}
+	}
+}
+
+func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		uid := c.Get("user").(*jwt.Token)
+		claims := uid.Claims.(jwt.MapClaims)
+		restoID := int(claims["restoid"].(float64))
+
+		date_time := c.QueryParam("date_time")
+		date_time_parse, _ := time.Parse("2006-01-02 15:04:05", date_time)
+		date_time_split := strings.Split(date_time_parse.String(), " ")
+
+		fmt.Println("date_time_split", date_time_split)
+
+		if res, err := rescon.Repo.Export(uint(restoID), date_time_split[0]); err != nil || len(res) == 0 {
+			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		} else {
+
+			var successOrder, successSeat, failOrder, failSeat, cancelOrder, cancelSeat, rejectedOrder, rejectedSeat int
+			var successTotal, failTotal, cancelTotal int
+
+			for i := 0; i < len(res); i++ {
+				if res[i].Status == "Success" {
+					successOrder += 1
+					successSeat += res[i].Persons
+					successTotal += res[i].Total
+				} else if res[i].Status == "Fail" {
+					failOrder += 1
+					failSeat += res[i].Persons
+					failTotal += res[i].Total
+				} else if res[i].Status == "Cancel" {
+					cancelOrder += 1
+					cancelSeat += res[i].Persons
+					cancelTotal += 20000
+				} else if res[i].Status == "Rejected" {
+					rejectedOrder += 1
+					rejectedSeat += res[i].Persons
+				}
+			}
+
+			totalOrder := successOrder + failOrder + cancelOrder
+			totalSeat := successSeat + failSeat + cancelSeat
+			grandTotal := successTotal + failTotal + cancelTotal
+
+			resOrder := ExportPDF_Order_Response{
+				Number_of_success_orders:  fmt.Sprintf("%v Orders", successOrder),
+				Number_of_fail_orders:     fmt.Sprintf("%v Orders", failOrder),
+				Number_of_cancel_orders:   fmt.Sprintf("%v Orders", cancelOrder),
+				Total_orders:              fmt.Sprintf("%v Orders", totalOrder),
+				Number_of_rejected_orders: fmt.Sprintf("%v Orders", rejectedOrder),
+			}
+
+			resSeats := ExportPDF_Seats_Response{
+				Number_of_success_seats:  fmt.Sprintf("%v seats", successSeat),
+				Number_of_fail_seats:     fmt.Sprintf("%v seats", failSeat),
+				Number_of_cancel_seats:   fmt.Sprintf("%v seats", cancelSeat),
+				Total_seats:              fmt.Sprintf("%v seats", totalSeat),
+				Number_of_rejected_seats: fmt.Sprintf("%v seats", rejectedSeat),
+			}
+
+			resTotal := ExportPDF_Total_Response{
+				Number_of_success_total: fmt.Sprintf("Rp.%v", successTotal),
+				Number_of_fail_total:    fmt.Sprintf("Rp.%v", failTotal),
+				Number_of_cancel_total:  fmt.Sprintf("Rp.%v", cancelTotal),
+				Total:                   fmt.Sprintf("Rp.%v", grandTotal),
+			}
+
+			responses := ExportPDFResponseFormat{
+				Date:    date_time_split[0],
+				Name:    res[0].Restaurant.RestaurantDetail.Name,
+				Address: res[0].Restaurant.RestaurantDetail.Address,
+				Orders:  resOrder,
+				Seats:   resSeats,
+				Total:   resTotal,
+			}
+
+			response := RestaurantsResponseFormat{
+				Code:    200,
+				Message: "Successful Operation",
+				Data:    responses,
+			}
+
+			return c.JSON(http.StatusOK, response)
+		}
+
 	}
 }

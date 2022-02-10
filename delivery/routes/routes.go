@@ -50,6 +50,8 @@ func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.Users
 	e.GET("/restaurants", rctrl.Gets())
 	e.GET("/restaurants/open", rctrl.GetsByOpen())
 
+	e.POST("/restaurant/raport", rctrl.ExportPDF(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
+
 	// ---------------------------------------------------------------------
 	// CRUD Transactions
 	// ---------------------------------------------------------------------
