@@ -1458,6 +1458,21 @@ func (m mockRestaurantRepository) Delete(restaurantID uint) (entities.Restaurant
 	}, nil
 }
 
+func (m mockRestaurantRepository) Export(restaurantId uint, date_time string) ([]entities.Transaction, error) {
+	return []entities.Transaction{{
+		Model:        gorm.Model{},
+		ID:           restaurantId,
+		UserID:       1,
+		RestaurantID: restaurantId,
+		DateTime:     time.Time{},
+		Persons:      1,
+		Total:        10000,
+		Status:       "Success",
+		User:         entities.User{},
+		Restaurant:   entities.Restaurant{},
+	}}, nil
+}
+
 type mockFalseRestaurantRepository struct{}
 
 func (m mockFalseRestaurantRepository) Register(newUser entities.Restaurant) (entities.Restaurant, error) {
@@ -1666,4 +1681,19 @@ func (m mockFalseRestaurantRepository) Delete(restaurantID uint) (entities.Resta
 		Email:              "updaterestaurant1@outlook.my",
 		RestaurantDetailID: restaurantID,
 	}, errors.New("FAILED DELETE")
+}
+
+func (m mockFalseRestaurantRepository) Export(restaurantId uint, date_time string) ([]entities.Transaction, error) {
+	return []entities.Transaction{{
+		Model:        gorm.Model{},
+		ID:           restaurantId,
+		UserID:       0,
+		RestaurantID: restaurantId,
+		DateTime:     time.Time{},
+		Persons:      0,
+		Total:        0,
+		Status:       "",
+		User:         entities.User{},
+		Restaurant:   entities.Restaurant{},
+	}}, errors.New("FAILED EXPORT PDF")
 }

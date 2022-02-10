@@ -1,25 +1,25 @@
 <div id="top"></div>
-[![Contributors][contributors-shield]][contributors-url]
+<!-- [![Contributors][contributors-shield]][contributors-url] -->
 
 # Restobook
 
 ## Description
 
 <!-- Description -->
-<br />
+<br/>
 <div align="center">
-  <a href="https://github.com/herlianto-github/Restobook">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+  <a href="https://github.com/herlianto-github/Restobook/IMAGES/Restobook.png">
+    <img src="IMAGES/Restobook.png" alt="Logo" width="200" height="200">
   </a>
-
-<h3 align="center">Restobook</h3>
-
+</div>
+<div>
+  <h3 align="center">Restobook</h3>
   <p align="center">
     coming soon
-    <br />
+    <br/>
     <a href="https://github.com/herlianto-github/Restobook"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
+    <br/>
+    <!-- <br /> -->
     <a href="https://github.com/herlianto-github/Restobook">Wireframe</a>
     ·
     <a href="https://github.com/herlianto-github/Restobook/issues">Report Bug</a>
