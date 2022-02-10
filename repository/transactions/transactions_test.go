@@ -313,12 +313,12 @@ func Test_Get_Transaction_By_Id(t *testing.T) {
 
 	})
 	t.Run("Get Transaction By Id", func(t *testing.T) {
-		_, err := transactionRepo.GetTransactionById(1, 1, "waiting for confirmation")
+		_, err := transactionRepo.GetTransactionById(1, 1)
 		assert.Nil(t, err)
 
 	})
 	t.Run("Error Get Transaction By Id", func(t *testing.T) {
-		_, err := transactionRepo.GetTransactionById(100, 100, "Sucess")
+		_, err := transactionRepo.GetTransactionById(100, 100)
 		assert.Error(t, err)
 
 	})
