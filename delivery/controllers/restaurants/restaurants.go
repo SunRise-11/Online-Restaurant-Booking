@@ -598,7 +598,10 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 				Data:    responses,
 			}
 
-			helpers.CreatePDFReport(res[0].Restaurant.RestaurantDetail.Name, res[0].Restaurant.RestaurantDetail.Address, date_time_split[0])
+			helpers.CreatePDFReport(
+				res[0].Restaurant.RestaurantDetail.Name,
+				res[0].Restaurant.RestaurantDetail.Address,
+				date_time_split[0], []int{successOrder, successSeat, successTotal}, []int{failOrder, failSeat, failTotal}, []int{cancelOrder, cancelSeat, cancelTotal}, []int{totalOrder, totalSeat, grandTotal}, []int{rejectedOrder, rejectedSeat})
 
 			return c.JSON(http.StatusOK, response)
 		}
