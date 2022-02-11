@@ -1056,7 +1056,6 @@ func Test_Export_Restaurant(t *testing.T) {
 	})
 
 	t.Run("500 Export Restaurant", func(t *testing.T) {
-		// fmt.Println("====> TOKEN", jwtTokenRestaurant)
 		query := make(url.Values)
 		query.Set("date_time", "2022-03-07 00:00:00")
 
@@ -1068,9 +1067,6 @@ func Test_Export_Restaurant(t *testing.T) {
 
 		context := ec.NewContext(req, res)
 		context.SetPath("/restaurant/report")
-
-		// fmt.Println("====>REQ", req)
-		// fmt.Println("====>RES", res)
 
 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.ExportPDF())(context); err != nil {
@@ -1552,7 +1548,7 @@ func (m mockRestaurantRepository) Delete(restaurantID uint) (entities.Restaurant
 	}, nil
 }
 
-func (m mockRestaurantRepository) Export(restaurantId uint, date_time string) ([]entities.Transaction, error) {
+func (m mockRestaurantRepository) Export(restaurantId uint, date string) ([]entities.Transaction, error) {
 	return []entities.Transaction{{
 		Model:        gorm.Model{},
 		ID:           restaurantId,
@@ -1846,7 +1842,7 @@ func (m mockFalseRestaurantRepository) Delete(restaurantID uint) (entities.Resta
 	}, errors.New("FAILED DELETE")
 }
 
-func (m mockFalseRestaurantRepository) Export(restaurantId uint, date_time string) ([]entities.Transaction, error) {
+func (m mockFalseRestaurantRepository) Export(restaurantId uint, date string) ([]entities.Transaction, error) {
 	return []entities.Transaction{{
 		Model:        gorm.Model{},
 		ID:           restaurantId,

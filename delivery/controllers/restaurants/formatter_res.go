@@ -18,7 +18,7 @@ type RestaurantDetailResponseFormat struct {
 	ProfilePicture string  `json:"profile_picture"`
 	Name           string  `json:"name"`
 	Description    string  `json:"description"`
-	Rating         int     `json:"rating"`
+	Rating         float64 `json:"rating"`
 	Open           string  `json:"open"`
 	Close          string  `json:"close"`
 	Open_Hour      string  `json:"open_hour"`

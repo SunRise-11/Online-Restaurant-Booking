@@ -28,6 +28,7 @@ func NewRestaurantsControllers(resrep restaurants.RestaurantsInterface) *Restaur
 func (rescon RestaurantsController) RegisterRestoCtrl() echo.HandlerFunc {
 
 	return func(c echo.Context) error {
+
 		newUserReq := RegisterRequestFormat{}
 		if err := c.Bind(&newUserReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
@@ -59,7 +60,9 @@ func (rescon RestaurantsController) RegisterRestoCtrl() echo.HandlerFunc {
 }
 
 func (rescon RestaurantsController) LoginRestoCtrl() echo.HandlerFunc {
+
 	return func(c echo.Context) error {
+
 		loginFormat := LoginRequestFormat{}
 		if err := c.Bind(&loginFormat); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
@@ -85,6 +88,7 @@ func (rescon RestaurantsController) LoginRestoCtrl() echo.HandlerFunc {
 func (rescon RestaurantsController) UpdateMyRestoCtrl() echo.HandlerFunc {
 
 	return func(c echo.Context) error {
+
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
 		restoID := int(claims["restoid"].(float64))
@@ -121,7 +125,9 @@ func (rescon RestaurantsController) UpdateMyRestoCtrl() echo.HandlerFunc {
 }
 
 func (rescon RestaurantsController) GetMyRestoCtrl() echo.HandlerFunc {
+
 	return func(c echo.Context) error {
+
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
 		restoID := int(claims["restoid"].(float64))
@@ -164,6 +170,7 @@ func (rescon RestaurantsController) GetMyRestoCtrl() echo.HandlerFunc {
 func (rescon RestaurantsController) CreateDetailRestoCtrl() echo.HandlerFunc {
 
 	return func(c echo.Context) error {
+
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
 		restoID := int(claims["restoid"].(float64))
@@ -228,6 +235,7 @@ func (rescon RestaurantsController) CreateDetailRestoCtrl() echo.HandlerFunc {
 func (rescon RestaurantsController) UpdateDetailRestoCtrl() echo.HandlerFunc {
 
 	return func(c echo.Context) error {
+
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
 		restoID := int(claims["restoid"].(float64))
@@ -307,7 +315,6 @@ func (rescon RestaurantsController) GetsWaiting() echo.HandlerFunc {
 				return c.JSON(http.StatusOK, response)
 			}
 		}
-
 	}
 }
 
@@ -348,11 +355,11 @@ func (rescon RestaurantsController) Approve() echo.HandlerFunc {
 				return c.JSON(http.StatusOK, response)
 			}
 		}
-
 	}
 }
 
 func (rescon RestaurantsController) Gets() echo.HandlerFunc {
+
 	return func(c echo.Context) error {
 		res, err := rescon.Repo.Gets()
 		if err != nil || len(res) == 0 {
@@ -362,11 +369,11 @@ func (rescon RestaurantsController) Gets() echo.HandlerFunc {
 		responses := []RestaurantDetailResponseFormat{}
 
 		for _, restaurant := range res {
-			score := []int{}
-			rating := 0
-			values := 0
+			score := []float64{}
+			var rating float64
+			var values float64
 			for _, value := range restaurant.Rating {
-				score = append(score, value.Rating)
+				score = append(score, float64(value.Rating))
 			}
 
 			if len(score) < 1 {
@@ -375,8 +382,9 @@ func (rescon RestaurantsController) Gets() echo.HandlerFunc {
 				for _, value := range score {
 					values += value
 				}
-				rating = values / len(score)
+				rating = values / float64(len(score))
 			}
+
 			responses = append(responses, RestaurantDetailResponseFormat{
 				ID:             restaurant.ID,
 				Name:           restaurant.Name,
@@ -397,30 +405,26 @@ func (rescon RestaurantsController) Gets() echo.HandlerFunc {
 				Rating:         rating,
 			})
 		}
+
 		response := RestaurantsResponseFormat{
 			Code:    http.StatusOK,
 			Message: "Successful Operation",
 			Data:    responses,
 		}
-		return c.JSON(http.StatusOK, response)
 
+		return c.JSON(http.StatusOK, response)
 	}
 }
 
 func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
+
 	return func(c echo.Context) error {
 
 		date_time := c.QueryParam("date_time")
-		// fmt.Println("======================================")
-		// fmt.Println("DATE_TIME", date_time)
 
 		if res, err := rescon.Repo.Gets(); err != nil || len(res) == 0 {
-			// fmt.Println("======================================")
-			// fmt.Println("=>ERROR Gets", err, "<=>", res)
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
-			// fmt.Println("======================================")
-			// fmt.Println("=>SUCCESS Gets", res)
 			date_time_parse, _ := time.Parse("2006-01-02 15:04:05", date_time)
 			date_time_split := strings.Split(date_time, " ")
 
@@ -435,20 +439,13 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 			timeall := strings.Split(time, ":")
 			timealls := timeall[0] + timeall[1]
 			timeallsInt, _ := strconv.Atoi(timealls)
-			// fmt.Println("======================================")
-			// fmt.Println("=>FIND date_time_parse", date_time_parse)
-			// fmt.Println("=>FIND DayOpen in", day)
-			// fmt.Println("=>FIND TimeOpen in", timeallsInt)
-			// fmt.Println("=>FIND dayyoint", daytoint)
+
 			if res, err := rescon.Repo.GetsByOpen(daytoint); err != nil {
-				// fmt.Println("======================================")
-				// fmt.Println("=>ERROR GetsByOpen", err, "<=>", res)
 				return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 			} else {
 				newRestaurantD := []entities.RestaurantDetail{}
 				for i := 0; i < len(res); i++ {
-					// fmt.Println("======================================")
-					// fmt.Println("=>SUCCESS GetsByOpen", res[i])
+
 					splitOH := strings.Split(res[i].Open_Hour, ":")
 					allOH, _ := strconv.Atoi(splitOH[0] + splitOH[1])
 
@@ -456,22 +453,23 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 					allCH, _ := strconv.Atoi(splitCH[0] + splitCH[1])
 
 					if timeallsInt >= allOH && timeallsInt <= allCH {
+
 						date_time_parse_noutc := date_time_split[0] + " " + date_time_split[1]
-						// fmt.Println("======================================")
-						// fmt.Println("=>FIND date_time_parse_noutc", date_time_parse_noutc)
+
 						if _, total_seat, err := rescon.Repo.GetExistSeat(res[i].ID, date_time_parse_noutc); err != nil {
-							// fmt.Println("======================================")
-							// fmt.Println("=>ERROR GetExistSeat because no transaction with restaurantID", res[i].ID, "<=>", err, "<=>", total_seat)
+
 							newRestaurantD = append(newRestaurantD, res[i])
+
 							response := RestaurantsResponseFormat{
 								Code:    http.StatusOK,
 								Message: "Successful Operation",
 								Data:    newRestaurantD,
 							}
+
 							return c.JSON(http.StatusOK, response)
+
 						} else {
-							// fmt.Println("======================================")
-							// fmt.Println("=>SUCCESS GetExistSeat", total_seat)
+
 							res[i].Seats = res[i].Seats - total_seat
 							newRestaurantD = append(newRestaurantD, res[i])
 						}
@@ -518,25 +516,34 @@ func (rescon RestaurantsController) DeleteRestoCtrl() echo.HandlerFunc {
 }
 
 func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
+
 	return func(c echo.Context) error {
 
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
 		restoID := int(claims["restoid"].(float64))
 
-		date_time := c.QueryParam("date_time")
-		date_time_parse, _ := time.Parse("2006-01-02 15:04:05", date_time)
-		date_time_split := strings.Split(date_time_parse.String(), " ")
+		day := c.QueryParam("day")
+		month := c.QueryParam("month")
+		year := c.QueryParam("year")
 
-		// fmt.Println("RestoID", restoID)
-		// fmt.Println("date_time_split", date_time_split)
+		finalday := ""
+		if day != "" && month != "" && year != "" {
+			finalday = fmt.Sprintf("%v-%v-%v", year, month, day)
+		} else if day == "" && month != "" && year != "" {
+			finalday = fmt.Sprintf("%v-%v", year, month)
+		} else if day == "" && month == "" && year != "" {
+			finalday = fmt.Sprintf("%v", year)
+		}
 
-		if res, err := rescon.Repo.Export(uint(restoID), date_time_split[0]); err != nil || len(res) == 0 {
+		if res, err := rescon.Repo.Export(uint(restoID), finalday); err != nil || len(res) == 0 {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		} else {
-
-			var successOrder, successSeat, failOrder, failSeat, cancelOrder, cancelSeat, rejectedOrder, rejectedSeat int
-			var successTotal, failTotal, cancelTotal int
+			var successOrder, successSeat,
+				failOrder, failSeat,
+				cancelOrder, cancelSeat,
+				rejectedOrder, rejectedSeat,
+				successTotal, failTotal, cancelTotal int
 
 			for i := 0; i < len(res); i++ {
 				if res[i].Status == "Success" {
@@ -585,7 +592,7 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 			}
 
 			responses := ExportPDFResponseFormat{
-				Date:    date_time_split[0],
+				Date:    finalday,
 				Name:    res[0].Restaurant.RestaurantDetail.Name,
 				Address: res[0].Restaurant.RestaurantDetail.Address,
 				Orders:  resOrder,
@@ -602,10 +609,14 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 			helpers.CreatePDFReport(
 				res[0].Restaurant.RestaurantDetail.Name,
 				res[0].Restaurant.RestaurantDetail.Address,
-				date_time_split[0], []int{successOrder, successSeat, successTotal}, []int{failOrder, failSeat, failTotal}, []int{cancelOrder, cancelSeat, cancelTotal}, []int{totalOrder, totalSeat, grandTotal}, []int{rejectedOrder, rejectedSeat})
+				finalday,
+				[]int{successOrder, successSeat, successTotal},
+				[]int{failOrder, failSeat, failTotal},
+				[]int{cancelOrder, cancelSeat, cancelTotal},
+				[]int{totalOrder, totalSeat, grandTotal},
+				[]int{rejectedOrder, rejectedSeat})
 
 			return c.JSON(http.StatusOK, response)
 		}
-
 	}
 }
