@@ -659,3 +659,100 @@ func Test_Delete_Restaurant_Repo(t *testing.T) {
 	})
 
 }
+
+func Test_Export_Restaurant_Repo(t *testing.T) {
+	config := configs.GetConfig()
+	db := utils.InitDB(config)
+
+	restaurantRepo := NewRestaurantsRepo(db)
+	userRepo := users.NewUsersRepo(db)
+	transactionRepo := transactions.NewTransactionRepo(db)
+
+	t.Run("Register Restaurant", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("resto123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newRestaurant entities.Restaurant
+		newRestaurant.Email = "restaurant1@outlook.my"
+		newRestaurant.Password = password
+
+		res, err := restaurantRepo.Register(newRestaurant)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("CreateDetail Restaurant Detail", func(t *testing.T) {
+		var newRestaurant entities.RestaurantDetail
+		newRestaurant.Name = "Restaurant Nasi Padang"
+		newRestaurant.Open = "Monday,Tuesday"
+		newRestaurant.Close = "Wednesday,Thursday,Friday,Saturday,Sunday"
+		newRestaurant.Open_Hour = "10:00"
+		newRestaurant.Close_Hour = "17:00"
+		newRestaurant.Price = 10000
+		newRestaurant.Latitude = 1
+		newRestaurant.Longitude = 1
+		newRestaurant.City = "Jakarta"
+		newRestaurant.Address = "Jl.Taman Daan Mogot 2,no.5"
+		newRestaurant.PhoneNumber = "0877"
+		newRestaurant.ProfilePicture = "https://"
+		newRestaurant.Seats = 200
+		newRestaurant.Description = "Khas Rempah Sumbar"
+		res, err := restaurantRepo.CreateDetail(uint(1), newRestaurant)
+		assert.Equal(t, res.ID, uint(1))
+		assert.Nil(t, err)
+	})
+
+	t.Run("ERROR GetExistSeat Restaurant", func(t *testing.T) {
+		res, total_seat, err := restaurantRepo.GetExistSeat(0, "2022-03-07 16:00:00")
+		assert.Equal(t, res, res)
+		assert.Equal(t, total_seat, 0)
+		assert.Error(t, err)
+	})
+
+	t.Run("Approve Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Approve(1, "OPEN")
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Register User", func(t *testing.T) {
+		hash := sha256.Sum256([]byte("herli123"))
+		password := fmt.Sprintf("%x", hash[:])
+		var newUser entities.User
+		newUser.Email = "herlianto@outlook.my"
+		newUser.Password = password
+
+		res, err := userRepo.Register(newUser)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Create Transactions", func(t *testing.T) {
+		loc, _ := time.LoadLocation("Asia/Singapore")
+		date_string := "2022-03-07 16:00"
+		var dateTime, _ = time.ParseInLocation("2006-01-02 15:04", date_string, loc)
+		fmt.Println("date_time", dateTime)
+
+		var newTransaction entities.Transaction
+		newTransaction.RestaurantID = 1
+		newTransaction.UserID = 1
+		newTransaction.DateTime = dateTime
+		newTransaction.Persons = 1
+		newTransaction.Total = 10000
+		res, err := transactionRepo.Create(newTransaction)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Export Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Export(uint(1), "")
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("ERROR Export Restaurant", func(t *testing.T) {
+		res, err := restaurantRepo.Export(2, "")
+		assert.Equal(t, res, res)
+		assert.Error(t, err)
+	})
+
+}

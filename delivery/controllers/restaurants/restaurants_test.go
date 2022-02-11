@@ -1,6 +1,7 @@
 package restaurants
 
 import (
+	"Restobook/configs"
 	"Restobook/delivery/common"
 	"Restobook/delivery/controllers/auth"
 	"Restobook/entities"
@@ -1022,6 +1023,100 @@ func Test_Delete_Restaurant(t *testing.T) {
 
 }
 
+func Test_Export_Restaurant(t *testing.T) {
+
+	config := configs.GetConfig()
+	fmt.Println(config)
+
+	ec := echo.New()
+
+	t.Run("200 Login Restaurant", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]string{
+			"email":    "restaurant1@outlook.my",
+			"password": "resto123",
+		})
+
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
+
+		req.Header.Set("Content-Type", "application/json")
+
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurants/login")
+
+		restoCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		restoCtrl.LoginRestoCtrl()(context)
+
+		responses := LoginResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+		jwtTokenRestaurant = responses.Token
+
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
+
+	t.Run("500 Export Restaurant", func(t *testing.T) {
+		fmt.Println("====> TOKEN", jwtTokenRestaurant)
+		query := make(url.Values)
+		query.Set("date_time", "2022-03-07 00:00:00")
+
+		req := httptest.NewRequest(http.MethodPost, "/?"+query.Encode(), nil)
+		res := httptest.NewRecorder()
+
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
+
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant/report")
+
+		fmt.Println("====>REQ", req)
+		fmt.Println("====>RES", res)
+
+		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.ExportPDF())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		responses := RestaurantsResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+
+		assert.Equal(t, 500, responses.Code)
+		assert.Equal(t, "Internal Server Error", responses.Message)
+	})
+
+	t.Run("200 Export Restaurant", func(t *testing.T) {
+		fmt.Println("====> TOKEN", jwtTokenRestaurant)
+		query := make(url.Values)
+		query.Set("date_time", "2022-03-07 00:00:00")
+
+		req := httptest.NewRequest(http.MethodPost, "/?"+query.Encode(), nil)
+		res := httptest.NewRecorder()
+
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
+
+		context := ec.NewContext(req, res)
+		context.SetPath("/restaurant/report")
+
+		fmt.Println("====>REQ", req)
+		fmt.Println("====>RES", res)
+
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
+		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.ExportPDF())(context); err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		responses := RestaurantsResponseFormat{}
+		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
+
+		assert.Equal(t, 200, responses.Code)
+		assert.Equal(t, "Successful Operation", responses.Message)
+	})
+
+}
+
 type mockUserRepository struct{}
 
 func (m mockUserRepository) RegisterAdmin(newUser entities.User) (entities.User, error) {
@@ -1289,7 +1384,6 @@ func (m mockRestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 }
 
 func (m mockRestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
-	fmt.Println("=>>", open)
 	if open != 3 {
 		return []entities.RestaurantDetail{{
 			Model:          gorm.Model{},
@@ -1468,6 +1562,75 @@ func (m mockRestaurantRepository) Export(restaurantId uint, date_time string) ([
 		Persons:      1,
 		Total:        10000,
 		Status:       "Success",
+		User: entities.User{
+			Model:       gorm.Model{},
+			ID:          restaurantId,
+			Email:       "user1@outlook.my",
+			Password:    "user123",
+			Name:        "user1",
+			PhoneNumber: "0877",
+			Reputation:  80,
+			Balance:     999,
+		},
+		Restaurant: entities.Restaurant{
+			Model:              gorm.Model{},
+			ID:                 restaurantId,
+			Email:              "restaurant1@outlook.my",
+			Password:           "resto123",
+			RestaurantDetailID: restaurantId,
+			RestaurantDetail: entities.RestaurantDetail{
+				Model:          gorm.Model{},
+				ID:             restaurantId,
+				Name:           "Restaurant Nasi Padang Jago",
+				Open_Hour:      "11:30",
+				Close_Hour:     "15:00",
+				Open:           "Monday",
+				Close:          "Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday",
+				Price:          10000,
+				Latitude:       0,
+				Longitude:      0,
+				City:           "Jakarta",
+				Address:        "JL.Taman Daan Mogot No.2",
+				PhoneNumber:    "0877",
+				ProfilePicture: "https://",
+				Seats:          100,
+				Status:         "OPEN",
+				Description:    "Resto Nasi Padang",
+				Rating:         []entities.Rating{},
+				Restaurant:     []entities.Restaurant{},
+			},
+		},
+	}, {
+		Model:        gorm.Model{},
+		ID:           restaurantId,
+		UserID:       1,
+		RestaurantID: restaurantId,
+		DateTime:     time.Time{},
+		Persons:      1,
+		Total:        1,
+		Status:       "Fail",
+		User:         entities.User{},
+		Restaurant:   entities.Restaurant{},
+	}, {
+		Model:        gorm.Model{},
+		ID:           restaurantId,
+		UserID:       1,
+		RestaurantID: restaurantId,
+		DateTime:     time.Time{},
+		Persons:      1,
+		Total:        1,
+		Status:       "Cancel",
+		User:         entities.User{},
+		Restaurant:   entities.Restaurant{},
+	}, {
+		Model:        gorm.Model{},
+		ID:           restaurantId,
+		UserID:       1,
+		RestaurantID: restaurantId,
+		DateTime:     time.Time{},
+		Persons:      1,
+		Total:        1,
+		Status:       "Rejected",
 		User:         entities.User{},
 		Restaurant:   entities.Restaurant{},
 	}}, nil
