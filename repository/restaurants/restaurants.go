@@ -400,10 +400,10 @@ func (rr *RestaurantRepository) Delete(restaurantId uint) (entities.Restaurant, 
 
 }
 
-func (rr *RestaurantRepository) Export(restaurantId uint, date_time string) ([]entities.Transaction, error) {
+func (rr *RestaurantRepository) Export(restaurantId uint, date string) ([]entities.Transaction, error) {
 	transactions := []entities.Transaction{}
 
-	if err := rr.db.Preload("Restaurant.RestaurantDetail").Where("restaurant_id=?", restaurantId).Find(&transactions).Error; err != nil || len(transactions) == 0 {
+	if err := rr.db.Preload("Restaurant.RestaurantDetail").Where("restaurant_id=?", restaurantId).Where("date_time LIKE ?", "%"+date+"%").Find(&transactions).Error; err != nil || len(transactions) == 0 {
 		return transactions, errors.New("FAILED EXPORT PDF")
 	} else {
 		return transactions, nil
