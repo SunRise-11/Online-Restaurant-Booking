@@ -52,8 +52,6 @@ func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.Users
 
 	e.POST("/restaurant/report", rctrl.ExportPDF(), middleware.JWT([]byte(common.JWT_SECRET_KEY)))
 
-	e.POST("/imgur/callback", rctrl.ImgurCallBack())
-
 	// ---------------------------------------------------------------------
 	// CRUD Transactions
 	// ---------------------------------------------------------------------
