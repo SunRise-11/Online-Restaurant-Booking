@@ -528,7 +528,8 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 		date_time_parse, _ := time.Parse("2006-01-02 15:04:05", date_time)
 		date_time_split := strings.Split(date_time_parse.String(), " ")
 
-		fmt.Println("date_time_split", date_time_split)
+		// fmt.Println("RestoID", restoID)
+		// fmt.Println("date_time_split", date_time_split)
 
 		if res, err := rescon.Repo.Export(uint(restoID), date_time_split[0]); err != nil || len(res) == 0 {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
