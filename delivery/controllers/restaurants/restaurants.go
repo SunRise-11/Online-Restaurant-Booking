@@ -6,9 +6,13 @@ import (
 	"Restobook/delivery/helpers"
 	"Restobook/entities"
 	"Restobook/repository/restaurants"
+	"bytes"
 	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"strconv"
@@ -163,6 +167,10 @@ func (rescon RestaurantsController) GetMyRestoCtrl() echo.HandlerFunc {
 	}
 }
 
+func toBase64(b []byte) string {
+	return base64.StdEncoding.EncodeToString(b)
+}
+
 func (rescon RestaurantsController) CreateDetailRestoCtrl() echo.HandlerFunc {
 
 	return func(c echo.Context) error {
@@ -182,6 +190,49 @@ func (rescon RestaurantsController) CreateDetailRestoCtrl() echo.HandlerFunc {
 				if _, err := io.Copy(dst, src); err != nil {
 					fmt.Println("===> ERROR FILE COPY")
 				} else {
+
+					filebytes, _ := ioutil.ReadFile(fmt.Sprintf("./IMAGES/Restaurants/%v", file.Filename))
+
+					var base64Encoding string
+					mimeType := http.DetectContentType(filebytes)
+
+					switch mimeType {
+					case "image/jpeg":
+						base64Encoding += "data:image/jpeg;base64,"
+					case "image/png":
+						base64Encoding += "data:image/png;base64,"
+					}
+
+					base64Encoding += toBase64(filebytes)
+
+					url := "https://api.imgur.com/3/image"
+					method := "POST"
+					payload := &bytes.Buffer{}
+					writer := multipart.NewWriter(payload)
+					_ = writer.WriteField("image", string(filebytes))
+					if err := writer.Close(); err != nil {
+						fmt.Println("Imgur Error", err)
+					}
+
+					client := &http.Client{}
+					if req, err := http.NewRequest(method, url, payload); err != nil {
+						fmt.Println("Imgur Error 2", err)
+					} else {
+						req.Header.Add("Authorization", fmt.Sprintf("Client-ID %v", common.IMGUR_CLIENTID))
+						req.Header.Set("Content-Type", writer.FormDataContentType())
+						if res, err := client.Do(req); err != nil {
+							fmt.Println("Imgur Error 3", err)
+						} else {
+							defer res.Body.Close()
+
+							if body, err := ioutil.ReadAll(res.Body); err != nil {
+								fmt.Println("Imgur Error 4", err)
+							} else {
+								fmt.Println(string(body))
+							}
+						}
+					}
+
 					fmt.Println("===> SUCCESS")
 				}
 			}
