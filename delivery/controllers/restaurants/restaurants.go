@@ -633,6 +633,7 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 		month := c.QueryParam("month")
 		year := c.QueryParam("year")
 		export := c.QueryParam("export")
+
 		finalday := ""
 		if day != "" && month != "" && year != "" {
 			finalday = fmt.Sprintf("%v-%v-%v", year, month, day)
@@ -641,7 +642,6 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 		} else if day == "" && month == "" && year != "" {
 			finalday = fmt.Sprintf("%v", year)
 		}
-
 		if res, err := rescon.Repo.Export(uint(restoID), finalday); err != nil || len(res) == 0 {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		} else {
@@ -722,7 +722,7 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 					[]int{totalOrder, totalSeat, grandTotal},
 					[]int{rejectedOrder, rejectedSeat})
 			} else if export == "EXCEL" {
-				helpers.CreateExcelReport(
+				err := helpers.CreateExcelReport(
 					res[0].Restaurant.RestaurantDetail.Name,
 					res[0].Restaurant.RestaurantDetail.Address,
 					finalday,
@@ -731,6 +731,9 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 					[]int{cancelOrder, cancelSeat, cancelTotal},
 					[]int{totalOrder, totalSeat, grandTotal},
 					[]int{rejectedOrder, rejectedSeat})
+				if err != nil {
+					return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+				}
 			}
 
 			return c.JSON(http.StatusOK, response)

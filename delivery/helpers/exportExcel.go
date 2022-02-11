@@ -26,7 +26,7 @@ func CreateExcelReport(RestoName, RestoAddress, dateReport string, nos, nof, noc
 		f.SetColWidth("Sheet1", "D", "D", 15)
 		f.SetCellValue("Sheet1", "A1", "Restaurant Name")
 		f.SetCellValue("Sheet1", "B1", fmt.Sprint(": ", RestoName))
-		f.SetCellValue("Sheet1", "A2", RestoAddress)
+		f.SetCellValue("Sheet1", "A2", "Restaurant Address")
 		f.SetCellValue("Sheet1", "B2", fmt.Sprint(": ", RestoAddress))
 		f.SetCellValue("Sheet1", "A3", "Date")
 		f.SetCellValue("Sheet1", "B3", fmt.Sprint(": ", dateReport))
@@ -88,7 +88,7 @@ func CreateExcelReport(RestoName, RestoAddress, dateReport string, nos, nof, noc
 	}
 
 	if err := f.SaveAs(fmt.Sprintf("./EXPORTEXCEL/%v.xlsx", RestoName)); err != nil {
-		fmt.Println(err)
+		return err
 	}
 	return nil
 }
