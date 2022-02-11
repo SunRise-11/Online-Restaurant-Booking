@@ -2192,3 +2192,6 @@ func (m mockRestaurantRepository) Delete(restaurantID uint) (entities.Restaurant
 func (m mockRestaurantRepository) CreateDetail(restaurantId uint, updateRestaurantD entities.RestaurantDetail) (entities.RestaurantDetail, error) {
 	return entities.RestaurantDetail{ID: 1}, nil
 }
+func (m mockRestaurantRepository) Export(restaurantId uint, date string) ([]entities.Transaction, error) {
+	return []entities.Transaction{{ID: 1}}, nil
+}
