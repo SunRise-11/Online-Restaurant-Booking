@@ -199,29 +199,20 @@ func (rescon RestaurantsController) CreateDetailRestoCtrl() echo.HandlerFunc {
 
 		var imgurlink Imgurlink
 
-		if src, err := file.Open(); err != nil {
-			fmt.Println("===> ERROR FILE OPEN", err)
+		src, _ := file.Open()
+		defer src.Close()
 
-		} else {
+		dst, _ := os.Create(fmt.Sprintf("./IMAGES/Restaurants/%v", file.Filename))
+		defer dst.Close()
 
-			defer src.Close()
-			if dst, err := os.Create(fmt.Sprintf("./IMAGES/Restaurants/%v", file.Filename)); err != nil {
-				fmt.Println("===> ERROR FILE CREATE")
+		io.Copy(dst, src)
 
-			} else {
+		filebytes, _ := ioutil.ReadFile(fmt.Sprintf("./IMAGES/Restaurants/%v", file.Filename))
 
-				defer dst.Close()
-				if _, err := io.Copy(dst, src); err != nil {
-					fmt.Println("===> ERROR FILE COPY")
+		imgur := helpers.ImgurUpload(filebytes)
+		os.Remove(fmt.Sprintf("./IMAGES/Restaurants/%v", file.Filename))
 
-				} else {
-
-					filebytes, _ := ioutil.ReadFile(fmt.Sprintf("./IMAGES/Restaurants/%v", file.Filename))
-					a := helpers.ImgurUpload(filebytes)
-					json.Unmarshal(a, &imgurlink)
-				}
-			}
-		}
+		json.Unmarshal(imgur, &imgurlink)
 
 		createRestoDReq := CreateRestaurantDetailRequestFormat{}
 		if err := c.Bind(&createRestoDReq); err != nil {
@@ -288,6 +279,25 @@ func (rescon RestaurantsController) UpdateDetailRestoCtrl() echo.HandlerFunc {
 		claims := uid.Claims.(jwt.MapClaims)
 		restoID := int(claims["restoid"].(float64))
 
+		file, _ := c.FormFile("profile_picture")
+
+		var imgurlink Imgurlink
+
+		src, _ := file.Open()
+		defer src.Close()
+
+		dst, _ := os.Create(fmt.Sprintf("./IMAGES/Restaurants/%v", file.Filename))
+		defer dst.Close()
+
+		io.Copy(dst, src)
+
+		filebytes, _ := ioutil.ReadFile(fmt.Sprintf("./IMAGES/Restaurants/%v", file.Filename))
+
+		imgur := helpers.ImgurUpload(filebytes)
+		os.Remove(fmt.Sprintf("./IMAGES/Restaurants/%v", file.Filename))
+
+		json.Unmarshal(imgur, &imgurlink)
+
 		updateRestoDReq := UpdateRestaurantDetailRequestFormat{}
 		if err := c.Bind(&updateRestoDReq); err != nil {
 			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
@@ -300,7 +310,7 @@ func (rescon RestaurantsController) UpdateDetailRestoCtrl() echo.HandlerFunc {
 			Close_Hour:     updateRestoDReq.Close_Hour,
 			Price:          updateRestoDReq.Price,
 			PhoneNumber:    updateRestoDReq.PhoneNumber,
-			ProfilePicture: updateRestoDReq.ProfilePicture,
+			ProfilePicture: imgurlink.Data.Link,
 			Seats:          updateRestoDReq.Seats,
 			Description:    updateRestoDReq.Description,
 		}
@@ -724,12 +734,5 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 
 			return c.JSON(http.StatusOK, response)
 		}
-	}
-}
-
-func (rescon RestaurantsController) ImgurCallBack() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		fmt.Println("c", c)
-		return c.JSON(http.StatusOK, common.NewSuccessOperationResponse())
 	}
 }
