@@ -1056,7 +1056,7 @@ func Test_Export_Restaurant(t *testing.T) {
 	})
 
 	t.Run("500 Export Restaurant", func(t *testing.T) {
-		fmt.Println("====> TOKEN", jwtTokenRestaurant)
+		// fmt.Println("====> TOKEN", jwtTokenRestaurant)
 		query := make(url.Values)
 		query.Set("date_time", "2022-03-07 00:00:00")
 
@@ -1069,8 +1069,8 @@ func Test_Export_Restaurant(t *testing.T) {
 		context := ec.NewContext(req, res)
 		context.SetPath("/restaurant/report")
 
-		fmt.Println("====>REQ", req)
-		fmt.Println("====>RES", res)
+		// fmt.Println("====>REQ", req)
+		// fmt.Println("====>RES", res)
 
 		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.ExportPDF())(context); err != nil {
@@ -1086,7 +1086,7 @@ func Test_Export_Restaurant(t *testing.T) {
 	})
 
 	t.Run("200 Export Restaurant", func(t *testing.T) {
-		fmt.Println("====> TOKEN", jwtTokenRestaurant)
+		// fmt.Println("====> TOKEN", jwtTokenRestaurant)
 		query := make(url.Values)
 		query.Set("date_time", "2022-03-07 00:00:00")
 
@@ -1099,8 +1099,8 @@ func Test_Export_Restaurant(t *testing.T) {
 		context := ec.NewContext(req, res)
 		context.SetPath("/restaurant/report")
 
-		fmt.Println("====>REQ", req)
-		fmt.Println("====>RES", res)
+		// fmt.Println("====>REQ", req)
+		// fmt.Println("====>RES", res)
 
 		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.ExportPDF())(context); err != nil {
