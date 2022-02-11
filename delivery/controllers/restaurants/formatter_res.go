@@ -71,3 +71,9 @@ type ExportPDF_Total_Response struct {
 	Number_of_cancel_total  string `json:"number_of_cancel_total"`
 	Total                   string `json:"total"`
 }
+
+type Imgurlink struct {
+	Data struct {
+		Link string `json:"link"`
+	}
+}
