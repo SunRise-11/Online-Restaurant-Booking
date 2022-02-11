@@ -642,6 +642,7 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 		day := c.QueryParam("day")
 		month := c.QueryParam("month")
 		year := c.QueryParam("year")
+		export := c.QueryParam("export")
 
 		finalday := ""
 		if day != "" && month != "" && year != "" {
@@ -651,7 +652,6 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 		} else if day == "" && month == "" && year != "" {
 			finalday = fmt.Sprintf("%v", year)
 		}
-
 		if res, err := rescon.Repo.Export(uint(restoID), finalday); err != nil || len(res) == 0 {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		} else {
@@ -721,16 +721,30 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 				Message: "Successful Operation",
 				Data:    responses,
 			}
-
-			helpers.CreatePDFReport(
-				res[0].Restaurant.RestaurantDetail.Name,
-				res[0].Restaurant.RestaurantDetail.Address,
-				finalday,
-				[]int{successOrder, successSeat, successTotal},
-				[]int{failOrder, failSeat, failTotal},
-				[]int{cancelOrder, cancelSeat, cancelTotal},
-				[]int{totalOrder, totalSeat, grandTotal},
-				[]int{rejectedOrder, rejectedSeat})
+			if export == "PDF" {
+				helpers.CreatePDFReport(
+					res[0].Restaurant.RestaurantDetail.Name,
+					res[0].Restaurant.RestaurantDetail.Address,
+					finalday,
+					[]int{successOrder, successSeat, successTotal},
+					[]int{failOrder, failSeat, failTotal},
+					[]int{cancelOrder, cancelSeat, cancelTotal},
+					[]int{totalOrder, totalSeat, grandTotal},
+					[]int{rejectedOrder, rejectedSeat})
+			} else if export == "EXCEL" {
+				err := helpers.CreateExcelReport(
+					res[0].Restaurant.RestaurantDetail.Name,
+					res[0].Restaurant.RestaurantDetail.Address,
+					finalday,
+					[]int{successOrder, successSeat, successTotal},
+					[]int{failOrder, failSeat, failTotal},
+					[]int{cancelOrder, cancelSeat, cancelTotal},
+					[]int{totalOrder, totalSeat, grandTotal},
+					[]int{rejectedOrder, rejectedSeat})
+				if err != nil {
+					return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+				}
+			}
 
 			return c.JSON(http.StatusOK, response)
 		}
