@@ -522,20 +522,17 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 						date_time_parse_noutc := date_time_split[0] + " " + date_time_split[1]
 
 						score := []float64{}
-						var rating float64
+						rating := float64(len(score))
 						var values float64
 
 						for a := 0; a < len(res[i].Rating); a++ {
 							score = append(score, float64(res[i].Rating[a].Rating))
 						}
-						if len(score) < 1 {
-							rating = 0
-						} else {
-							for _, value := range score {
-								values += value
-							}
-							rating = values / float64(len(score))
+
+						for _, value := range score {
+							values += value
 						}
+						rating = values / float64(len(score))
 
 						if _, total_seat, err := rescon.Repo.GetExistSeat(res[i].ID, date_time_parse_noutc); err != nil {
 
