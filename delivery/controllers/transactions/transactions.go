@@ -484,9 +484,10 @@ func (transcon TransactionsController) CancelTransactionCtrl() echo.HandlerFunc 
 		}
 		newTransaction := entities.Transaction{
 			ID:     newTransactionReq.ID,
-			Status: newTransactionReq.Status,
+			Status: "Dismissed",
 		}
 		if transaction.Status == "Accepted" {
+			newTransaction.Status = newTransactionReq.Status
 			totalReputation := transaction.User.Reputation - 3
 			if totalReputation < 0 {
 				totalReputation = 0
