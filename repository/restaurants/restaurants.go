@@ -293,7 +293,7 @@ func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 		return restaurantD, errors.New("FAILED GETS")
 	} else {
 
-		fmt.Println("===> Semua resto yang open", restaurantD)
+		//CHANGE DAY OPEN/CLOSE FROM NUMBER TO DAY NAME
 		for i := 0; i < len(restaurantD); i++ {
 			openDay := strings.Split(restaurantD[i].Open, ",")
 			closeDay := strings.Split(restaurantD[i].Close, ",")
@@ -339,14 +339,13 @@ func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 
 func (rr *RestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetail, error) {
 	restaurantD := []entities.RestaurantDetail{}
-	// newrestaurantD := []entities.RestaurantDetail{}
-	// fmt.Println("=>open", open)
 	openstr := strconv.Itoa(open)
 
-	if err := rr.db.Where("status=? AND open LIKE ?", "OPEN", "%"+openstr+"%").Find(&restaurantD).Error; err != nil || len(restaurantD) == 0 {
+	if err := rr.db.Preload("Rating").Where("status=? AND open LIKE ?", "OPEN", "%"+openstr+"%").Find(&restaurantD).Error; err != nil || len(restaurantD) == 0 {
 		return restaurantD, errors.New("FAILED GETS BY OPEN")
 	} else {
 
+		//CHANGE DAY OPEN/CLOSE FROM NUMBER TO DAY NAME
 		for i := 0; i < len(restaurantD); i++ {
 			openDay := strings.Split(restaurantD[i].Open, ",")
 			closeDay := strings.Split(restaurantD[i].Close, ",")
@@ -369,7 +368,6 @@ func (rr *RestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetai
 			}
 			restaurantD[i].Open = openStr
 			restaurantD[i].Close = closeStr
-
 		}
 
 		return restaurantD, nil
