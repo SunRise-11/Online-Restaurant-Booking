@@ -11,33 +11,32 @@ type RegisterRequestFormat struct {
 }
 
 type CreateRestaurantDetailRequestFormat struct {
-	Status         string  `json:"status"`
-	ProfilePicture string  `json:"profile_picture"`
-	Name           string  `json:"name"`
-	Description    string  `json:"description"`
-	Open           string  `json:"open"`
-	Close          string  `json:"close"`
-	Open_Hour      string  `json:"open_hour"`
-	Close_Hour     string  `json:"close_hour"`
-	Address        string  `json:"address"`
-	City           string  `json:"city"`
-	PhoneNumber    string  `json:"phone"`
-	Latitude       float64 `json:"latitude"`
-	Longitude      float64 `json:"longitude"`
-	Seats          int     `json:"seats"`
-	Price          int     `json:"price"`
+	ProfilePicture string  `json:"profile_picture" form:"profile_picture"`
+	Name           string  `json:"name" form:"name"`
+	Description    string  `json:"description" form:"description"`
+	Open           string  `json:"open" form:"open"`
+	Close          string  `json:"close" form:"close"`
+	Open_Hour      string  `json:"open_hour" form:"open_hour"`
+	Close_Hour     string  `json:"close_hour" form:"close_hour"`
+	Address        string  `json:"address" form:"address"`
+	City           string  `json:"city" form:"city"`
+	PhoneNumber    string  `json:"phone" form:"phone"`
+	Latitude       float64 `json:"latitude" form:"latitude"`
+	Longitude      float64 `json:"longitude" form:"longitude"`
+	Seats          int     `json:"seats" form:"seats"`
+	Price          int     `json:"price" form:"price"`
 }
 
 type UpdateRestaurantDetailRequestFormat struct {
-	Open           string `json:"open"`
-	Close          string `json:"close"`
-	Open_Hour      string `json:"open_hour"`
-	Close_Hour     string `json:"close_hour"`
-	Price          int    `json:"price"`
-	PhoneNumber    string `json:"phone"`
-	ProfilePicture string `json:"profile_picture"`
-	Seats          int    `json:"seats"`
-	Description    string `json:"description"`
+	Open           string `json:"open" form:"open"`
+	Close          string `json:"close" form:"close"`
+	Open_Hour      string `json:"open_hour" form:"open_hour"`
+	Close_Hour     string `json:"close_hour" form:"close_hour"`
+	Price          int    `json:"price" form:"price"`
+	PhoneNumber    string `json:"phone" form:"phone"`
+	ProfilePicture string `json:"profile_picture" form:"profile_picture"`
+	Seats          int    `json:"seats" form:"seats"`
+	Description    string `json:"description" form:"description"`
 }
 
 type ApproveRequestFormat struct {

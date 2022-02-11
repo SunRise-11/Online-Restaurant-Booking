@@ -8,7 +8,9 @@ import (
 	"Restobook/repository/restaurants"
 	"crypto/sha256"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -190,6 +192,24 @@ func (rescon RestaurantsController) CreateDetailRestoCtrl() echo.HandlerFunc {
 		uid := c.Get("user").(*jwt.Token)
 		claims := uid.Claims.(jwt.MapClaims)
 		restoID := int(claims["restoid"].(float64))
+
+		file, _ := c.FormFile("profile_picture")
+		if src, err := file.Open(); err != nil {
+			fmt.Println("===> ERROR FILE OPEN", err)
+		} else {
+			defer src.Close()
+			if dst, err := os.Create(fmt.Sprintf("./IMAGES/Restaurants/%v", file.Filename)); err != nil {
+				fmt.Println("===> ERROR FILE CREATE")
+			} else {
+				defer dst.Close()
+				if _, err := io.Copy(dst, src); err != nil {
+					fmt.Println("===> ERROR FILE COPY")
+				} else {
+					fmt.Println("===> SUCCESS")
+				}
+			}
+
+		}
 
 		createRestoDReq := CreateRestaurantDetailRequestFormat{}
 		if err := c.Bind(&createRestoDReq); err != nil {
@@ -692,5 +712,12 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 
 			return c.JSON(http.StatusOK, response)
 		}
+	}
+}
+
+func (rescon RestaurantsController) ImgurCallBack() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		fmt.Println("c", c)
+		return c.JSON(http.StatusOK, common.NewSuccessOperationResponse())
 	}
 }
