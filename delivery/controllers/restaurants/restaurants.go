@@ -632,7 +632,7 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 		day := c.QueryParam("day")
 		month := c.QueryParam("month")
 		year := c.QueryParam("year")
-
+		export := c.QueryParam("export")
 		finalday := ""
 		if day != "" && month != "" && year != "" {
 			finalday = fmt.Sprintf("%v-%v-%v", year, month, day)
@@ -711,16 +711,27 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 				Message: "Successful Operation",
 				Data:    responses,
 			}
-
-			helpers.CreatePDFReport(
-				res[0].Restaurant.RestaurantDetail.Name,
-				res[0].Restaurant.RestaurantDetail.Address,
-				finalday,
-				[]int{successOrder, successSeat, successTotal},
-				[]int{failOrder, failSeat, failTotal},
-				[]int{cancelOrder, cancelSeat, cancelTotal},
-				[]int{totalOrder, totalSeat, grandTotal},
-				[]int{rejectedOrder, rejectedSeat})
+			if export == "PDF" {
+				helpers.CreatePDFReport(
+					res[0].Restaurant.RestaurantDetail.Name,
+					res[0].Restaurant.RestaurantDetail.Address,
+					finalday,
+					[]int{successOrder, successSeat, successTotal},
+					[]int{failOrder, failSeat, failTotal},
+					[]int{cancelOrder, cancelSeat, cancelTotal},
+					[]int{totalOrder, totalSeat, grandTotal},
+					[]int{rejectedOrder, rejectedSeat})
+			} else if export == "EXCEL" {
+				helpers.CreateExcelReport(
+					res[0].Restaurant.RestaurantDetail.Name,
+					res[0].Restaurant.RestaurantDetail.Address,
+					finalday,
+					[]int{successOrder, successSeat, successTotal},
+					[]int{failOrder, failSeat, failTotal},
+					[]int{cancelOrder, cancelSeat, cancelTotal},
+					[]int{totalOrder, totalSeat, grandTotal},
+					[]int{rejectedOrder, rejectedSeat})
+			}
 
 			return c.JSON(http.StatusOK, response)
 		}
