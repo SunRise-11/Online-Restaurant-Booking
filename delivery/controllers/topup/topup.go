@@ -2,6 +2,7 @@ package topup
 
 import (
 	"Restobook/delivery/common"
+	"Restobook/delivery/helpers"
 	"Restobook/entities"
 	"Restobook/repository/topup"
 	"net/http"
@@ -10,7 +11,6 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/xendit/xendit-go/invoice"
 )
 
 type TopUpController struct {
@@ -48,7 +48,7 @@ func (tc TopUpController) TopUp() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
 
-		topUpPayment, err := CreateInvoice(topUpData)
+		topUpPayment, err := helpers.CreateInvoice(topUpData)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
@@ -183,28 +183,4 @@ func (tc TopUpController) Callback() echo.HandlerFunc {
 
 		return c.JSON(http.StatusOK, common.NewSuccessOperationResponse())
 	}
-}
-
-//FUNC FOR XENDIT
-func CreateInvoice(topUp entities.TopUp) (entities.TopUp, error) {
-	data := invoice.CreateParams{
-		ExternalID:  topUp.InvoiceID,
-		Amount:      float64(topUp.Total),
-		Description: "Invoice " + topUp.InvoiceID,
-	}
-
-	resp, err := invoice.Create(&data)
-	if err != nil {
-		return topUp, err
-	}
-
-	topUpSuccess := entities.TopUp{
-		UserID:     topUp.UserID,
-		InvoiceID:  topUp.InvoiceID,
-		PaymentUrl: resp.InvoiceURL,
-		Total:      int(resp.Amount),
-		Status:     resp.Status,
-	}
-
-	return topUpSuccess, nil
 }

@@ -503,11 +503,11 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 			timealls := timeall[0] + timeall[1]
 			timeallsInt, _ := strconv.Atoi(timealls)
 
+			newRestaurantD := []RestaurantDetailResponseFormat{}
+
 			if res, err := rescon.Repo.GetsByOpen(daytoint); err != nil {
 				return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 			} else {
-
-				newRestaurantD := []RestaurantDetailResponseFormat{}
 
 				for i := 0; i < len(res); i++ {
 
@@ -537,71 +537,39 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 							rating = values / float64(len(score))
 						}
 
-						if _, total_seat, err := rescon.Repo.GetExistSeat(res[i].ID, date_time_parse_noutc); err != nil {
-
-							newRestaurantD = append(newRestaurantD, RestaurantDetailResponseFormat{
-								ID:             res[i].ID,
-								Status:         res[i].Status,
-								ProfilePicture: res[i].ProfilePicture,
-								Name:           res[i].Name,
-								Description:    res[i].Description,
-								Rating:         rating,
-								Open:           res[i].Open,
-								Close:          res[i].Close,
-								Open_Hour:      res[i].Open_Hour,
-								Close_Hour:     res[i].Close_Hour,
-								Address:        res[i].Address,
-								City:           res[i].City,
-								PhoneNumber:    res[i].PhoneNumber,
-								Latitude:       res[i].Latitude,
-								Longitude:      res[i].Longitude,
-								Seats:          res[i].Seats,
-								Price:          res[i].Price,
-							})
-
-							response := RestaurantsResponseFormat{
-								Code:    http.StatusOK,
-								Message: "Successful Operation",
-								Data:    newRestaurantD,
-							}
-
-							return c.JSON(http.StatusOK, response)
-
-						} else {
-
-							res[i].Seats = res[i].Seats - total_seat
-							newRestaurantD = append(newRestaurantD, RestaurantDetailResponseFormat{
-								ID:             res[i].ID,
-								Status:         res[i].Status,
-								ProfilePicture: res[i].ProfilePicture,
-								Name:           res[i].Name,
-								Description:    res[i].Description,
-								Rating:         rating,
-								Open:           res[i].Open,
-								Close:          res[i].Close,
-								Open_Hour:      res[i].Open_Hour,
-								Close_Hour:     res[i].Close_Hour,
-								Address:        res[i].Address,
-								City:           res[i].City,
-								PhoneNumber:    res[i].PhoneNumber,
-								Latitude:       res[i].Latitude,
-								Longitude:      res[i].Longitude,
-								Seats:          res[i].Seats,
-								Price:          res[i].Price,
-							})
-						}
+						_, total_seat, _ := rescon.Repo.GetExistSeat(res[i].ID, date_time_parse_noutc)
+						res[i].Seats = res[i].Seats - total_seat
+						newRestaurantD = append(newRestaurantD, RestaurantDetailResponseFormat{
+							ID:             res[i].ID,
+							Status:         res[i].Status,
+							ProfilePicture: res[i].ProfilePicture,
+							Name:           res[i].Name,
+							Description:    res[i].Description,
+							Rating:         rating,
+							Open:           res[i].Open,
+							Close:          res[i].Close,
+							Open_Hour:      res[i].Open_Hour,
+							Close_Hour:     res[i].Close_Hour,
+							Address:        res[i].Address,
+							City:           res[i].City,
+							PhoneNumber:    res[i].PhoneNumber,
+							Latitude:       res[i].Latitude,
+							Longitude:      res[i].Longitude,
+							Seats:          res[i].Seats,
+							Price:          res[i].Price,
+						})
 					}
 				}
-				response := RestaurantsResponseFormat{
-					Code:    http.StatusOK,
-					Message: "Successful Operation",
-					Data:    newRestaurantD,
-				}
-
-				return c.JSON(http.StatusOK, response)
+			}
+			response := RestaurantsResponseFormat{
+				Code:    http.StatusOK,
+				Message: "Successful Operation",
+				Data:    newRestaurantD,
 			}
 
+			return c.JSON(http.StatusOK, response)
 		}
+
 	}
 }
 
