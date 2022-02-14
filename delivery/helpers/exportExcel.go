@@ -87,7 +87,7 @@ func CreateExcelReport(RestoName, RestoAddress, dateReport string, nos, nof, noc
 		f.SetCellStyle("Sheet1", style[0].(string), style[1].(string), s)
 	}
 
-	if err := f.SaveAs(fmt.Sprintf("./EXPORTEXCEL/%v.xlsx", RestoName)); err != nil {
+	if err := f.SaveAs(fmt.Sprintf("./EXPORT/EXCEL/%v.xlsx", RestoName)); err != nil {
 		return err
 	}
 	return nil

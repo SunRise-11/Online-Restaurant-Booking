@@ -228,7 +228,7 @@ func CreatePDFReport(RestoName, RestoAddress, dateReport string, nos, nof, noc, 
 	c.Draw(norTable)
 
 	// Write to output file.
-	if err := c.WriteToFile(fmt.Sprintf("./EXPORTPDF/%v.pdf", RestoName)); err != nil {
+	if err := c.WriteToFile(fmt.Sprintf("./EXPORT/PDF/%v.pdf", RestoName)); err != nil {
 		log.Fatal(err)
 	}
 
