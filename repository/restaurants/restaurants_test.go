@@ -28,7 +28,7 @@ func Test_Register_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -40,7 +40,7 @@ func Test_Register_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(0), res.ID)
 		assert.Error(t, err)
 	})
 
@@ -60,7 +60,7 @@ func Test_Login_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -72,7 +72,7 @@ func Test_Login_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Login(newRestaurant.Email, newRestaurant.Password)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -84,7 +84,7 @@ func Test_Login_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Login(newRestaurant.Email, newRestaurant.Password)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(0), res.ID)
 		assert.Error(t, err)
 	})
 
@@ -104,7 +104,7 @@ func Test_Update_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -113,7 +113,7 @@ func Test_Update_Restaurant_Repo(t *testing.T) {
 		updateRestaurant.Email = "restaurant1@outlook.my"
 		updateRestaurant.Password = "resto123"
 		res, err := restaurantRepo.Update(uint(1), updateRestaurant)
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -122,7 +122,7 @@ func Test_Update_Restaurant_Repo(t *testing.T) {
 		updateRestaurant.Email = "restaurant1@outlook.my"
 		updateRestaurant.Password = "resto123"
 		res, err := restaurantRepo.Update(uint(2), updateRestaurant)
-		assert.Equal(t, res.ID, uint(0))
+		assert.Equal(t, uint(0), res.ID)
 		assert.Error(t, err)
 	})
 
@@ -142,7 +142,7 @@ func Test_Get_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -163,21 +163,21 @@ func Test_Get_Restaurant_Repo(t *testing.T) {
 		updateRestaurant.Seats = 100
 		updateRestaurant.Description = "Resto Nasi Padang"
 		res, err := restaurantRepo.CreateDetail(uint(1), updateRestaurant)
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("Get Restaurant", func(t *testing.T) {
 		res, resD, err := restaurantRepo.Get(uint(1))
-		assert.Equal(t, res.ID, uint(1))
-		assert.Equal(t, resD, resD)
+		assert.Equal(t, uint(1), res.ID)
+		assert.Equal(t, uint(1), resD.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("ERROR Get Restaurant", func(t *testing.T) {
 		res, resD, err := restaurantRepo.Get(uint(2))
-		assert.Equal(t, res.ID, uint(0))
-		assert.Equal(t, resD, resD)
+		assert.Equal(t, uint(0), res.ID)
+		assert.Equal(t, uint(0), resD.ID)
 		assert.Error(t, err)
 	})
 
@@ -197,7 +197,7 @@ func Test_CreateDetail_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -218,7 +218,7 @@ func Test_CreateDetail_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Seats = 200
 		newRestaurant.Description = "Khas Rempah Sumbar"
 		res, err := restaurantRepo.CreateDetail(uint(1), newRestaurant)
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -239,7 +239,7 @@ func Test_CreateDetail_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Seats = 200
 		newRestaurant.Description = "Khas Rempah Sumbar"
 		res, err := restaurantRepo.CreateDetail(uint(2), newRestaurant)
-		assert.Equal(t, res.ID, uint(0))
+		assert.Equal(t, uint(0), res.ID)
 		assert.Error(t, err)
 	})
 
@@ -259,7 +259,7 @@ func Test_UpdateDetail_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -280,7 +280,7 @@ func Test_UpdateDetail_Restaurant_Repo(t *testing.T) {
 		updateRestaurant.Seats = 200
 		updateRestaurant.Description = "Khas Rempah Sumbar"
 		res, err := restaurantRepo.UpdateDetail(uint(1), updateRestaurant)
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -301,7 +301,7 @@ func Test_UpdateDetail_Restaurant_Repo(t *testing.T) {
 		updateRestaurant.Seats = 200
 		updateRestaurant.Description = "Khas Rempah Sumbar"
 		res, err := restaurantRepo.UpdateDetail(uint(2), updateRestaurant)
-		assert.Equal(t, res.ID, uint(0))
+		assert.Equal(t, uint(0), res.ID)
 		assert.Error(t, err)
 	})
 
@@ -321,7 +321,7 @@ func Test_GetsWaiting_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -342,27 +342,25 @@ func Test_GetsWaiting_Restaurant_Repo(t *testing.T) {
 		updateRestaurant.Seats = 200
 		updateRestaurant.Description = "Khas Rempah Sumbar"
 		res, err := restaurantRepo.CreateDetail(uint(1), updateRestaurant)
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("Get Waiting Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.GetsWaiting()
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res[0].ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("Approve Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.Approve(1, "OPEN")
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("Get Waiting Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.GetsWaiting()
-		fmt.Println("res", res)
-		fmt.Println("err", err)
-		assert.Equal(t, res, res)
+		assert.Equal(t, int(0), len(res))
 		assert.Error(t, err)
 	})
 
@@ -382,19 +380,19 @@ func Test_Approve_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("Approve Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.Approve(uint(1), "OPEN")
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("ERROR Approve Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.Approve(2, "OPEN")
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(0), res.ID)
 		assert.Error(t, err)
 	})
 
@@ -414,7 +412,7 @@ func Test_Gets_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -426,7 +424,7 @@ func Test_Gets_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(2), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -447,25 +445,25 @@ func Test_Gets_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Seats = 200
 		newRestaurant.Description = "Khas Rempah Sumbar"
 		res, err := restaurantRepo.CreateDetail(uint(1), newRestaurant)
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("ERROR Gets Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.Gets()
-		assert.Equal(t, res, res)
+		assert.Equal(t, int(0), len(res))
 		assert.Error(t, err)
 	})
 
 	t.Run("Approve Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.Approve(1, "OPEN")
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("Gets Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.Gets()
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res[0].ID)
 		assert.Nil(t, err)
 	})
 
@@ -485,7 +483,7 @@ func Test_GetsByOpen_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -506,31 +504,31 @@ func Test_GetsByOpen_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Seats = 200
 		newRestaurant.Description = "Khas Rempah Sumbar"
 		res, err := restaurantRepo.CreateDetail(uint(1), newRestaurant)
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("ERROR GetsByOpen Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.GetsByOpen(1)
-		assert.Equal(t, res, res)
+		assert.Equal(t, int(0), len(res))
 		assert.Error(t, err)
 	})
 
 	t.Run("Approve Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.Approve(1, "OPEN")
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("GetsByOpen Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.GetsByOpen(1)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res[0].ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("ERROR GetsByOpen Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.GetsByOpen(4)
-		assert.Equal(t, res, res)
+		assert.Equal(t, int(0), len(res))
 		assert.Error(t, err)
 	})
 
@@ -619,6 +617,16 @@ func Test_GetExistSeat_Restaurant_Repo(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("Approve Transaction", func(t *testing.T) {
+
+		var newTransaction entities.Transaction
+		newTransaction.ID = 1
+		newTransaction.Status = "Accepted"
+		res, err := transactionRepo.UpdateTransactionStatus(newTransaction)
+		assert.Equal(t, res, res)
+		assert.Nil(t, err)
+	})
+
 	t.Run("GetExistSeat Restaurant", func(t *testing.T) {
 		res, total_seat, err := restaurantRepo.GetExistSeat(1, "2022-03-07 16:00:00")
 		assert.Equal(t, res, res)
@@ -642,19 +650,19 @@ func Test_Delete_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("Delete Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.Delete(uint(1))
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("ERROR Delete Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.Delete(uint(2))
-		assert.Equal(t, res.ID, uint(0))
+		assert.Equal(t, uint(0), res.ID)
 		assert.Error(t, err)
 	})
 
@@ -676,7 +684,7 @@ func Test_Export_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Password = password
 
 		res, err := restaurantRepo.Register(newRestaurant)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -697,20 +705,20 @@ func Test_Export_Restaurant_Repo(t *testing.T) {
 		newRestaurant.Seats = 200
 		newRestaurant.Description = "Khas Rempah Sumbar"
 		res, err := restaurantRepo.CreateDetail(uint(1), newRestaurant)
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("ERROR GetExistSeat Restaurant", func(t *testing.T) {
 		res, total_seat, err := restaurantRepo.GetExistSeat(0, "2022-03-07 16:00:00")
-		assert.Equal(t, res, res)
+		assert.Equal(t, int(0), len(res))
 		assert.Equal(t, total_seat, 0)
 		assert.Error(t, err)
 	})
 
 	t.Run("Approve Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.Approve(1, "OPEN")
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -722,7 +730,7 @@ func Test_Export_Restaurant_Repo(t *testing.T) {
 		newUser.Password = password
 
 		res, err := userRepo.Register(newUser)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -739,19 +747,19 @@ func Test_Export_Restaurant_Repo(t *testing.T) {
 		newTransaction.Persons = 1
 		newTransaction.Total = 10000
 		res, err := transactionRepo.Create(newTransaction)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("Export Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.Export(uint(1), "")
-		assert.Equal(t, res, res)
+		assert.Equal(t, int(1), len(res))
 		assert.Nil(t, err)
 	})
 
 	t.Run("ERROR Export Restaurant", func(t *testing.T) {
 		res, err := restaurantRepo.Export(2, "")
-		assert.Equal(t, res, res)
+		assert.Equal(t, int(0), len(res))
 		assert.Error(t, err)
 	})
 
