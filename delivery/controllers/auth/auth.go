@@ -59,12 +59,14 @@ func (admcon AdminController) RegisterAdminCtrl() echo.HandlerFunc {
 
 		hash := sha256.Sum256([]byte(newAdminReq.Password))
 		stringPassword := fmt.Sprintf("%x", hash[:])
-		newUser := entities.User{
-			Name:     newAdminReq.Name,
-			Email:    newAdminReq.Email,
-			Password: stringPassword,
+		newAdmin := entities.User{
+			ID:         1,
+			Name:       newAdminReq.Name,
+			Email:      newAdminReq.Email,
+			Password:   stringPassword,
+			Reputation: 999,
 		}
-		if res, err := admcon.Repo.RegisterAdmin(newUser); err != nil || res.ID == 0 {
+		if res, err := admcon.Repo.RegisterAdmin(newAdmin); err != nil || res.ID == 0 {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		} else {
 			data := AdminResponse{
