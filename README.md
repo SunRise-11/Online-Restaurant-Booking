@@ -93,26 +93,12 @@
 
 - 0.0.1
   - Endpoint Admin
-    - **Register**<br/> /admin/register
-    - **Login**<br/> /admin/login
   - Endpoint User
-    - **Register**<br/> /users/register
-    - **Login**<br/> /users/login
-    - **Show User**<br/> /user
-    - **Update User**<br/> /user
-    - **Delete User**<br/> /user
-
 - 0.0.2
   - Endpoint Restaurant
-    - **Register**<br/> /restaurants/register
-    - **Login**<br/> /restaurants/login
-    - **Show Restaurant**<br/> /myrestaurant
-    - **Update Restaurant**<br/> /myrestaurant
-    - **Create Restaurant Detail**<br/> /myrestaurant/detail
-    - **Update Restaurant Detail**<br/> /myrestaurant/detail
 - 0.0.3
-  - Third Release
-    - coming soon
+  - Endpoint Topup
+  - Endpoint Transaction
 
 ## Acknowledgments
 
