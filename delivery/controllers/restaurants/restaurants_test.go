@@ -10,7 +10,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"image"
+	"image/png"
+	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -388,20 +392,23 @@ func Test_CreateDetail_Restaurant(t *testing.T) {
 
 	t.Run("400 CreateDetail Restaurant", func(t *testing.T) {
 
-		reqBody, _ := json.Marshal(map[string]int{
-			"name": 1,
-		})
+		reqBody := new(bytes.Buffer)
+		writer := multipart.NewWriter(reqBody)
+		writer.WriteField("price", "asd")
+		part, _ := writer.CreateFormFile("profile_picture", "./IMAGES/Restobook.png")
+		part.Write([]byte("profile_picture"))
+		writer.Close()
 
-		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		req := httptest.NewRequest(http.MethodPost, "/", reqBody)
 		res := httptest.NewRecorder()
 
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Add("Content-Type", writer.FormDataContentType())
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
 		context := ec.NewContext(req, res)
 		context.SetPath("/myrestaurant/detail")
 
-		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.CreateDetailRestoCtrl())(context); err != nil {
 			log.Fatal(err)
 			return
@@ -416,14 +423,28 @@ func Test_CreateDetail_Restaurant(t *testing.T) {
 
 	t.Run("404 CreateDetail Restaurant", func(t *testing.T) {
 
-		reqBody, _ := json.Marshal(map[string]interface{}{
-			"name": "Restaurant 1",
-		})
+		width := 200
+		height := 100
+		upLeft := image.Point{0, 0}
+		lowRight := image.Point{width, height}
+		img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
+		reqBody, pw := io.Pipe()
+		writer := multipart.NewWriter(pw)
 
-		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		go func() {
+			defer writer.Close()
+			part, err := writer.CreateFormFile("profile_picture", "./IMAGES/Restobook.png")
+			if err != nil {
+				t.Error(err)
+			}
+			_ = png.Encode(part, img)
+
+		}()
+
+		req := httptest.NewRequest(http.MethodPost, "/", reqBody)
 		res := httptest.NewRecorder()
 
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Add("Content-Type", writer.FormDataContentType())
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
 		context := ec.NewContext(req, res)
@@ -444,14 +465,17 @@ func Test_CreateDetail_Restaurant(t *testing.T) {
 
 	t.Run("200 CreateDetail Restaurant", func(t *testing.T) {
 
-		reqBody, _ := json.Marshal(map[string]interface{}{
-			"name": "Restaurant 1",
-		})
+		reqBody := new(bytes.Buffer)
+		writer := multipart.NewWriter(reqBody)
+		writer.WriteField("tes", "")
+		part, _ := writer.CreateFormFile("profile_picture", "./IMAGES/Restobook.png")
+		part.Write([]byte("profile_picture"))
+		writer.Close()
 
-		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		req := httptest.NewRequest(http.MethodPost, "/", reqBody)
 		res := httptest.NewRecorder()
 
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Add("Content-Type", writer.FormDataContentType())
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
 		context := ec.NewContext(req, res)
@@ -476,22 +500,25 @@ func Test_UpdateDetail_Restaurant(t *testing.T) {
 
 	ec := echo.New()
 
-	t.Run("400 UpdateDetail Restaurant", func(t *testing.T) {
+	t.Run("400 CreateDetail Restaurant", func(t *testing.T) {
 
-		reqBody, _ := json.Marshal(map[string]int{
-			"open_hour": 1,
-		})
+		reqBody := new(bytes.Buffer)
+		writer := multipart.NewWriter(reqBody)
+		writer.WriteField("price", "asd")
+		part, _ := writer.CreateFormFile("profile_picture", "./IMAGES/Restobook.png")
+		part.Write([]byte("profile_picture"))
+		writer.Close()
 
-		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
+		req := httptest.NewRequest(http.MethodPost, "/", reqBody)
 		res := httptest.NewRecorder()
 
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Add("Content-Type", writer.FormDataContentType())
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
 		context := ec.NewContext(req, res)
 		context.SetPath("/myrestaurant/detail")
 
-		restaurantCtrl := NewRestaurantsControllers(mockFalseRestaurantRepository{})
+		restaurantCtrl := NewRestaurantsControllers(mockRestaurantRepository{})
 		if err := middleware.JWT([]byte(common.JWT_SECRET_KEY))(restaurantCtrl.UpdateDetailRestoCtrl())(context); err != nil {
 			log.Fatal(err)
 			return
@@ -504,16 +531,30 @@ func Test_UpdateDetail_Restaurant(t *testing.T) {
 		assert.Equal(t, "Bad Request", responses.Message)
 	})
 
-	t.Run("404 UpdateDetail Restaurant", func(t *testing.T) {
+	t.Run("404 CreateDetail Restaurant", func(t *testing.T) {
 
-		reqBody, _ := json.Marshal(map[string]interface{}{
-			"open_hour": "11:30",
-		})
+		width := 200
+		height := 100
+		upLeft := image.Point{0, 0}
+		lowRight := image.Point{width, height}
+		img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
+		reqBody, pw := io.Pipe()
+		writer := multipart.NewWriter(pw)
 
-		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
+		go func() {
+			defer writer.Close()
+			part, err := writer.CreateFormFile("profile_picture", "./IMAGES/Restobook.png")
+			if err != nil {
+				t.Error(err)
+			}
+			_ = png.Encode(part, img)
+
+		}()
+
+		req := httptest.NewRequest(http.MethodPost, "/", reqBody)
 		res := httptest.NewRecorder()
 
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Add("Content-Type", writer.FormDataContentType())
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
 		context := ec.NewContext(req, res)
@@ -532,16 +573,19 @@ func Test_UpdateDetail_Restaurant(t *testing.T) {
 		assert.Equal(t, "Not Found", responses.Message)
 	})
 
-	t.Run("200 UpdateDetail Restaurant", func(t *testing.T) {
+	t.Run("200 CreateDetail Restaurant", func(t *testing.T) {
 
-		reqBody, _ := json.Marshal(map[string]interface{}{
-			"Open_hour": "11:30",
-		})
+		reqBody := new(bytes.Buffer)
+		writer := multipart.NewWriter(reqBody)
+		writer.WriteField("tes", "")
+		part, _ := writer.CreateFormFile("profile_picture", "./IMAGES/Restobook.png")
+		part.Write([]byte("profile_picture"))
+		writer.Close()
 
-		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(reqBody))
+		req := httptest.NewRequest(http.MethodPost, "/", reqBody)
 		res := httptest.NewRecorder()
 
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Add("Content-Type", writer.FormDataContentType())
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtTokenRestaurant))
 
 		context := ec.NewContext(req, res)
@@ -1399,7 +1443,15 @@ func (m mockRestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDet
 			Seats:          100,
 			Status:         "OPEN",
 			Description:    "Resto Nasi Padang",
-			Rating:         []entities.Rating{},
+			Rating: []entities.Rating{{
+				ID:                 1,
+				RestaurantDetailID: 1,
+				UserID:             1,
+				Rating:             2,
+				Comment:            "Sedang",
+				User:               entities.User{},
+				RestaurantDetail:   entities.RestaurantDetail{},
+			}},
 			Restaurant: []entities.Restaurant{{
 				Model:              gorm.Model{},
 				ID:                 1,
@@ -1425,7 +1477,15 @@ func (m mockRestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDet
 			Seats:          100,
 			Status:         "OPEN",
 			Description:    "Resto Bubu Padang",
-			Rating:         []entities.Rating{},
+			Rating: []entities.Rating{{
+				ID:                 2,
+				RestaurantDetailID: 2,
+				UserID:             1,
+				Rating:             5,
+				Comment:            "Bagus",
+				User:               entities.User{},
+				RestaurantDetail:   entities.RestaurantDetail{},
+			}},
 			Restaurant: []entities.Restaurant{{
 				Model:              gorm.Model{},
 				ID:                 2,
@@ -1451,7 +1511,15 @@ func (m mockRestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDet
 			Seats:          100,
 			Status:         "OPEN",
 			Description:    "Resto Bubu Padang",
-			Rating:         []entities.Rating{},
+			Rating: []entities.Rating{{
+				ID:                 3,
+				RestaurantDetailID: 3,
+				UserID:             1,
+				Rating:             1,
+				Comment:            "Bagus",
+				User:               entities.User{},
+				RestaurantDetail:   entities.RestaurantDetail{},
+			}},
 			Restaurant: []entities.Restaurant{{
 				Model:              gorm.Model{},
 				ID:                 3,
