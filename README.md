@@ -45,7 +45,7 @@
   <!-- ERD -->
   <br/>
   <div align="center">
-    <a href="https://github.com/herlianto-github/Restobook/IMAGES/Restobook.png">
+    <a href="https://github.com/herlianto-github/Restobook/ERD/erd_Resto.png">
       <img src="ERD/erd_Resto.png" alt="Logo">
     </a>
   </div>
