@@ -26,7 +26,7 @@ func TestRegisterAdminRepo(t *testing.T) {
 		newUser.PhoneNumber = "0877"
 
 		res, err := userRepo.RegisterAdmin(newUser)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 	t.Run("ERROR Register Admin", func(t *testing.T) {
@@ -39,7 +39,7 @@ func TestRegisterAdminRepo(t *testing.T) {
 		newUser.PhoneNumber = "0877"
 
 		res, err := userRepo.RegisterAdmin(newUser)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(0), res.ID)
 		assert.Error(t, err)
 	})
 }
@@ -60,7 +60,7 @@ func TestRegisterUsersRepo(t *testing.T) {
 		newUser.PhoneNumber = "0877"
 
 		res, err := userRepo.Register(newUser)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -75,7 +75,7 @@ func TestRegisterUsersRepo(t *testing.T) {
 		newUser.PhoneNumber = "0877"
 
 		res, err := userRepo.Register(newUser)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Error(t, err)
 	})
 
@@ -97,7 +97,7 @@ func TestLoginUsersRepo(t *testing.T) {
 		newUser.PhoneNumber = "0877"
 
 		res, err := userRepo.Register(newUser)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -109,7 +109,7 @@ func TestLoginUsersRepo(t *testing.T) {
 		loginUser.Password = password
 
 		res, err := userRepo.LoginUser(loginUser.Email, loginUser.Password)
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -121,7 +121,7 @@ func TestLoginUsersRepo(t *testing.T) {
 		loginUser.Password = password
 
 		res, err := userRepo.LoginUser(loginUser.Email, loginUser.Password)
-		assert.Equal(t, res.ID, uint(0))
+		assert.Equal(t, uint(0), res.ID)
 		assert.Error(t, err)
 	})
 }
@@ -142,19 +142,19 @@ func TestDeleteUsersRepo(t *testing.T) {
 		newUser.PhoneNumber = "0877"
 
 		res, err := userRepo.Register(newUser)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("Delete User", func(t *testing.T) {
 		res, err := userRepo.Delete(1)
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("ERROR Delete User", func(t *testing.T) {
 		res, err := userRepo.Delete(1)
-		assert.Equal(t, res.ID, uint(0))
+		assert.Equal(t, uint(0), res.ID)
 		assert.Error(t, err)
 	})
 }
@@ -175,7 +175,7 @@ func TestUpdateUsersRepo(t *testing.T) {
 		newUser.PhoneNumber = "0877"
 
 		res, err := userRepo.Register(newUser)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -191,7 +191,7 @@ func TestUpdateUsersRepo(t *testing.T) {
 		updateUser.Reputation = 100
 
 		res, err := userRepo.Update(uint(1), updateUser)
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
@@ -207,7 +207,7 @@ func TestUpdateUsersRepo(t *testing.T) {
 		updateUser.Reputation = 100
 
 		res, err := userRepo.Update(uint(4), updateUser)
-		assert.Equal(t, res.ID, uint(0))
+		assert.Equal(t, uint(0), res.ID)
 		assert.Error(t, err)
 	})
 }
@@ -228,19 +228,19 @@ func TestGetUsersRepo(t *testing.T) {
 		newUser.PhoneNumber = "0877"
 
 		res, err := userRepo.Register(newUser)
-		assert.Equal(t, res, res)
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("Get User", func(t *testing.T) {
 		res, err := userRepo.Get(uint(1))
-		assert.Equal(t, res.ID, uint(1))
+		assert.Equal(t, uint(1), res.ID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("ERROR Get User", func(t *testing.T) {
-		res, err := userRepo.Get(uint(2))
-		assert.Equal(t, res.ID, uint(0))
+		res, err := userRepo.Get(uint(3))
+		assert.Equal(t, uint(0), res.ID)
 		assert.Error(t, err)
 	})
 }
