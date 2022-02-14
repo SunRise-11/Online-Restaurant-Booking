@@ -17,6 +17,7 @@ main.go
 # Dependency directories (remove the comment below to include it)
 configs/
 utils/
+helpers/googlecalendarsecret/*.json
 
 # Dependency deployment
 deploy/
