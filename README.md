@@ -42,58 +42,16 @@
 - [Authors](#authors)
 
 ## Entity–relationship model
-  <!-- ERD -->
+  <!-- Entity–relationship model -->
   <br/>
   <div align="center">
-    <a href="https://github.com/herlianto-github/Restobook/ERD/erd_Resto.png">
-      <img src="ERD/erd_Resto.png" alt="Logo">
+    <a href="https://github.com/herlianto-github/Restobook/blob/main/ERD/erd_Resto.PNG?raw=true">
+      <img src="ERD/erd_Resto.PNG" alt="Logo">
     </a>
   </div>
-
+  
 ## Endpoints
-
-| Method | Endpoint | Description| Authentication | Authorization
-|:-----|:--------|:----------| :----------:| :----------:|
-| POST   | /admin/register   | Register a new admin                      | No | No
-| POST   | /admin/login      | Login existing admin                      | No | No
-| POST   | /admin/approve    | Approve Restaurant                        | Yes | Yes
-| GET    | /admin/waiting    | Get all restaurant waiting for approval   | Yes | Yes
-|---|---|---|---|---|
-| POST   | /user/register    | Register a new user            | No | No
-| POST   | /user/login       | Login existing user            | No | No
-| GET    | /user             | Get current user profile       | Yes | Yes
-| PUT    | /user             | Update current user profile    | Yes | Yes
-|---|---|---|---|---|
-| POST   | /topup            | Topup Balance for user         | Yes | Yes
-| POST   | /topup/callback   | Callback for payment gateway   | No | No
-| GET    | /topup/pending    | Get current user topup status  | Yes | Yes
-| GET    | /topup/history    | Get current user topup history | Yes | Yes
-|---|---|---|---|---|
-| POST   | /restaurants/Register    | Register a new restaurant         | No | No
-| POST   | /restaurants/Login       | Login existing restaurant         | No | No
-| POST   | /myrestaurant/detail     | Create current restaurant detail  | Yes | Yes
-| POST   | /restaurant/report?day=07&month=02&year=2022&export=EXCEL    | Create current restaurant Report PDF or EXCEL  | Yes | Yes
-| GET    | /myrestaurant            | Get current restaurant profile    | Yes | Yes
-| GET    | /restaurants             | Get all restaurant                | Yes | Yes
-| GET    | /restaurants/open?date_time=2022-02-07 11:30:00              | Get all restaurant open by date | Yes | Yes
-| PUT    | /myrestaurant            | Update current user profile       | Yes | Yes
-| PUT    | /myrestaurant/detail     | Update current restaurant detail  | Yes | Yes
-|---|---|---|---|---|
-| POST   | /transaction                    | Create new transaction by user                   | Yes | Yes
-| GET    | /transaction/waiting            | Get all list of current user waiting transaction | Yes | Yes
-| GET    | /transaction/restaurant/waiting | Get list of all user waiting in restaurant       | Yes | Yes
-| GET    | /transaction/restaurant/waiting | Get list of all user waiting in restaurant       | Yes | Yes
-| GET    | /transaction/accepted           | Get accepted booking by user                     | Yes | Yes
-| GET    | /transaction/history            | Get all transaction history booking by user      | Yes | Yes
-| GET    | /transaction/rejected           | Get all transaction rejected booking by user     | Yes | Yes
-| GET    | /transaction/success            | Get all transaction success booking by user      | Yes | Yes
-| GET    | /transaction/fail               | Get all transaction fail booking by user         | Yes | Yes
-| GET    | /transaction/cancel             | Get all transaction cancel booking by user       | Yes | Yes
-|---|---|---|---|---|
-| POST   | /ratings                        | Create new rating by user                        | Yes | Yes
-| PUT    | /ratings/:restaurantId          | Update current rating                            | Yes | Yes
-| DELETE | /ratings/:restaurantId          | Delete current rating                            | Yes | Yes
-|---|---|---|---|---|
+[OpenAPI](https://app.swaggerhub.com/apis-docs/Axelworld3/RestoBook/1.0.0)
 
 ## Structuring
 
