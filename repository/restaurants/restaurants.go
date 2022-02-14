@@ -1,10 +1,9 @@
 package restaurants
 
 import (
-	"Restobook/delivery/common"
+	"Restobook/delivery/helpers"
 	"Restobook/entities"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -63,28 +62,17 @@ func (rr *RestaurantRepository) Get(restaurantId uint) (entities.Restaurant, ent
 	restaurantD := entities.RestaurantDetail{}
 
 	if err := rr.db.First(&restaurant, restaurantId).Error; err != nil || restaurant.ID == 0 {
+
 		return restaurant, restaurantD, errors.New("FAILED GET")
+
 	} else {
+
 		rr.db.First(&restaurantD, restaurant.RestaurantDetailID)
 		openDay := strings.Split(restaurantD.Open, ",")
 		closeDay := strings.Split(restaurantD.Close, ",")
-		openStr := ""
-		closeStr := ""
 
-		for j := 0; j < len(openDay); j++ {
-			for k := 0; k < len(common.Daytoint); k++ {
-				if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
-					openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
-				}
-			}
-		}
-		for l := 0; l < len(closeDay); l++ {
-			for m := 0; m < len(common.Daytoint); m++ {
-				if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
-					closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
-				}
-			}
-		}
+		openStr, closeStr, _ := helpers.NumberToDayConverter(openDay, closeDay)
+
 		restaurantD.Open = openStr
 		restaurantD.Close = closeStr
 
@@ -99,23 +87,8 @@ func (rr *RestaurantRepository) CreateDetail(restaurantId uint, updateRestaurant
 
 	openDay := strings.Split(updateRestaurantD.Open, ",")
 	closeDay := strings.Split(updateRestaurantD.Close, ",")
-	openInt := ""
-	closeInt := ""
-	for j := 0; j < len(openDay); j++ {
-		for k := 0; k < len(common.Daytoint); k++ {
-			if openDay[j] == common.Daytoint[k].Day {
-				openInt += fmt.Sprintf("%v,", common.Daytoint[k].No)
-			}
-		}
-	}
 
-	for j := 0; j < len(closeDay); j++ {
-		for k := 0; k < len(common.Daytoint); k++ {
-			if closeDay[j] == common.Daytoint[k].Day {
-				closeInt += fmt.Sprintf("%v,", common.Daytoint[k].No)
-			}
-		}
-	}
+	openInt, closeInt, _ := helpers.DaytoNumberConverter(openDay, closeDay)
 
 	parsingint := entities.RestaurantDetail{
 		ID:             restaurantId,
@@ -171,23 +144,8 @@ func (rr *RestaurantRepository) UpdateDetail(restaurantId uint, updateRestaurant
 
 	openDay := strings.Split(updateRestaurantD.Open, ",")
 	closeDay := strings.Split(updateRestaurantD.Close, ",")
-	openInt := ""
-	closeInt := ""
-	for j := 0; j < len(openDay); j++ {
-		for k := 0; k < len(common.Daytoint); k++ {
-			if openDay[j] == common.Daytoint[k].Day {
-				openInt += fmt.Sprintf("%v,", common.Daytoint[k].No)
-			}
-		}
-	}
 
-	for j := 0; j < len(closeDay); j++ {
-		for k := 0; k < len(common.Daytoint); k++ {
-			if closeDay[j] == common.Daytoint[k].Day {
-				closeInt += fmt.Sprintf("%v,", common.Daytoint[k].No)
-			}
-		}
-	}
+	openInt, closeInt, _ := helpers.DaytoNumberConverter(openDay, closeDay)
 
 	if err := rr.db.First(&restaurant, "id=?", restaurantId).Error; err != nil || restaurant.ID == 0 {
 		return restaurantD, errors.New("FAILED UPDATE DETAIL")
@@ -248,22 +206,9 @@ func (rr *RestaurantRepository) GetsWaiting() ([]entities.RestaurantDetail, erro
 		for i := 0; i < len(restaurantD); i++ {
 			openDay := strings.Split(restaurantD[i].Open, ",")
 			closeDay := strings.Split(restaurantD[i].Close, ",")
-			openStr := ""
-			closeStr := ""
-			for j := 0; j < len(openDay); j++ {
-				for k := 0; k < len(common.Daytoint); k++ {
-					if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
-						openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
-					}
-				}
-			}
-			for l := 0; l < len(closeDay); l++ {
-				for m := 0; m < len(common.Daytoint); m++ {
-					if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
-						closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
-					}
-				}
-			}
+
+			openStr, closeStr, _ := helpers.NumberToDayConverter(openDay, closeDay)
+
 			restaurantD[i].Open = openStr
 			restaurantD[i].Close = closeStr
 		}
@@ -293,12 +238,10 @@ func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 		return restaurantD, errors.New("FAILED GETS")
 	} else {
 
-		//CHANGE DAY OPEN/CLOSE FROM NUMBER TO DAY NAME
 		for i := 0; i < len(restaurantD); i++ {
 			openDay := strings.Split(restaurantD[i].Open, ",")
 			closeDay := strings.Split(restaurantD[i].Close, ",")
-			openStr := ""
-			closeStr := ""
+
 			openH := strings.Split(restaurantD[i].Open_Hour, ":")
 			closeH := strings.Split(restaurantD[i].Close_Hour, ":")
 
@@ -308,22 +251,7 @@ func (rr *RestaurantRepository) Gets() ([]entities.RestaurantDetail, error) {
 			closeHHour := closeH[0]
 			closeHMinute := closeH[1]
 
-			for j := 0; j < len(openDay); j++ {
-				for k := 0; k < len(common.Daytoint); k++ {
-					if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
-						openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
-					}
-				}
-			}
-			// fmt.Println("openSTR", openStr)
-			for l := 0; l < len(closeDay); l++ {
-				for m := 0; m < len(common.Daytoint); m++ {
-					if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
-						closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
-					}
-				}
-			}
-			// fmt.Println("closeSTR", closeStr)
+			openStr, closeStr, _ := helpers.NumberToDayConverter(openDay, closeDay)
 
 			restaurantD[i].Open = openStr
 			restaurantD[i].Close = closeStr
@@ -345,27 +273,12 @@ func (rr *RestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetai
 		return restaurantD, errors.New("FAILED GETS BY OPEN")
 	} else {
 
-		//CHANGE DAY OPEN/CLOSE FROM NUMBER TO DAY NAME
 		for i := 0; i < len(restaurantD); i++ {
 			openDay := strings.Split(restaurantD[i].Open, ",")
 			closeDay := strings.Split(restaurantD[i].Close, ",")
-			openStr := ""
-			closeStr := ""
 
-			for j := 0; j < len(openDay); j++ {
-				for k := 0; k < len(common.Daytoint); k++ {
-					if openDay[j] == strconv.Itoa(common.Daytoint[k].No) {
-						openStr += fmt.Sprintf("%v,", common.Daytoint[k].Day)
-					}
-				}
-			}
-			for l := 0; l < len(closeDay); l++ {
-				for m := 0; m < len(common.Daytoint); m++ {
-					if closeDay[l] == strconv.Itoa(common.Daytoint[m].No) {
-						closeStr += fmt.Sprintf("%v,", common.Daytoint[m].Day)
-					}
-				}
-			}
+			openStr, closeStr, _ := helpers.NumberToDayConverter(openDay, closeDay)
+
 			restaurantD[i].Open = openStr
 			restaurantD[i].Close = closeStr
 		}
@@ -378,13 +291,11 @@ func (rr *RestaurantRepository) GetsByOpen(open int) ([]entities.RestaurantDetai
 func (rr *RestaurantRepository) GetExistSeat(restauranId uint, date_time string) ([]entities.Transaction, int, error) {
 	transactions := []entities.Transaction{}
 	result := 0
-	if err := rr.db.Model(&entities.Transaction{}).Select("sum(persons) as total").Where("date_time=?", date_time).Where("restaurant_id=?", restauranId).Find(&result).Error; err != nil {
+	if err := rr.db.Model(&entities.Transaction{}).Select("sum(persons) as total").Where("date_time=?", date_time).Where("restaurant_id=?", restauranId).Where("status=?", "Accepted").Find(&result).Error; err != nil {
 		return transactions, result, errors.New("FAILED GET EXIST SEAT")
 	} else {
-		fmt.Println("result setelah", result)
 		return transactions, result, nil
 	}
-
 }
 
 func (rr *RestaurantRepository) Delete(restaurantId uint) (entities.Restaurant, error) {
