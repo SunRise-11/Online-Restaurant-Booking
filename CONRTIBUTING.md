@@ -15,39 +15,13 @@
     cd Restobook
     ```
 
-- Simple run  
-
-    ```sh
-    go mod init Restobook
-    ```
-
-    ```sh
-    touch main.go    
-    ```
-
-    ```sh
-    echo 'package main 
-    
-    import "fmt"
-    
-    func main(){
-    
-        fmt.Println("Hello World")
-    
-    }' >> main.go
-    ```
-
-    ```sh
-    go run main.go
-    ```
-
 - Important
+
+    Always create new branch when develop something
 
     ```sh
     git checkout -b feature-name 
     ```
-
-    Always create new branch when develop something
 
     ```sh
     git add .    
