@@ -4,9 +4,9 @@
 *.dll
 *.so
 *.dylib
-go.mod
-go.sum
-main.go
+# go.mod
+# go.sum
+# main.go
 
 # Test binary, built with `go test -c`
 *.test
@@ -15,9 +15,10 @@ main.go
 *.out
 
 # Dependency directories (remove the comment below to include it)
-configs/
-utils/
+# configs/
+# utils/
 helpers/googlecalendarsecret/*.json
+
 
 # Dependency deployment
 deploy/
