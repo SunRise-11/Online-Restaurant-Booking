@@ -1,10 +1,1173 @@
 openapi: 3.0.0
 info:
-  version: v0.0.1
+  version: 1.0.0
   title: Restobook
-  description: ''
+  description: 'RestoBook Endpoint List'
 servers:
-  # Added by API Auto Mocking Plugin
+  # Added by API Auto Mocking Plugin  
   - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/herlianto7/Restobook/v0.0.1
-paths: {}
+    url: https://virtserver.swaggerhub.com/Axelworld3/RestoBook/1.0.0  
+  - description: Production
+    url: https://herlianto-github.cloud.okteto.net
+  - description: Testing
+    url: http://18.136.199.65
+  - description: Demo
+    url: https://localhost:8000
+paths: 
+  /admin/register:
+    post:
+      summary: Register Admin
+      tags:
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/UsersSchemaRegister'
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200Register'              
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'                    
+  /admin/login:
+    post:
+      summary: Login Admin
+      tags:
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersSchemaLogin'
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200Login'
+        '400':
+          $ref: '#/components/responses/Response400'
+        '404':
+          $ref: '#/components/responses/Response404'   
+  /users/register:
+    post:
+      summary: Register User
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/UsersSchemaRegister'
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200Register'              
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'                    
+  /users/login:
+    post:
+      summary: Login User
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersSchemaLogin'
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200Login'
+        '400':
+          $ref: '#/components/responses/Response400'
+        '404':
+          $ref: '#/components/responses/Response404'   
+  /user:
+    get:
+      summary: Get User Profile
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200UserProfile'  
+        '500':
+          $ref: '#/components/responses/Response500'     
+    put:
+      security:
+        - bearerAuth: []
+      summary: Update User By ID
+      tags:
+        - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersSchemaUpdate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200UserUpdate'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'            
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'  
+    delete:
+      security:
+        - bearerAuth: []
+      summary: Delete User By ID
+      tags:
+        - Users
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'            
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'   
+  /topup:
+    post:
+      tags:
+        - Topup
+      summary: Create Topup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TopupSchema'
+        required: true
+      responses:
+        '200':
+              $ref: '#/components/responses/Response200CreateTopup'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'            
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'
+      security:
+        - bearerAuth: []
+  /topup/history:
+    get:
+      tags:
+        - Topup
+      summary: Topup History
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200AllTopupHistory'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'            
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'
+      security:
+        - bearerAuth: []
+  /topup/paynow:
+    get:
+      tags:
+        - Topup
+      summary: Topup Waiting For Payment
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200AllTopupPayment'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'            
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'
+      security:
+        - bearerAuth: []
+  /restaurants/register:
+    post:
+      summary: Register Restaurant
+      tags:
+        - Restaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/RestaurantSchemaRegister'
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200RegisterRestaurant'              
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /restaurants/login:
+    post:
+      summary: Login Restaurant
+      tags:
+        - Restaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/RestaurantSchemaLogin'
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200RegisterRestaurant'              
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /restaurants:
+    get:
+      tags:
+        - Restaurant
+      summary: Get all restaurant
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200AllRestaurant'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /restaurants/open?date=:
+    get:
+      tags:
+        - Restaurant
+      summary: Get restaurant by open
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200GetRestaurantById'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /myrestaurant:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Restaurant
+      summary: Get my restaurant
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200GetMyRestaurant'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'
+    delete:
+      security:
+        - bearerAuth: []
+      summary: Delete Restaurant By ID
+      tags:
+        - Restaurant
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'            
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /myrestaurant/detail:
+    post:
+      security:
+        - bearerAuth: []
+      summary: Create Restaurant Detail
+      tags:
+        - Restaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/RestaurantDetailSchema'
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200UpdateRestaurantDetail'              
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+    put:
+      security:
+        - bearerAuth: []
+      summary: Update Restaurant Detail
+      tags:
+        - Restaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/RestaurantDetailSchema'
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200UpdateRestaurantDetail'              
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'        
+  /transaction:
+     post:
+      security:
+        - bearerAuth: []
+      summary: Create Transaction
+      tags:
+        - Transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/TransactionSchema'
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200CreateTransaction'              
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+     get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Transaction
+      summary: Get all transaction
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200AllTransaction'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /transaction/:id:        
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Transaction
+      summary: Get transaction by id
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200GetTransactionById'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /transaction/cancel/:id:        
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/CancelTransactionSchema'
+      summary: Cancel transaction by id
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200GetTransactionById'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /rating:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rating
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/CreateRatingSchema'
+      summary: Create Rating
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200CreateRating'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /rating/:id:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rating
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/UpdateRatingSchema'
+      summary: Update Rating
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200CreateRating'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rating
+      summary: Delete Rating
+      responses:
+        '200':
+          $ref: '#/components/responses/Response200'
+        '400':
+          $ref: '#/components/responses/Response400' 
+        '404':
+          $ref: '#/components/responses/Response404'
+        '500':
+          $ref: '#/components/responses/Response500'
+components:
+  securitySchemes:
+    bearerAuth:           
+      type: http
+      scheme: bearer
+      bearerFormat: JWT  
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Missing or Malformed JWT     
+    Response200:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 200
+              message:
+                type: string
+                example: Successful Operation
+    Response200Register:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              data:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                id: 1
+                name: "herlianto"
+                email: herlianto@outlook.my   
+                no_hp: "08527645362"
+                reputation: 80
+    Response200Login:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              token:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              token: "eyJhbGciOiJIzI1NiIsInR5cCI6IkpXVCJ9"                                   
+    Response200UserUpdate:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              data:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                id: 1
+                name: "herlianto"
+                email: herlianto@outlook.my
+                password: aslkdha2skld3asdhlk
+                no_hp: "08527645362"
+                reputation: 80
+                
+    Response200UserProfile:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              data:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                id: 1
+                name: "herlianto"
+                email: herlianto@outlook.my
+                password: aslkdha2skld3asdhlk
+                no_hp: "08527645362"
+                reputation: 80
+                balance: 2000000
+    Response200AllUsers:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              token:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                - id: 1
+                  name: "herlianto"
+                  email: "herlianto@outlook.my"
+                - id: 2
+                  name: "ilham"
+                  email: ilham@outlook.my                        
+                - id: 3
+                  name: "kucing"
+                  email: kucing@outlook.my 
+    Response200AllTopupHistory:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              token:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                - id: 1
+                  user_id: 1
+                  invoice_id: invoiceidnya
+                  payment_url: linknya
+                  total: 2000000
+                - id: 2
+                  user_id: 1
+                  invoice_id: invoiceidnya
+                  payment_url: linknya
+                  total: 1000000
+                - id: 3
+                  user_id: 1
+                  invoice_id: invoiceidnya
+                  payment_url: linknya
+                  total: 500000
+    Response200AllTopupPayment:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              token:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                - id: 3
+                  user_id: 1
+                  invoice_id: invoiceidnya
+                  payment_url: linknya
+                  total: 6000000
+                - id: 4
+                  user_id: 1
+                  invoice_id: invoiceidnya
+                  payment_url: linknya
+                  total: 7000000
+                - id: 5
+                  user_id: 1
+                  invoice_id: invoiceidnya
+                  payment_url: linknya
+                  total: 300000
+    Response200CreateTopup:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              data:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                id: 1
+                user_id: 1
+                invoice_id: invoiceidnya
+                payment_url: linknya
+                total: 2000000
+    Response200RegisterRestaurant:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              data:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                id: 1
+                email: resto1@gmail.com   
+                rd_id: 1
+    Response200UpdateRestaurantDetail:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              data:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                id: 1
+                nama: "restaurant1"
+                open: "08:00"
+                close: "16:00"
+                price: 300000
+                latitude: "-7.522345"
+                longitude: "110.330207"
+                city: "Jakarta"
+                address: "Jl.Buntu No 404"
+                no_hp: "085463728564"
+                profile_picture: "resto1.jpg"
+                seats: "20"
+                status: "Open"
+                description: "Deskripsi Resto 1"
+    Response200AllRestaurant:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              token:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                - id: 1
+                  name: Resto 1
+                  open: "08:00"
+                  close: "16:00"
+                  price: 500000
+                  latitude: "-7.522345"
+                  longitude: "110.330207"
+                  city: Jakarta
+                  address: Jl.Buntu no 404
+                - id: 2
+                  name: Resto 2
+                  open: "08:00"
+                  close: "16:00"
+                  price: 500000
+                  latitude: "-7.522345"
+                  longitude: "110.330207"
+                  city: Bandung
+                  address: Jl.Merpati no 500
+                - id: 3
+                  name: Resto 3
+                  open: "08:00"
+                  close: "16:00"
+                  price: 500000
+                  latitude: "-7.522345"
+                  longitude: "110.330207"
+                  city: Bali
+                  address: Jl.Sukses Selalu no 200
+    Response200GetRestaurantById:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              data:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                id: 1
+                name: "restaurant1"
+                open: "08:00"
+                close: "16:00"
+                price: 300000
+                latitude: "-7.522345"
+                longitude: "110.330207"
+                city: "Jakarta"
+                address: "Jl.Buntu No 404"
+                no_hp: "085463728564"
+                profile_picture: "resto1.jpg"
+                seats: 20
+                description: "Deskripsi Resto 1"
+    Response200GetMyRestaurant:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              data:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                id: 1
+                name: "restaurant1"
+                open: "08:00"
+                close: "16:00"
+                price: 300000
+                latitude: "-7.522345"
+                longitude: "110.330207"
+                city: "Jakarta"
+                address: "Jl.Buntu No 404"
+                no_hp: "085463728564"
+                profile_picture: "resto1.jpg"
+                seats: 20
+                deskripsi: Deskripsi resto 1
+    Response200GetMyRestaurantById:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              data:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                id: 1
+                name: "restaurant1"
+                open: "08:00"
+                close: "16:00"
+                price: 300000
+                latitude: "-7.522345"
+                longitude: "110.330207"
+                city: "Jakarta"
+                address: "Jl.Buntu No 404"
+                no_hp: "085463728564"
+                profile_picture: "resto1.jpg"
+                seats: 20
+                description: deskripsi resto 1
+    Response200CreateTransaction:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              data:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                id: 1
+                user_id: 1
+                restaurant_id: 1   
+                date: "2022-02-01"
+                time: "11:00"
+                person: 3
+    Response200AllTransaction:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              token:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                - id: 1
+                  restaurant_id: 1
+                  date: "2022-02-01"
+                  time: "11:00"
+                  person: 3
+                  status: Paid
+                - id: 2
+                  restaurant_id: 2
+                  date: "2022-02-03"
+                  time: "13:00"
+                  person: 5
+                  status: Paid
+                - id: 3
+                  restaurant_id: 3
+                  date: "2022-02-04"
+                  time: "12:00"
+                  person: 4
+                  status: Cancel
+    Response200GetTransactionById:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              data:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                id: 1
+                restaurant_id: 1   
+                date: "2022-02-01"
+                time: "11:00"
+                person: 3
+    Response200CreateRating:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number                
+              message:
+                type: string                
+              data:
+                type: string
+            example:
+              code: 200
+              message: "Successful Operation"                 
+              data: 
+                id: 1
+                restaurant_detail_id: 1
+                user_id: 1
+                user_name: "budi"
+                rating: 5
+                comment: "Tempatnya nyaman sekali"
+    Response400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 400
+              message:
+                type: string
+                example: Bad Request
+    Response404:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 404
+              message:
+                type: string
+                example: Not Found
+    Response500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 500
+              message:
+                type: string
+                example: Internal Server Error            
+    
+  schemas:
+    UsersSchemaRegister:
+      type: object
+      properties:
+        name:
+          type: string
+          example: herlianto
+        email:
+          type: string
+          example: herlianto@outlook.my
+        password:
+          type: string
+          example: herlianto123
+        no_hp:
+          type: string
+          example: "08527645362"  
+    UsersSchemaLogin:
+        type: object
+        properties:
+          email:
+            type: string
+            example: herlianto@outlook.my                  
+          password:
+            type: string
+            example: herlianto123   
+    UsersSchemaUpdate:
+        type: object
+        properties:   
+          name:
+            type: string
+            example: ilham
+          email:
+            type: string
+            example: ilham@outlook.my         
+          password:
+            type: string
+            example: ilham123
+          no_hp:
+            type: string
+            example: "08538453627"
+    TopupSchema:
+        type: object
+        properties:   
+          total:
+            type: number
+            example: 2000000
+    RestaurantSchemaRegister:
+      type: object
+      properties:
+        email:
+          type: string
+          example: restaurant1@gmail.com
+        password:
+          type: string
+          example: restaurant1
+    RestaurantSchemaLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          example: restaurant1@gmail.com
+        password:
+          type: string
+          example: restaurant1
+    RestaurantDetailSchema:
+      type: object
+      properties:
+        nama:
+          type: string
+          example: restaurant1
+        open:
+          type: string
+          example: 08:00
+        close:
+          type: string
+          example: 16:00
+        price:
+          type: number
+          example: 300000
+        latitude:
+          type: string
+          example: -7.522345
+        longitude:
+          type: string
+          example: 110.330207
+        city:
+          type: string
+          example: Jakarta
+        address:
+          type: string
+          example: Jl.Buntu No 404
+        no_hp:
+          type: string
+          example: "085463728564"
+        profile_picture:
+          type: string
+          example: resto1.jpg
+        seats:
+          type: string
+          example: 20
+        status:
+          type: string
+          example: Open
+        description:
+          type: string
+          example: Deskripsi Resto 1
+    TransactionSchema:
+      type: object
+      properties:
+        restaurant_id:
+          type: number
+          example: 1
+        date:
+          type: string
+          example: "2022-02-01"
+        time:
+          type: string
+          example: "11:00"
+        person:
+          type: number
+          example: 3
+    CancelTransactionSchema:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "Cancel"
+    CreateRatingSchema:
+      type: object
+      properties:
+        restaurant_detail_id:
+          type: number
+          example: 1
+        rating:
+          type: number
+          example: 5
+        comment:
+          type: string
+          example: "Tempatnya nyaman sekali"
+    UpdateRatingSchema:
+      type: object
+      properties:
+        rating:
+          type: number
+          example: 3
+        comment:
+          type: string
+          example: "Servicenya kurang baik"
