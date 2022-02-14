@@ -2,6 +2,7 @@ package transactions
 
 import (
 	"Restobook/delivery/common"
+	"Restobook/delivery/helpers"
 	"Restobook/entities"
 	"Restobook/repository/transactions"
 	"fmt"
@@ -297,7 +298,7 @@ func (transcon TransactionsController) AcceptTransactionCtrl() echo.HandlerFunc 
 			ID:     newTransactionReq.ID,
 			Status: newTransactionReq.Status,
 		}
-		_, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, uint(restoID), "waiting for confirmation")
+		restaurant, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, uint(restoID), "waiting for confirmation")
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
@@ -305,6 +306,12 @@ func (transcon TransactionsController) AcceptTransactionCtrl() echo.HandlerFunc 
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 		}
+
+		timeStart := restaurant.DateTime
+		timeEnd := timeStart.Add(time.Hour * 1)
+		timeStartFormat := fmt.Sprint(timeStart.String()[:10], "T", timeStart.String()[11:19], "+08:00")
+		timeEndFormat := fmt.Sprint(timeEnd.String()[:10], "T", timeEnd.String()[11:19], "+08:00")
+		helpers.GoogleCalendar(restaurant.Restaurant.RestaurantDetail.Name, restaurant.Restaurant.RestaurantDetail.Address, restaurant.User.Email, timeStartFormat, timeEndFormat)
 		data := TransactionResponse{
 			ID:           res.ID,
 			UserID:       res.UserID,

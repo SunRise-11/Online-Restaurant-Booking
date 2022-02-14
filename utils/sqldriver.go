@@ -32,12 +32,12 @@ func InitDB(config *configs.AppConfig) *gorm.DB {
 }
 func InitialMigration(db *gorm.DB) {
 
-	db.Migrator().DropTable(&entities.Rating{})
-	db.Migrator().DropTable(&entities.Transaction{})
-	db.Migrator().DropTable(&entities.Restaurant{})
-	db.Migrator().DropTable(&entities.RestaurantDetail{})
-	db.Migrator().DropTable(&entities.TopUp{})
-	db.Migrator().DropTable(&entities.User{})
+	// db.Migrator().DropTable(&entities.Rating{})
+	// db.Migrator().DropTable(&entities.Transaction{})
+	// db.Migrator().DropTable(&entities.Restaurant{})
+	// db.Migrator().DropTable(&entities.RestaurantDetail{})
+	// db.Migrator().DropTable(&entities.TopUp{})
+	// db.Migrator().DropTable(&entities.User{})
 
 	db.AutoMigrate(entities.User{})
 	db.AutoMigrate(entities.TopUp{})

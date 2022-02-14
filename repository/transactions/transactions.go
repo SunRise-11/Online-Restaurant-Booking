@@ -52,7 +52,7 @@ func (tr *TransactionRepository) GetAllAcceptedForResto(restaurantId uint) ([]en
 func (tr *TransactionRepository) GetHistory(userId uint) ([]entities.Transaction, error) {
 	transaction := []entities.Transaction{}
 
-	if err := tr.db.Where("user_id=?", userId).Where("status in ?", []string{"Success", "Fail", "Cancel", "Rejected"}).Find(&transaction).Error; err != nil || len(transaction) == 0 {
+	if err := tr.db.Where("user_id=?", userId).Where("status in ?", []string{"Success", "Fail", "Cancel", "Rejected", "Dismissed"}).Find(&transaction).Error; err != nil || len(transaction) == 0 {
 		return transaction, errors.New("FAILED GET DATA")
 	}
 	return transaction, nil
@@ -75,7 +75,7 @@ func (tr *TransactionRepository) GetTransactionById(id, userId uint) (entities.T
 }
 func (tr *TransactionRepository) GetTransactionUserByStatus(id, restaurant_id uint, status string) (entities.Transaction, error) {
 	transaction := entities.Transaction{}
-	if err := tr.db.Preload("User").Where("id=? and restaurant_id=? and status=?", id, restaurant_id, status).First(&transaction).Error; err != nil || transaction.ID == 0 {
+	if err := tr.db.Preload("User").Preload("Restaurant.RestaurantDetail").Where("id=? and restaurant_id=? and status=?", id, restaurant_id, status).First(&transaction).Error; err != nil || transaction.ID == 0 {
 		return transaction, errors.New("FAILED GET DATA")
 	}
 
