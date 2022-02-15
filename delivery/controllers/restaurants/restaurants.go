@@ -156,9 +156,6 @@ func (rescon RestaurantsController) GetMyRestoCtrl() echo.HandlerFunc {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 
-			fmt.Println("=>res", res)
-			fmt.Println("=>resD", resD)
-
 			score := []float64{}
 			var values float64
 			var rating float64
