@@ -522,8 +522,8 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 						date_time_parse_noutc := date_time_split[0] + " " + date_time_split[1]
 
 						score := []float64{}
-						rating := float64(len(score))
 						var values float64
+						var rating float64
 
 						for a := 0; a < len(res[i].Rating); a++ {
 							score = append(score, float64(res[i].Rating[a].Rating))
@@ -532,7 +532,10 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 						for _, value := range score {
 							values += value
 						}
-						rating = values / float64(len(score))
+
+						if len(score) != 0 {
+							rating = values / float64(len(score))
+						}
 
 						_, total_seat, _ := rescon.Repo.GetExistSeat(res[i].ID, date_time_parse_noutc)
 						res[i].Seats = res[i].Seats - total_seat
@@ -557,16 +560,14 @@ func (rescon RestaurantsController) GetsByOpen() echo.HandlerFunc {
 						})
 					}
 				}
+				response := RestaurantsResponseFormat{
+					Code:    http.StatusOK,
+					Message: "Successful Operation",
+					Data:    newRestaurantD,
+				}
+				return c.JSON(http.StatusOK, response)
 			}
-			response := RestaurantsResponseFormat{
-				Code:    http.StatusOK,
-				Message: "Successful Operation",
-				Data:    newRestaurantD,
-			}
-
-			return c.JSON(http.StatusOK, response)
 		}
-
 	}
 }
 
