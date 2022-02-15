@@ -156,23 +156,43 @@ func (rescon RestaurantsController) GetMyRestoCtrl() echo.HandlerFunc {
 			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		} else {
 
+			fmt.Println("=>res", res)
+			fmt.Println("=>resD", resD)
+
+			score := []float64{}
+			var values float64
+			var rating float64
+
+			for a := 0; a < len(resD.Rating); a++ {
+				score = append(score, float64(resD.Rating[a].Rating))
+			}
+
+			for _, value := range score {
+				values += value
+			}
+
+			if len(score) != 0 {
+				rating = values / float64(len(score))
+			}
+
 			restaurantDetail := RestaurantDetailResponseFormat{
-				ID:             resD.ID,
-				Status:         resD.Status,
-				ProfilePicture: resD.ProfilePicture,
-				Name:           resD.Name,
-				Description:    resD.Description,
-				Open:           resD.Open,
-				Close:          resD.Close,
-				Open_Hour:      resD.Open_Hour,
-				Close_Hour:     resD.Close_Hour,
-				Address:        resD.Address,
-				City:           resD.City,
-				Latitude:       resD.Latitude,
-				Longitude:      resD.Longitude,
-				PhoneNumber:    resD.PhoneNumber,
-				Seats:          resD.Seats,
-				Price:          resD.Price,
+				ID:             res.RestaurantDetail.ID,
+				Status:         res.RestaurantDetail.Status,
+				ProfilePicture: res.RestaurantDetail.ProfilePicture,
+				Name:           res.RestaurantDetail.Name,
+				Description:    res.RestaurantDetail.Description,
+				Rating:         rating,
+				Open:           res.RestaurantDetail.Open,
+				Close:          res.RestaurantDetail.Close,
+				Open_Hour:      res.RestaurantDetail.Open_Hour,
+				Close_Hour:     res.RestaurantDetail.Close_Hour,
+				Address:        res.RestaurantDetail.Address,
+				City:           res.RestaurantDetail.City,
+				Latitude:       res.RestaurantDetail.Latitude,
+				Longitude:      res.RestaurantDetail.Longitude,
+				PhoneNumber:    res.RestaurantDetail.PhoneNumber,
+				Seats:          res.RestaurantDetail.Seats,
+				Price:          res.RestaurantDetail.Price,
 			}
 
 			response := RestaurantsResponseFormat{
