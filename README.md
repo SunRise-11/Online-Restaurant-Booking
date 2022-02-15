@@ -17,9 +17,10 @@
   </a>
 </div>
 <div>
-  <h3 align="center">Restobook</h3>
+  <!-- <h3 align="center">Restobook</h3> -->
   <p align="center">
-    Online Restaurant Booking
+    Online Restaurant Booking<br/>
+    Help customers to book restaurants easily and restaurants to avoid fake orders
     <br/>
     <!-- <br /> -->
     <a href="https://whimsical.com/online-order-QJZTHKQp4jGWeVMxMsmLiX">Wireframe</a>
@@ -72,7 +73,7 @@
       <img src="IMAGES/Test_unit.jpeg" alt="Logo">
     </a>
   </div>
-Test Unit coverage almost 100%
+Test Unit coverage above 99.5%
   <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Endpoints
