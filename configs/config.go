@@ -56,10 +56,10 @@ func initConfig() *AppConfig {
 	common.XENDIT_SECRET_KEY = os.Getenv("Xendit_Secret_Key")
 	common.XENDIT_CALLBACK_TOKEN = os.Getenv("Xendit_Callback_Token")
 	common.IMGUR_CLIENTID = os.Getenv("Imgur_Client_ID")
-	// common.UNIPDF_API_KEY = os.Getenv("UniPDF_Api_Key")
+	common.UNIPDF_API_KEY = os.Getenv("UniPDF_Api_Key")
 
 	xendit.Opt.SecretKey = common.XENDIT_SECRET_KEY
-	license.SetMeteredKey(os.Getenv("UniPDF_Api_Key"))
+	license.SetMeteredKey(common.UNIPDF_API_KEY)
 
 	return &defaultConfig
 
