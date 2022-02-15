@@ -27,7 +27,7 @@ func getClient(config *oauth2.Config) *http.Client {
 }
 
 func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
-	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOnline)
 	fmt.Printf("Go to the following link in your browser then type the "+
 		"authorization code: \n%v\n", authURL)
 
@@ -65,7 +65,6 @@ func saveToken(path string, token *oauth2.Token) {
 }
 
 func GoogleCalendar(restaurantName, address, userEmail, timeStart, timeEnd string) {
-	fmt.Println(restaurantName, address, userEmail, timeStart, timeEnd)
 	ctx := context.Background()
 	b, err := ioutil.ReadFile("./delivery/helpers/googlecalendarsecret/credentials.json")
 	if err != nil {
@@ -77,7 +76,7 @@ func GoogleCalendar(restaurantName, address, userEmail, timeStart, timeEnd strin
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
 	client := getClient(config)
-
+	os.Remove("./delivery/helpers/googlecalendarsecret/token.json")
 	srv, err := calendar.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
 		log.Fatalf("Unable to retrieve Calendar client: %v", err)
