@@ -35,6 +35,7 @@
 - [How To Contribute](CONRTIBUTING.md)
 - [Roadmap](ROADMAP.md)
 - [High Level Architecture](#high-level-architecture)
+- [Test Unit](#test-unit)
 - [Entity Relationship Model](#entity–relationship-model)
 - [Endpoints](#endpoints)
 - [Folder Structure](#structuring)
@@ -53,7 +54,17 @@
   </div>
 
   <p align="right">(<a href="#top">back to top</a>)</p>
-  
+
+## Test Unit
+<!-- Test Unit -->  
+  <div align="center">
+    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/Test_unit.jpeg?raw=true">
+      <img src="IMAGES/Test_unit.jpeg" alt="Logo">
+    </a>
+  </div>
+
+  <p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Entity–relationship model
   <!-- Entity–relationship model -->  
   <div align="center">
