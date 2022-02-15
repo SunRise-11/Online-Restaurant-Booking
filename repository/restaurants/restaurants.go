@@ -61,13 +61,13 @@ func (rr *RestaurantRepository) Get(restaurantId uint) (entities.Restaurant, ent
 	restaurant := entities.Restaurant{}
 	restaurantD := entities.RestaurantDetail{}
 
-	if err := rr.db.First(&restaurant, restaurantId).Error; err != nil || restaurant.ID == 0 {
+	if err := rr.db.Preload("RestaurantDetail.Rating").First(&restaurant, restaurantId).Error; err != nil || restaurant.ID == 0 {
 
 		return restaurant, restaurantD, errors.New("FAILED GET")
 
 	} else {
 
-		rr.db.First(&restaurantD, restaurant.RestaurantDetailID)
+		rr.db.Preload("Rating").First(&restaurantD, restaurant.RestaurantDetailID)
 		openDay := strings.Split(restaurantD.Open, ",")
 		closeDay := strings.Split(restaurantD.Close, ",")
 
