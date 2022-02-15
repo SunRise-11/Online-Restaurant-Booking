@@ -31,17 +31,16 @@
 # Table of Content
 
 - [Description](#restobook)
-- [How To Use](HOW_TO_USE.md)
-- [How To Contribute](CONRTIBUTING.md)
-- [Roadmap](ROADMAP.md)
 - [High Level Architecture](#high-level-architecture)
 - [Test Unit](#test-unit)
 - [Entity Relationship Model](#entity–relationship-model)
 - [Endpoints](#endpoints)
 - [Folder Structure](#structuring)
-- [Version History](#version-history)
+- [How To Use](HOW_TO_USE.md)
+- [How To Contribute](CONRTIBUTING.md)
 - [Acknowledgments](#acknowledgments)
 - [Authors](#authors)
+- [Roadmap](ROADMAP.md)
 
   <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -50,16 +49,6 @@
   <div align="center">
     <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/HLA.drawio.png?raw=true">
       <img src="IMAGES/HLA.drawio.png" alt="Logo">
-    </a>
-  </div>
-
-  <p align="right">(<a href="#top">back to top</a>)</p>
-
-## Test Unit
-<!-- Test Unit -->  
-  <div align="center">
-    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/Test_unit.jpeg?raw=true">
-      <img src="IMAGES/Test_unit.jpeg" alt="Logo">
     </a>
   </div>
 
@@ -75,6 +64,17 @@
 
   <p align="right">(<a href="#top">back to top</a>)</p>
   
+
+## Test Unit
+<!-- Test Unit -->  
+  <div align="center">
+    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/Test_unit.jpeg?raw=true">
+      <img src="IMAGES/Test_unit.jpeg" alt="Logo">
+    </a>
+  </div>
+Test Unit coverage almost 100%
+  <p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Endpoints
 
 [OpenAPI](https://app.swaggerhub.com/apis-docs/Axelworld3/RestoBook/1.0.0)
@@ -116,19 +116,6 @@
   ```
 
   <p align="right">(<a href="#top">back to top</a>)</p>
-
-## Version History
-
-- 0.0.1
-  - Endpoint Admin
-  - Endpoint User
-- 0.0.2
-  - Endpoint Restaurant
-- 0.0.3
-  - Endpoint Topup
-  - Endpoint Transaction
-
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Acknowledgments
 
