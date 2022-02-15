@@ -14,7 +14,7 @@ import (
 )
 
 func RegisterPath(e *echo.Echo, adctrl *auth.AdminController, uctrl *users.UsersController, rctrl *restaurants.RestaurantsController, tctrl *transactions.TransactionsController, tpctrl *topup.TopUpController, rtctrl *ratings.RatingsController) {
-
+	e.Use(middleware.Logger())
 	// ---------------------------------------------------------------------
 	// CRUD Admin
 	// ---------------------------------------------------------------------
