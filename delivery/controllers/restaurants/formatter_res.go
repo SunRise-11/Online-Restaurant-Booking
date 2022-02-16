@@ -12,6 +12,13 @@ type RestaurantsResponseFormat struct {
 	Data    interface{} `json:"data"`
 }
 
+type RestauransExportResponseFormat struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Url     string      `json:"url"`
+	Data    interface{} `json:"data"`
+}
+
 type RestaurantDetailResponseFormat struct {
 	ID             uint    `json:"id"`
 	Status         string  `json:"status"`

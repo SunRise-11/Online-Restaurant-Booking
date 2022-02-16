@@ -5,6 +5,9 @@ var XENDIT_SECRET_KEY string
 var XENDIT_CALLBACK_TOKEN string
 var UNIPDF_API_KEY string
 var IMGUR_CLIENTID string
+var FTP_ADDRESS string
+var FTP_USERNAME string
+var FTP_PASSWORD string
 
 var Daytoint = []struct {
 	Day string
