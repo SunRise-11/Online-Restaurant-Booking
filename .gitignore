@@ -23,7 +23,7 @@ delivery/helpers/googlecalendarsecret/*.json
 # Dependency deployment
 deploy/
 # Dockerfile
-# docker-compose.yaml
+docker-compose.yaml
 .env
 
 # Github Action
