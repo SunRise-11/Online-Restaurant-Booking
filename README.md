@@ -23,7 +23,7 @@
     Nowadays, restaurant dont have the assurance whether a customer who booked
     a table will actually come at the booking time or not.
     With this app, restaurant could see the reputation of the user who's trying
-    to book a table, and will also get a compensation if the customer failed to 
+    to book a table, and will also get a compensation if the customer failed to
     come at the booking time.
     <br/>
     <!-- <br /> -->
@@ -31,32 +31,40 @@
     ·
     <a href="https://app.swaggerhub.com/apis-docs/Axelworld3/RestoBook/1.0.0">OpenApi</a>
     ·
-    <a href="https://trello.com/b/z6U1sNoh/done">Trello Board</a>
+    <a href="https://trello.com/b/z6U1sNoh/done">Project Boards</a>
   </p>
 </div>
 
 # Table of Content
 
-- [Description](#restobook)
-- [Entity Relationship Model](#entity–relationship-model)
-- [Use Case](#use-case)
-- [High Level Architecture](#high-level-architecture)
-- [Test Unit](#test-unit)
-- [Folder Structure](#structuring)
-- [Technology Stack](#technology-stack)
-- [How To Use](HOW_TO_USE.md)
-- [How To Contribute](CONRTIBUTING.md)
-- [Acknowledgments](#acknowledgments)
-- [Authors](#authors)
-- [Roadmap](ROADMAP.md)
+1. [About The Project](#restobook)
+2. [Entity Relationship Model](#entity–relationship-model)
+3. [Use Case](#use-case)
+4. [High Level Architecture](#high-level-architecture)
+5. [Test Unit](#test-unit)
+6. [Folder Structure](#structuring)
+6. [Technology Stack](#technology-stack)
+    - [Backend](#backend)
+    - [Programming Language](#programming-language)
+    - [Framework](#framework)
+    - [Package](#package)
+    - [Database](#database)
+    - [Testing](#testing)
+    - [Collaboration](#collaboration)
+    - [Infrastructure](#infra)
+8. [How To Use](HOW_TO_USE.md)
+9. [How To Contribute](CONRTIBUTING.md)
+10. [Acknowledgments](#acknowledgments)
+11. [Authors](#authors)
+12. [Roadmap](ROADMAP.md)
 
   <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Entity–relationship model
   <!-- Entity–relationship model -->  
   <div align="center">
-    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/erd_Resto.PNG?raw=true">
-      <img src="IMAGES/erd_Resto.PNG" alt="Logo">
+    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/ERD.PNG?raw=true">
+      <img src="IMAGES/ERD.PNG" alt="Logo">
     </a>
   </div>
 
@@ -65,8 +73,8 @@
 ## Use Case
  <!-- Use Case -->  
   <div align="center">
-    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/usecase.png?raw=true">
-      <img src="IMAGES/usecase.png" alt="Logo">
+    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/Use_Case.png?raw=true">
+      <img src="IMAGES/Use_Case.png" alt="Logo">
     </a>
   </div>
 
@@ -75,18 +83,18 @@
 ## High Level Architecture
  <!-- High Level Architecture -->  
   <div align="center">
-    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/HLA.drawio.png?raw=true">
-      <img src="IMAGES/HLA.drawio.png" alt="Logo">
+    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/HLA.png?raw=true">
+      <img src="IMAGES/HLA.png" alt="Logo">
     </a>
   </div>
 
-  <p align="right">(<a href="#top">back to top</a>)</p> 
+  <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Test Unit
 <!-- Test Unit -->  
   <div align="center">
-    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/Test_unit.jpeg?raw=true">
-      <img src="IMAGES/Test_unit.jpeg" alt="Logo">
+    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/Test_Unit.jpeg?raw=true">
+      <img src="IMAGES/Test_Unit.jpeg" alt="Logo">
     </a>
   </div>
 Test Unit coverage above 99.5%
@@ -131,29 +139,61 @@ Test Unit coverage above 99.5%
   <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Technology Stack
+
+### Backend
+
+#### Programming Language
+
 - [Golang (Programming Language)](https://go.dev)
+
+#### Framework
+
 - [Echo (Go web framework)](https://echo.labstack.com)
+
+#### Package
+
 - [Gorm (ORM library)](https://gorm.io)
-- [Trello (Task manager)](https://trello.com)
-- [Github (cloud-based Git repository)](https://github.com)
-- [Okteto (Kubernetes platform)](https://www.okteto.com)
-- [Kubernetes (Containers manager)](https://kubernetes.io)
-- [UniDoc (PDF creator)](https://cloud.unidoc.io)
+- [Xendit (Payment gateway)](https://www.xendit.co)
 - [Imgur (Image uploader)](https://imgur.com)
+- [UniDoc (PDF creator)](https://cloud.unidoc.io)
 - [Xuri (Excel creator)](https://xuri.me/excelize/)
 - [Google Calendar (Event creator)](https://developers.google.com/calendar/api)
-- [Xendit (Payment gateway)](https://www.xendit.co)
+
+### Database
+
+- [MySQL (Open source database)](https://www.mysql.com)
+
+### Testing
+
+- [Testify](https://pkg.go.dev/github.com/stretchr/testify@v1.7.0)
+
+### Collaboration
+
+- [Trello (Manage projects)](https://trello.com)
+- [Github (Cloud-based Git repository)](https://github.com)
+
+### Infra
+
+- [Docker (Container images)](https://www.docker.com)
+- [Okteto (Kubernetes platform)](https://www.okteto.com)
+- [Kubernetes (Container Orchestration)](https://kubernetes.io)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Acknowledgments
 
 - [Layered Architecture](https://www.oreilly.com/library/view/software-architecture-patterns/9781491971437/ch01.html)
+- [Scrum Methodology](https://www.scrum.org/resources/what-is-scrum)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Authors
 
 - [Andrew Prasetyo](https://github.com/andrewptjio) (Person In Charge and maintainer)
+  - [LinkedIn](https://www.linkedin.com/in/andrew-ptjio)
 - [Herlianto](https://github.com/herlianto-github) (Author and maintainer)
+  - [LinkedIn](linkedin.com/in/herlianto--829aa284)
 - [Ilham Junius](https://github.com/ilhamjunius) (Author and maintainer)
+  - [LinkedIn](https://www.linkedin.com/in/ilham-junius-767b49151)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
