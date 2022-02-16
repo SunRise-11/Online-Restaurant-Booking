@@ -41,17 +41,17 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		}
 		balanceUser, err := transcon.Repo.GetBalance(uint(userID))
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 		restoDetail, err := transcon.Repo.GetRestoDetail(newTransactionReq.RestaurantID)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 		openHour := restoDetail.Open_Hour
 		closeHour := restoDetail.Close_Hour
 		if !strings.Contains(restoDetail.Open, fmt.Sprint(day)) || restoDetail.Status != "OPEN" {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    http.StatusInternalServerError,
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    http.StatusBadRequest,
 				"message": "This Restaurant is Not Open Today",
 			})
 		}
@@ -60,14 +60,14 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		minHours, _ := time.ParseInLocation("2006-01-02 15:04", minHoursFormat, loc)
 		maxHours, _ := time.ParseInLocation("2006-01-02 15:04", maxHoursFormat, loc)
 		if dateTime.Before(minHours) {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    http.StatusInternalServerError,
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    http.StatusBadRequest,
 				"message": "Sorry This Restaurant is Not Open Yet",
 			})
 		}
 		if dateTime.After(maxHours) || dateTime.Equal(maxHours) {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    http.StatusInternalServerError,
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    http.StatusBadRequest,
 				"message": "Sorry This Restaurant already closed",
 			})
 		}
@@ -75,8 +75,8 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		total = newTransactionReq.Persons * restoDetail.Price
 		balance = balanceUser.Balance - total
 		if balance < 0 {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    http.StatusInternalServerError,
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    http.StatusBadRequest,
 				"message": "Your Money is Not Enough For Booking This Restaurant",
 			})
 		}
@@ -84,15 +84,15 @@ func (transcon TransactionsController) CreateTransactionCtrl() echo.HandlerFunc 
 		seat, _ := transcon.Repo.GetTotalSeat(newTransactionReq.RestaurantID, newTransactionReq.DateTime)
 		isExist, _ := transcon.Repo.CheckSameHour(newTransactionReq.RestaurantID, uint(userID), newTransactionReq.DateTime)
 		if isExist {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    http.StatusInternalServerError,
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    http.StatusBadRequest,
 				"message": "You Already Booked at This Hour",
 			})
 		}
 		seatAvailable := restoDetail.Seats - seat
 		if newTransactionReq.Persons > seatAvailable {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    http.StatusInternalServerError,
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    http.StatusBadRequest,
 				"message": "Just " + fmt.Sprint(seatAvailable) + " Seats Available at This Hour",
 			})
 		}
@@ -135,7 +135,7 @@ func (transcon TransactionsController) GetAllWaitingCtrl() echo.HandlerFunc {
 		userID := int(claims["userid"].(float64))
 		transactions, err := transcon.Repo.GetAllWaiting(uint(userID))
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 		data := []TransactionResponse{}
 		for _, transaction := range transactions {
@@ -166,7 +166,7 @@ func (transcon TransactionsController) GetAllWaitingForRestoCtrl() echo.HandlerF
 		restoID := int(claims["restoid"].(float64))
 		transactions, err := transcon.Repo.GetAllWaitingForResto(uint(restoID))
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 		data := []TransactionResponse{}
 		for _, transaction := range transactions {
@@ -197,7 +197,7 @@ func (transcon TransactionsController) GetAllAcceptedForRestoCtrl() echo.Handler
 		restoID := int(claims["restoid"].(float64))
 		transactions, err := transcon.Repo.GetAllAcceptedForResto(uint(restoID))
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 		data := []TransactionResponse{}
 		for _, transaction := range transactions {
@@ -228,7 +228,7 @@ func (transcon TransactionsController) GetHistoryCtrl() echo.HandlerFunc {
 		userID := int(claims["userid"].(float64))
 		transactions, err := transcon.Repo.GetHistory(uint(userID))
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 		data := []TransactionHistoryResponse{}
 		for _, transaction := range transactions {
@@ -260,7 +260,7 @@ func (transcon TransactionsController) GetAllAcceptedCtrl() echo.HandlerFunc {
 		userID := int(claims["userid"].(float64))
 		transactions, err := transcon.Repo.GetAllAppointed(uint(userID))
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 		data := []TransactionResponse{}
 		for _, transaction := range transactions {
@@ -300,7 +300,7 @@ func (transcon TransactionsController) AcceptTransactionCtrl() echo.HandlerFunc 
 		}
 		restaurant, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, uint(restoID), "waiting for confirmation")
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 		res, err := transcon.Repo.UpdateTransactionStatus(newTransaction)
 		if err != nil {
@@ -341,7 +341,7 @@ func (transcon TransactionsController) RejectTransactionCtrl() echo.HandlerFunc 
 		}
 		res, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, uint(restoID), "waiting for confirmation")
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 
 		}
 
@@ -387,7 +387,7 @@ func (transcon TransactionsController) SuccessTransactionCtrl() echo.HandlerFunc
 		}
 		transaction, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, uint(restoID), "Accepted")
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 		newTransaction := entities.Transaction{
 			ID:     newTransactionReq.ID,
@@ -433,7 +433,7 @@ func (transcon TransactionsController) FailTransactionCtrl() echo.HandlerFunc {
 		}
 		transaction, err := transcon.Repo.GetTransactionUserByStatus(newTransactionReq.ID, uint(restoID), "Accepted")
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 		newTransaction := entities.Transaction{
 			ID:     newTransactionReq.ID,
@@ -480,12 +480,12 @@ func (transcon TransactionsController) CancelTransactionCtrl() echo.HandlerFunc 
 		}
 		transaction, err := transcon.Repo.GetTransactionById(newTransactionReq.ID, uint(userId))
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 
 		if !(transaction.Status == "Accepted" || transaction.Status == "waiting for confirmation") {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    http.StatusInternalServerError,
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    http.StatusBadRequest,
 				"message": "You Cant Cancel This Transaction at This Time",
 			})
 		}
@@ -501,8 +501,8 @@ func (transcon TransactionsController) CancelTransactionCtrl() echo.HandlerFunc 
 			}
 			newBalance = transaction.User.Balance - 20000
 			if newBalance < 0 {
-				return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-					"code":    http.StatusInternalServerError,
+				return c.JSON(http.StatusBadRequest, map[string]interface{}{
+					"code":    http.StatusBadRequest,
 					"message": "Your Money is Not Enough For Cancel This Transaction",
 				})
 			}
