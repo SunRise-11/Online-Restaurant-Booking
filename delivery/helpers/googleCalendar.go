@@ -76,7 +76,7 @@ func GoogleCalendar(restaurantName, address, userEmail, timeStart, timeEnd strin
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
 	client := getClient(config)
-	os.Remove("./delivery/helpers/googlecalendarsecret/token.json")
+	// os.Remove("./delivery/helpers/googlecalendarsecret/token.json")
 	srv, err := calendar.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
 		log.Fatalf("Unable to retrieve Calendar client: %v", err)
