@@ -19,39 +19,36 @@
 <div>
   <!-- <h3 align="center">Restobook</h3> -->
   <p align="center">
-    Online Restaurant Booking<br/>
-    Help customers to book restaurants easily and restaurants to avoid fake orders
+    Online Restaurant Booking<br/><br/>
+    Nowadays, restaurant dont have the assurance whether a customer who booked
+    a table will actually come at the booking time or not.
+    With this app, restaurant could see the reputation of the user who's trying
+    to book a table, and will also get a compensation if the customer failed to 
+    come at the booking time.
     <br/>
     <!-- <br /> -->
     <a href="https://whimsical.com/online-order-QJZTHKQp4jGWeVMxMsmLiX">Wireframe</a>
     ·
-    <a href="https://github.com/herlianto-github/Restobook/issues">Report Bug</a>
+    <a href="https://app.swaggerhub.com/apis-docs/Axelworld3/RestoBook/1.0.0">OpenApi</a>
+    ·
+    <a href="https://trello.com/b/z6U1sNoh/done">Trello Board</a>
   </p>
 </div>
 
 # Table of Content
 
 - [Description](#restobook)
+- [Entity Relationship Model](#entity–relationship-model)
+- [Use Case](#use-case)
 - [High Level Architecture](#high-level-architecture)
 - [Test Unit](#test-unit)
-- [Entity Relationship Model](#entity–relationship-model)
-- [Endpoints](#endpoints)
 - [Folder Structure](#structuring)
+- [Technology Stack](#technology-stack)
 - [How To Use](HOW_TO_USE.md)
 - [How To Contribute](CONRTIBUTING.md)
 - [Acknowledgments](#acknowledgments)
 - [Authors](#authors)
 - [Roadmap](ROADMAP.md)
-
-  <p align="right">(<a href="#top">back to top</a>)</p>
-
-## High Level Architecture
- <!-- High Level Architecture -->  
-  <div align="center">
-    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/HLA.drawio.png?raw=true">
-      <img src="IMAGES/HLA.drawio.png" alt="Logo">
-    </a>
-  </div>
 
   <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -64,7 +61,26 @@
   </div>
 
   <p align="right">(<a href="#top">back to top</a>)</p>
-  
+
+## Use Case
+ <!-- Use Case -->  
+  <div align="center">
+    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/usecase.png?raw=true">
+      <img src="IMAGES/usecase.png" alt="Logo">
+    </a>
+  </div>
+
+  <p align="right">(<a href="#top">back to top</a>)</p>
+
+## High Level Architecture
+ <!-- High Level Architecture -->  
+  <div align="center">
+    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/HLA.drawio.png?raw=true">
+      <img src="IMAGES/HLA.drawio.png" alt="Logo">
+    </a>
+  </div>
+
+  <p align="right">(<a href="#top">back to top</a>)</p> 
 
 ## Test Unit
 <!-- Test Unit -->  
@@ -75,10 +91,6 @@
   </div>
 Test Unit coverage above 99.5%
   <p align="right">(<a href="#top">back to top</a>)</p>
-
-## Endpoints
-
-[OpenAPI](https://app.swaggerhub.com/apis-docs/Axelworld3/RestoBook/1.0.0)
 
 ## Structuring
 
@@ -117,6 +129,20 @@ Test Unit coverage above 99.5%
   ```
 
   <p align="right">(<a href="#top">back to top</a>)</p>
+
+## Technology Stack
+- [Golang (Programming Language)](https://go.dev)
+- [Echo (Go web framework)](https://echo.labstack.com)
+- [Gorm (ORM library)](https://gorm.io)
+- [Trello (Task manager)](https://trello.com)
+- [Github (cloud-based Git repository)](https://github.com)
+- [Okteto (Kubernetes platform)](https://www.okteto.com)
+- [Kubernetes (Containers manager)](https://kubernetes.io)
+- [UniDoc (PDF creator)](https://cloud.unidoc.io)
+- [Imgur (Image uploader)](https://imgur.com)
+- [Xuri (Excel creator)](https://xuri.me/excelize/)
+- [Google Calendar (Event creator)](https://developers.google.com/calendar/api)
+- [Xendit (Payment gateway)](https://www.xendit.co)
 
 ## Acknowledgments
 
