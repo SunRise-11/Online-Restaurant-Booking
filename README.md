@@ -192,7 +192,7 @@ Test Unit coverage above 99.5%
 - [Andrew Prasetyo](https://github.com/andrewptjio) (Person In Charge and maintainer)
   - [LinkedIn](https://www.linkedin.com/in/andrew-ptjio)
 - [Herlianto](https://github.com/herlianto-github) (Author and maintainer)
-  - [LinkedIn](linkedin.com/in/herlianto--829aa284)
+  - [LinkedIn](https://www.linkedin.com/in/herlianto-%E2%80%8D-829aa284/)
 - [Ilham Junius](https://github.com/ilhamjunius) (Author and maintainer)
   - [LinkedIn](https://www.linkedin.com/in/ilham-junius-767b49151)
 
