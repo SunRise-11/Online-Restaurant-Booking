@@ -698,24 +698,10 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 				Seats:   resSeats,
 				Total:   resTotal,
 			}
+			var urlEXPORT string
 
-			response := RestaurantsResponseFormat{
-				Code:    200,
-				Message: "Successful Operation",
-				Data:    responses,
-			}
 			if export == "PDF" {
-				helpers.CreatePDFReport(
-					res[0].Restaurant.RestaurantDetail.Name,
-					res[0].Restaurant.RestaurantDetail.Address,
-					finalday,
-					[]int{successOrder, successSeat, successTotal},
-					[]int{failOrder, failSeat, failTotal},
-					[]int{cancelOrder, cancelSeat, cancelTotal},
-					[]int{totalOrder, totalSeat, grandTotal},
-					[]int{rejectedOrder, rejectedSeat})
-			} else if export == "EXCEL" {
-				err := helpers.CreateExcelReport(
+				url, err := helpers.CreatePDFReport(
 					res[0].Restaurant.RestaurantDetail.Name,
 					res[0].Restaurant.RestaurantDetail.Address,
 					finalday,
@@ -727,6 +713,28 @@ func (rescon RestaurantsController) ExportPDF() echo.HandlerFunc {
 				if err != nil {
 					return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 				}
+				urlEXPORT = url
+			} else if export == "EXCEL" {
+				url, err := helpers.CreateExcelReport(
+					res[0].Restaurant.RestaurantDetail.Name,
+					res[0].Restaurant.RestaurantDetail.Address,
+					finalday,
+					[]int{successOrder, successSeat, successTotal},
+					[]int{failOrder, failSeat, failTotal},
+					[]int{cancelOrder, cancelSeat, cancelTotal},
+					[]int{totalOrder, totalSeat, grandTotal},
+					[]int{rejectedOrder, rejectedSeat})
+				if err != nil {
+					return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+				}
+				urlEXPORT = url
+			}
+
+			response := RestauransExportResponseFormat{
+				Code:    200,
+				Message: "Successful Operation",
+				Url:     urlEXPORT,
+				Data:    responses,
 			}
 
 			return c.JSON(http.StatusOK, response)

@@ -1,14 +1,18 @@
 package helpers
 
 import (
+	"Restobook/delivery/common"
 	"fmt"
 	"log"
+	"os"
+	"strings"
 
+	"github.com/jlaffaye/ftp"
 	"github.com/unidoc/unipdf/v3/creator"
 	"github.com/unidoc/unipdf/v3/model"
 )
 
-func CreatePDFReport(RestoName, RestoAddress, dateReport string, nos, nof, noc, total, nor []int) error {
+func CreatePDFReport(RestoName, RestoAddress, dateReport string, nos, nof, noc, total, nor []int) (string, error) {
 
 	c := creator.New()
 	c.SetPageMargins(50, 50, 50, 50)
@@ -231,6 +235,37 @@ func CreatePDFReport(RestoName, RestoAddress, dateReport string, nos, nof, noc, 
 	if err := c.WriteToFile(fmt.Sprintf("./EXPORT/PDF/%v.pdf", RestoName)); err != nil {
 		log.Fatal(err)
 	}
+	src, err := os.Open(fmt.Sprintf("./EXPORT/PDF/%v.pdf", RestoName))
+	if err != nil {
+		// log.Fatal(err.Error())
+		// fmt.Println("Error Open", err)
+	}
+	// fmt.Println("Success Open", src)
 
-	return nil
+	conn, err := ftp.Dial(common.FTP_ADDRESS)
+	if err != nil {
+		// fmt.Println("Error Dial", err)
+		// log.Fatal(err.Error())
+	}
+
+	// fmt.Println("Success Dial")
+	err = conn.Login(common.FTP_USERNAME, common.FTP_PASSWORD)
+	if err != nil {
+		// fmt.Println("Error login", err)
+		// log.Fatal(err.Error())
+	}
+
+	potongnama := strings.ReplaceAll(RestoName, " ", "_")
+	// fmt.Println("potongnama", potongnama+".xlsx")
+
+	// fmt.Println("Success login")
+	if err := conn.Stor("./restobook/"+potongnama+".pdf", src); err != nil {
+		// fmt.Println("Error stor", err)
+		// log.Fatal(err.Error())
+	}
+
+	// fmt.Println("Success stor")
+	defer src.Close()
+
+	return "http://naufalhibatullah.com/restobook/" + potongnama + ".pdf", nil
 }

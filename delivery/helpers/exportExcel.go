@@ -1,12 +1,16 @@
 package helpers
 
 import (
+	"Restobook/delivery/common"
 	"fmt"
+	"os"
+	"strings"
 
+	"github.com/jlaffaye/ftp"
 	"github.com/xuri/excelize/v2"
 )
 
-func CreateExcelReport(RestoName, RestoAddress, dateReport string, nos, nof, noc, total, nor []int) error {
+func CreateExcelReport(RestoName, RestoAddress, dateReport string, nos, nof, noc, total, nor []int) (string, error) {
 	styles := [][]interface{}{
 		{"A6", "D6", 1, 1, 1, 1},
 		{"A8", "A11", 1, 1, 1, 1},
@@ -88,7 +92,40 @@ func CreateExcelReport(RestoName, RestoAddress, dateReport string, nos, nof, noc
 	}
 
 	if err := f.SaveAs(fmt.Sprintf("./EXPORT/EXCEL/%v.xlsx", RestoName)); err != nil {
-		return err
+		return "", err
 	}
-	return nil
+
+	src, err := os.Open(fmt.Sprintf("./EXPORT/EXCEL/%v.xlsx", RestoName))
+	if err != nil {
+		// log.Fatal(err.Error())
+		// fmt.Println("Error Open", err)
+	}
+	// fmt.Println("Success Open", src)
+
+	conn, err := ftp.Dial(common.FTP_ADDRESS)
+	if err != nil {
+		// fmt.Println("Error Dial", err)
+		// log.Fatal(err.Error())
+	}
+
+	// fmt.Println("Success Dial")
+	err = conn.Login(common.FTP_USERNAME, common.FTP_PASSWORD)
+	if err != nil {
+		// fmt.Println("Error login", err)
+		// log.Fatal(err.Error())
+	}
+
+	potongnama := strings.ReplaceAll(RestoName, " ", "_")
+	// fmt.Println("potongnama", potongnama+".xlsx")
+
+	// fmt.Println("Success login")
+	if err := conn.Stor("./restobook/"+potongnama+".xlsx", src); err != nil {
+		// fmt.Println("Error stor", err)
+		// log.Fatal(err.Error())
+	}
+
+	// fmt.Println("Success stor")
+	defer src.Close()
+
+	return "http://naufalhibatullah.com/restobook/" + potongnama + ".xlsx", nil
 }
