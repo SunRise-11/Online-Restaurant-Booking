@@ -52,7 +52,6 @@
     - [Framework](#framework)
     - [Package](#package)
     - [Database](#database)
-    - [Testing](#testing)
     - [Deployment](#deployment)
     - [Collaboration](#collaboration)
 4. [Folder Structure](#structuring)
