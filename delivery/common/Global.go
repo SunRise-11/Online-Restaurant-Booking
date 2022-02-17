@@ -8,6 +8,7 @@ var IMGUR_CLIENTID string
 var FTP_ADDRESS string
 var FTP_USERNAME string
 var FTP_PASSWORD string
+var GOOGLE_CREDENTIALS string
 
 var Daytoint = []struct {
 	Day string

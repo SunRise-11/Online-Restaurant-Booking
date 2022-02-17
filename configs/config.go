@@ -60,6 +60,7 @@ func initConfig() *AppConfig {
 	common.FTP_ADDRESS = os.Getenv("FTP_Address")
 	common.FTP_USERNAME = os.Getenv("FTP_Username")
 	common.FTP_PASSWORD = os.Getenv("FTP_Password")
+	common.GOOGLE_CREDENTIALS = os.Getenv("Google_Credentials")
 
 	xendit.Opt.SecretKey = common.XENDIT_SECRET_KEY
 	license.SetMeteredKey(common.UNIPDF_API_KEY)

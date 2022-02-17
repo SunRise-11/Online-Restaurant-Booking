@@ -1,10 +1,10 @@
 package helpers
 
 import (
+	"Restobook/delivery/common"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -66,12 +66,14 @@ func saveToken(path string, token *oauth2.Token) {
 
 func GoogleCalendar(restaurantName, address, userEmail, timeStart, timeEnd string) {
 	ctx := context.Background()
-	b, err := ioutil.ReadFile("./delivery/helpers/googlecalendarsecret/credentials.json")
-	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
-	}
+	// b, err := ioutil.ReadFile("./delivery/helpers/googlecalendarsecret/credentials.json")
+	// if err != nil {
+	// 	log.Fatalf("Unable to read client secret file: %v", err)
+	// }
 
-	config, err := google.ConfigFromJSON(b, calendar.CalendarScope)
+	byte := []byte(common.GOOGLE_CREDENTIALS)
+
+	config, err := google.ConfigFromJSON(byte, calendar.CalendarScope)
 	if err != nil {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}

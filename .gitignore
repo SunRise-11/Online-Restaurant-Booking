@@ -17,8 +17,8 @@
 # Dependency directories (remove the comment below to include it)
 # configs/
 # utils/
-delivery/helpers/googlecalendarsecret/*.json
-delivery/controllers/transactions/delivery/helpers/googlecalendarsecret/*.json
+# delivery/helpers/googlecalendarsecret/*.json
+# delivery/controllers/transactions/delivery/helpers/googlecalendarsecret/*.json
 
 
 # Dependency deployment
