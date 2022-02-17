@@ -41,7 +41,7 @@
 2. [Entity Relationship Model](#entity–relationship-model)
 3. [Use Case](#use-case)
 4. [High Level Architecture](#high-level-architecture)
-5. [Test Unit](#test-unit)
+5. [Unit Test](#unit-test)
 6. [Folder Structure](#structuring)
 6. [Technology Stack](#technology-stack)
     - [Backend](#backend)
@@ -90,14 +90,14 @@
 
   <p align="right">(<a href="#top">back to top</a>)</p>
 
-## Test Unit
-<!-- Test Unit -->  
+## Unit Test
+<!-- Unit Test -->  
   <div align="center">
     <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/Test_Unit.jpeg?raw=true">
       <img src="IMAGES/Test_Unit.jpeg" alt="Logo">
     </a>
   </div>
-Test Unit coverage above 99.5%
+Unit Test coverage above 99.5%
   <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Structuring
