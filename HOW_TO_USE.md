@@ -22,6 +22,9 @@ Xendit_Secret_Key:""
 Xendit_Callback_Token:""
 UniPDF_Api_Key=""
 Imgur_Client_ID=""
+FTP_Address="ftp.website.com:21"
+FTP_Username=""
+FTP_Password=""
 ```
 
 source : [Xendit Secret Key](https://dashboard.xendit.co/settings/developers#api-keys) , [Xendit Callback Token](https://dashboard.xendit.co/settings/developers#callbacks), [UniPDF Api Key](https://cloud.unidoc.io), [Imgur Client ID](https://apidocs.imgur.com)
