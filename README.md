@@ -1,14 +1,16 @@
 <div id="top"></div>
 
+[![Go Reference](https://pkg.go.dev/badge/github.dev/herlianto-github/Restobook.svg)](https://pkg.go.dev/github.dev/herlianto-github/Restobook)
 [![Go.Dev reference](https://img.shields.io/badge/echo-reference-blue?logo=go&logoColor=blue)](https://github.com/labstack/echo)
 [![Go.Dev reference](https://img.shields.io/badge/gorm-reference-blue?logo=go&logoColor=blue)](https://pkg.go.dev/gorm.io/gorm?tab=doc)
 [![Go.Dev reference](https://img.shields.io/badge/google--calender-reference-blue)](https://pkg.go.dev/google.golang.org/api@v0.68.0/calendar/v3)
 [![Go.Dev reference](https://img.shields.io/badge/unidoc--pdf-reference-blue)](https://pkg.go.dev/github.com/unidoc/unipdf/v3)
 [![Go.Dev reference](https://img.shields.io/badge/excelize-reference-blue)](https://pkg.go.dev/github.com/xuri/excelize/v2@v2.5.0)
 [![Go.Dev reference](https://img.shields.io/badge/goftp-reference-blue)](https://pkg.go.dev/github.com/jlaffaye/ftp)
+[![Docker Image CI/CD](https://github.com/herlianto-github/Restobook/actions/workflows/docker-image.yml/badge.svg)](https://github.com/herlianto-github/Restobook/actions/workflows/docker-image.yml)
 
 [![Contributors](https://img.shields.io/github/contributors/herlianto-github/Restobook.svg?style=for-the-badge)](https://github.com/herlianto-github/Restobook/graphs/contributors)
-[![Docker Image CI/CD](https://github.com/herlianto-github/Restobook/actions/workflows/docker-image.yml/badge.svg)](https://github.com/herlianto-github/Restobook/actions/workflows/docker-image.yml)
+
 
 # Restobook
 
@@ -31,7 +33,7 @@
     <!-- <br /> -->
     <a href="https://whimsical.com/online-order-QJZTHKQp4jGWeVMxMsmLiX">Wireframe</a>
     ·
-    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/ERD.PNG?raw=true">Entity Relationship Model</a>
+    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/ERD.jpeg?raw=true">Entity Relationship Model</a>
     ·
     <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/Use_Case.png?raw=true">Use Case</a>
     ·
@@ -64,8 +66,8 @@
 ## High Level Architecture
  <!-- High Level Architecture -->  
   <div align="center">
-    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/HLA.png?raw=true">
-      <img src="IMAGES/HLA.png" alt="Logo">
+    <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/HLA.jpeg?raw=true">
+      <img src="IMAGES/HLA.jpeg" alt="Logo">
     </a>
   </div>
 
