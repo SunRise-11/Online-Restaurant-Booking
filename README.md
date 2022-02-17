@@ -5,8 +5,10 @@
 [![Go.Dev reference](https://img.shields.io/badge/google--calender-reference-blue)](https://pkg.go.dev/google.golang.org/api@v0.68.0/calendar/v3)
 [![Go.Dev reference](https://img.shields.io/badge/unidoc--pdf-reference-blue)](https://pkg.go.dev/github.com/unidoc/unipdf/v3)
 [![Go.Dev reference](https://img.shields.io/badge/excelize-reference-blue)](https://pkg.go.dev/github.com/xuri/excelize/v2@v2.5.0)
+[![Go.Dev reference](https://img.shields.io/badge/goftp-reference-blue)](https://pkg.go.dev/github.com/jlaffaye/ftp)
 
 [![Contributors](https://img.shields.io/github/contributors/herlianto-github/Restobook.svg?style=for-the-badge)](https://github.com/herlianto-github/Restobook/graphs/contributors)
+[![Docker Image CI/CD](https://github.com/herlianto-github/Restobook/actions/workflows/docker-image.yml/badge.svg)](https://github.com/herlianto-github/Restobook/actions/workflows/docker-image.yml)
 
 # Restobook
 
