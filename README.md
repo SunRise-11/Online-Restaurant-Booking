@@ -49,13 +49,12 @@
 2. [High Level Architecture](#high-level-architecture)
 3. [Technology Stack](#technology-stack)
     - [Backend](#backend)
-    - [Programming Language](#programming-language)
     - [Framework](#framework)
     - [Package](#package)
     - [Database](#database)
     - [Testing](#testing)
+    - [Deployment](#deployment)
     - [Collaboration](#collaboration)
-    - [Infrastructure](#infra)
 4. [Folder Structure](#structuring)
 5. [Unit Test](#unit-test)
 6. [How To Contribute](CONRTIBUTING.md)
@@ -63,7 +62,7 @@
 
   <p align="right">(<a href="#top">back to top</a>)</p>
 
-## High Level Architecture
+# High Level Architecture
  <!-- High Level Architecture -->  
   <div align="center">
     <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/HLA.jpeg?raw=true">
@@ -73,19 +72,13 @@
 
   <p align="right">(<a href="#top">back to top</a>)</p>
 
-## Technology Stack
+# Technology Stack
 
-### Backend
-
-#### Programming Language
-
-- [Golang (Programming Language)](https://go.dev)
-
-#### Framework
+### Framework
 
 - [Echo (Go web framework)](https://echo.labstack.com)
 
-#### Package
+### Package
 
 - [Gorm (ORM library)](https://gorm.io)
 - [Xendit (Payment gateway)](https://www.xendit.co)
@@ -94,30 +87,27 @@
 - [Xuri (Excel creator)](https://xuri.me/excelize)
 - [Ftp (Export file)](github.com/jlaffaye/ftp)
 - [Google Calendar (Event creator)](https://developers.google.com/calendar/api)
+- [Testify (Unit Test)](https://pkg.go.dev/github.com/stretchr/testify@v1.7.0)
 
 ### Database
 
 - [MySQL (Open source database)](https://www.mysql.com)
 
-### Testing
+### Deployment
 
-- [Testify](https://pkg.go.dev/github.com/stretchr/testify@v1.7.0)
+- [Docker (Container images)](https://www.docker.com)
+- [Okteto (Kubernetes platform)](https://www.okteto.com)
+- [Kubernetes (Container Orchestration)](https://kubernetes.io)
 
 ### Collaboration
 
 - [Trello (Manage projects)](https://trello.com)
 - [Github (Cloud-based Git repository)](https://github.com)
 
-### Infra
-
-- [Docker (Container images)](https://www.docker.com)
-- [Okteto (Kubernetes platform)](https://www.okteto.com)
-- [Kubernetes (Container Orchestration)](https://kubernetes.io)
-
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-## Structuring
+# Structuring
 
   ```sh
     Restobook
@@ -156,7 +146,7 @@
   <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-## Unit Test
+# Unit Test
 <!-- Unit Test -->  
   <div align="center">
     <a href="https://github.com/herlianto-github/Restobook/blob/main/IMAGES/Test_Unit.jpeg?raw=true">
@@ -166,7 +156,7 @@
 Unit Test coverage above 99.5%
   <p align="right">(<a href="#top">back to top</a>)</p>
 
-## Contact
+# Contact
 
 - [Andrew Prasetyo](https://github.com/andrewptjio) (Person In Charge and maintainer)
   - [LinkedIn](https://www.linkedin.com/in/andrew-ptjio)
