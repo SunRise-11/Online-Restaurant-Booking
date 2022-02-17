@@ -113,16 +113,16 @@
     ├── configs                
     │     └──config.go           # Configs files
     ├── delivery                 # Endpoints handlers or controllers
-    │     └──common
+    │     ├──common
     │     │   ├── global.go           # Constant variable
     │     │   └── http_responses.go   # Default http code, status, message
-    │     └──controllers
+    │     ├──controllers
     │     │   └── users
     │     │     ├── formatter_req.go    # Default request format for spesific controllers
     │     │     ├── formatter_res.go    # Default response format for spesific controllers
     │     │     ├── users_test.go       # Unit tests for spesific controllers
     │     │     └── users.go            # Spesific controller
-    │     └──helpers
+    │     ├──helpers
     │     │   └── helper.go           # Helper Function
     │     └──routes  
     │         └── routes.go           # Endpoints list
